@@ -13,7 +13,11 @@ Windows 10 / 11, 64-bit. One `.msi`, no .NET, no Python, nothing else to install
 
 ## Download
 
-**[Download the latest release →](https://github.com/igorgsduarte/pitcrew/releases/latest)**
+**[Download PitCrew →](https://github.com/igorgsduarte/pitcrew/releases)**
+
+PitCrew is in **beta**, so its releases are marked as pre-releases and the newest one is at the top
+of that page. Grab the `.msi` from it. (The `/releases/latest` shortcut deliberately skips
+pre-releases, so it will only start working once there is a stable build.)
 
 Every release lists what changed in it. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -35,9 +39,14 @@ appear in the language list as *coming soon*.
 
 ## Status
 
-PitCrew is pre-1.0 and under active development. The telemetry reader, the spotter, fuel, gaps and
-positions, cross-session memory and the overlay are all built and unit-tested. Expect rough edges,
-and expect the settings screens to keep moving.
+**Beta.** The telemetry reader, the spotter, fuel, gaps and positions, cross-session memory and the
+overlay are all built and unit-tested. What that does *not* mean is that every one of them has been
+through a full race on somebody else's hardware — you are early, so expect rough edges, expect the
+settings screens to keep moving, and please [report what
+breaks](docs/reporting-issues.md).
+
+The local voice is the one that has been listened to properly. The optional cloud voice is present
+but unproven — see [voices and languages](docs/voices.md).
 
 ## Something to report?
 
