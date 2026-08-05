@@ -1,0 +1,87 @@
+name: Bug report
+description: Something PitCrew did wrong, or did not do at all
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. One thing matters more than everything else below: **attach the
+        log file**. Most bugs here are about a single moment in a live race, and the log is what
+        makes that moment reconstructable.
+
+        ```
+        %APPDATA%\race-engineer\race-engineer.log
+        ```
+
+        Paste that into Explorer's address bar. See
+        [docs/reporting-issues.md](https://github.com/igorgsduarte/pitcrew/blob/main/docs/reporting-issues.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: PitCrew version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to hear or see?
+      placeholder: "It should have warned me about fuel with 3 laps left."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      placeholder: "Nothing was said. The overlay showed the fuel projection correctly."
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: >
+        Drag `race-engineer.log` into this box to attach it. If you have raced since the problem,
+        attach `race-engineer.log.1` as well — the log rotates at 1 MB.
+    validations:
+      required: false
+
+  - type: input
+    id: session
+    attributes:
+      label: Car, track and session type
+      description: Several calculations behave differently across these, so this is often the reproduction.
+      placeholder: "Porsche 992 GT3 R at Interlagos, race, multiclass"
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Spoken language
+      options:
+        - Portuguese (Brazil)
+        - English (US)
+
+  - type: dropdown
+    id: elevenlabs
+    attributes:
+      label: Do you have an ElevenLabs API key configured?
+      description: A keyless install and a keyed one take different paths through the speech engine.
+      options:
+        - "No — local voice only"
+        - "Yes"
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 24H2"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Monitor layout if this is about the overlay; a `tuning.json` if you use one.

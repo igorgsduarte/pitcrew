@@ -1,0 +1,13 @@
+# Blank issues stay enabled: not every report fits a form, and a template that gets in the way of
+# someone telling us something is worse than an unstructured issue.
+blank_issues_enabled: true
+contact_links:
+  - name: Installing, first run, and the SmartScreen warning
+    url: https://github.com/igorgsduarte/pitcrew/blob/main/docs/install.md
+    about: The installer is unsigned and the first run downloads a voice — both are expected.
+  - name: It says nothing / the overlay is invisible
+    url: https://github.com/igorgsduarte/pitcrew/blob/main/docs/troubleshooting.md
+    about: Start here — most reports of silence have an answer on this page.
+  - name: A call comes too early, too late, or too often
+    url: https://github.com/igorgsduarte/pitcrew/blob/main/docs/getting-started.md#tuning-what-it-says-and-when
+    about: Timing is tunable yourself, without waiting for a release.

@@ -1,0 +1,40 @@
+name: Feature request
+description: Something you want PitCrew to tell you, or to do differently
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Small requests are welcome. **"I want it to tell me X"** is a perfectly good issue — what
+        PitCrew says lives in a phrase catalog rather than in code, so a new call is often cheap to
+        add.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What should PitCrew do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: when
+    attributes:
+      label: When would you want it?
+      description: >
+        The moment matters more than the sentence. During a race every line spoken is a line that
+        talked over another one, so *when* a call fires is what decides whether it is worth the
+        airtime.
+      placeholder: "On the lap I cross the line behind the leader, so I know whether to let them by."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: What would you do differently as a result?
+      description: What the information changes about how you drive. This is what separates a useful call from noise.
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
