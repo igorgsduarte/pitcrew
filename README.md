@@ -30,6 +30,7 @@ Every release lists what changed in it. The full history is in [CHANGELOG.md](CH
 | [Voices and languages](docs/voices.md) | The local voice, the optional cloud voice, and which languages are spoken |
 | [Troubleshooting](docs/troubleshooting.md) | It says nothing, the overlay is invisible, the download stalls |
 | [Reporting a problem](docs/reporting-issues.md) | What to include so a bug can actually be fixed |
+| [What PitCrew sends](docs/what-pitcrew-sends.md) | The complete list of what is measured, what never leaves your machine, and how to block it |
 
 ## What it currently speaks
 

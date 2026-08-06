@@ -14,7 +14,9 @@ imaged Windows machine with no preparation.
 
 ## Install
 
-1. Download the `.msi` from the [latest release](https://github.com/igorgsduarte/pitcrew/releases/latest).
+1. Download the `.msi` from the [releases page](https://github.com/igorgsduarte/pitcrew/releases) —
+   the newest build is at the top. (Not `/releases/latest`: that shortcut skips pre-releases, and
+   every beta is one, so it stays empty until the first stable build.)
 2. Run it. It installs to `C:\Program Files\PitCrew` and adds a Start-menu entry.
 3. Launch **PitCrew**.
 
