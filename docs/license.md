@@ -89,6 +89,7 @@ ask for nothing.
 | @fontsource/inter | 5.3.0 | OFL-1.1 |
 | @fontsource/jetbrains-mono | 5.3.0 | OFL-1.1 |
 | @fontsource/martian-mono | 5.3.0 | OFL-1.1 |
+| @fontsource/space-grotesk | 5.3.0 | OFL-1.1 |
 | @radix-ui/react-dialog | 1.1.23 | MIT |
 | @radix-ui/react-label | 2.1.15 | MIT |
 | @radix-ui/react-select | 2.3.7 | MIT |

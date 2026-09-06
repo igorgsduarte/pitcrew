@@ -150,17 +150,13 @@ interface is English. What you hear is your choice:
 |---|---|
 | Portuguese (Brazil) | Available — the first language, and the one with the most listening behind it |
 | English (US) | Available |
-| Spanish | Written, not released — shown as *coming soon* |
-| German | Written, not released — shown as *coming soon* |
-| French | Written, not released — shown as *coming soon* |
+| Spanish | Available |
+| German | Available with Piper, Supertonic, Azure or ElevenLabs; Kokoro has no German voice |
+| French | Available |
 
 A language is not a translation layer bolted over Portuguese: the phrase catalog carries a real
-sentence per language, so each one is phrased the way an engineer would actually say it in that
-language.
-
-The three unreleased ones already have their sentences written. What they are waiting on is a voice
-that has been listened to properly in that language — shipping a language that sounds wrong is worse
-than not shipping it.
+sentence and number wording per language, so each one is phrased the way an engineer would actually
+say it in that language. The language picker only offers choices the selected engine can synthesize.
 
 ## Changing voice or language later
 

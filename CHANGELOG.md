@@ -19,18 +19,229 @@ dated one. See `docs/release-process.md`.
 
 ### Added
 
+- **Spanish, French and German are ready to speak.** Every radio call and every number now has its
+  own wording in all five languages, and the Voice screen only offers a language when the selected
+  engine can produce it. German needs Piper, Supertonic, Azure or ElevenLabs because Kokoro has no
+  German voice.
+
+- **Settings has a Models section.** One list of everything PitCrew downloads to speak and to listen —
+  each voice engine and the recogniser behind voice commands — with what is already on this PC, what
+  it would cost to fetch, and a download button for the ones that are missing. Each engine also has a
+  switch: turn one off and it stops appearing when you pick an engine for an engineer, so a PC that
+  will only ever use one of them stops offering you the other two. Nothing is deleted and nothing
+  stops working — an engineer already speaking with an engine keeps it.
+- **Clicking a race on Home opens it.** The rows under *Last races* now take you straight to that
+  race's debrief, lap by lap, instead of only reporting it. Arrow keys walk the list and Enter opens
+  the one you are on.
+
+- **The whole crew checks in when you get to the track.** Your chief calls the spotter, the spotter
+  answers, he calls the engineer, the engineer answers, and then he turns to you by name and asks if
+  you are ready — three real voices, one after the other, instead of the single line PitCrew used to
+  open with. If any of it cannot be said at the moment it belongs, the rest is dropped rather than
+  arriving late: half a roll call is worse than none. **Qualifying gets the chief on his own instead**,
+  with one line about the lap you are going out to do, because you come and go from a qualifying
+  session all afternoon.
+- **Your engineer tells you when you are in the tow.** One short call as you close onto the car in
+  front on track, and one only — it never arrives instead of a spotter call, and never while you are
+  in the pits, under yellow or after the flag.
+- **A single word as you cross the line, and then quiet.** Where you finished, where you started,
+  your best lap and your incident count, in one sentence, once — said the moment you take the flag,
+  not a beat later. A number your engineer did not actually see is left out rather than guessed at,
+  and a race that ended in the wall or with a disqualification is said plainly and kindly instead of
+  being congratulated. After that the radio is silent for the rest of the session.
+
+- **The Voice screen shows the last call you heard.** Who said it, how long ago, the words themselves,
+  and a button to hear it again — in the same voice that said it the first time.
+- **Reload voices**, on the Voice screen, for when you have installed a model or pasted a key somewhere
+  else and want PitCrew to look again without restarting.
+- **Home has a Radio check button.** Press it and your engineer reads a real line out of the phrase
+  catalog, over the radio, in the language and the voice you have set — so you can hear whether they
+  will come through before you go out, without leaving the first screen.
 - **Test versions are now actually published, and they arrive on their own.** Turning *Get test
   versions* on used to buy you the same builds as everybody else, a little earlier at best — nothing
   was ever released to that channel by itself. Now a change to PitCrew's screens reaches you within
   minutes of it being written, and the bigger changes are published to you ahead of everyone as they
   are ready.
 
+### Changed
+
+- **The phone's Race screen is redrawn: the leaderboard moves to the right, and the clock, the pit
+  window and the tank now share one card on the left.** Race Control replaces the three separate
+  cards that used to carry them, and the vehicle card's TC/ABS/brake-bias readings are now rings
+  instead of a strip. Practice draws the same panel; Qualify and the leaderboard's own columns are
+  unchanged.
+- **Hold-or-tap and the microphone's cue are now switches you can see both sides of.** On Voice
+  commands, the two drop-downs have become rows of buttons: both answers are on screen and choosing
+  one is a single press instead of opening a list.
+- **The push-to-talk key and the button that records it now sit on one line**, and the microphone
+  card puts *Check the level* and *Level in Windows* side by side — the two halves of "is anything
+  arriving, and is it loud enough" are read together. The *Model* box on that card is gone: PitCrew
+  ships one recogniser and its name is on its own row in the new Models section on Settings.
+
+- **The banner over the sim has been redrawn.** It is PitCrew's own green now, on a flat near-black
+  panel with a thin edge — the violet-and-blue chip with the dotted background is gone. The light that
+  says your engineer is on the radio is green instead of red, the name beside it is easier to catch at
+  a glance, and the little sound meter's bars stand on a line together rather than floating, so you can
+  read them out of the corner of your eye. All four shapes changed together and every one of them
+  still says exactly what it said before.
+- **The low-profile strip is now the shape you get if you have never chosen one.** It is the one the
+  new design was drawn for: a single line the height of a caption — the light, your engineer's name,
+  the meter — and it costs the least of your screen of the four. **If you have already picked a shape
+  on the Overlay screen, nothing changes for you.** If you never opened that picker, your banner will
+  look different after this update; the other three shapes are still there and one click away.
+  safety warnings now have their own queue: they win over anything else, and if they cannot be said
+  while they are still true they are dropped rather than played late. Everything else — strategy,
+  status, celebrations — waits for a quiet moment and is thrown away if the fact behind it has
+  changed.
+- **The ten-second countdown is one continuous call.** *"Ten, nine, eight…"* is spoken as a single
+  phrase now instead of ten separate ones, so the numbers can no longer arrive out of order, repeat,
+  or be interrupted halfway. A countdown your engineer notices too late is not started at all.
+- **Your race ends when you cross the line, not when the winner does.** The chequered flag comes out
+  for the whole field at once, and PitCrew used to go quiet then — while you might still have half a
+  lap to run, in traffic. Your engineer now keeps working until you have taken the flag yourself, and
+  goes quiet the moment you do.
+- **The tow is called once for a given car.** Sitting behind the same one for a stint used to earn a
+  reminder every thirty seconds, because the gap breathes across any threshold you pick. A new car in
+  front is still a new call.
+- **Reconnecting mid-race no longer sounds like the start of a session.** *"Driver, engineer on the
+  radio"* is for when your engineer really has just come on the radio.
+- **One yellow is one call.** A full-course yellow, a waved yellow and a yellow sector describe the
+  same incident and used to be able to arrive one after another; the first one that is said wins,
+  and a detail can only follow it a few seconds later if it is still true.
+- **Position calls are about your class, and about racing.** Gaining or losing a place is announced
+  when the change has held on track — a pit stop, a caution or the sim reshuffling its own scoring
+  no longer announces itself as places won or lost.
+- **A car in the pits is never called a lapped car.** *"He is lapping you"* now needs both cars on
+  track, out of the pits, and a lap difference that agrees with itself across more than one moment.
+- **Your grid slot is only read out when the session has actually been scored.** It used to say you
+  were starting first whoever you were, because before the sim scores a session every car reports
+  the same number. Your engineer now says nothing rather than something false.
+
+- **The sidebar is your seven screens and nothing else, and every key is listed in Settings.** The
+  keyboard panel that opened from the foot of the sidebar has gone, and your initials with it. Every
+  key PitCrew answers to is on one card now — Settings, General, Hotkeys — including the number that
+  jumps to each screen, which used to be in that panel and nowhere else. `Alt+K` no longer opens
+  anything; your name is still yours to set under Voice.
+- **What PitCrew is short of, and the one thing it ever asks you for, are now a strip along the foot
+  of the window.** The warning about phrases that have not been generated used to sit beside each
+  screen's own buttons, and pressing it took you to a screen that could only tell you to go somewhere
+  else. It now says how many lines are missing and takes you straight to Voice, where each engineer is
+  warmed. Beside it, in the same strip and on every screen, is the app's only ask — three amounts and
+  a button that opens PayPal in your own browser. Home ends with your race log again.
+- **The Debrief list tells you how each race went.** Every race down the side now carries where you
+  finished — `P1`, `P2`, `P13`, `DNF` — in the same colours the race log on Home uses, so you can find
+  the race you are thinking of instead of picking between three entries for the same track. The result
+  beside the report you are reading is coloured the same way now too; it used to draw a P13 as though
+  it were a P6.
+- **Every screen now reaches the edge of the window.** The scrollbar used to float twenty pixels
+  inside it on all eight, as if the page were a card sitting on the app rather than the app itself.
+  On the Debrief screen the list of your races is now divided from the report by a line down the
+  full height of the window, and the Language screen's two families lists the same — which is how
+  they were drawn and what the old gutter had been in the way of.
+- **The Voice screen no longer counts your engines twice, differently.** Its heading said you had
+  five engines, the panel underneath said two, and neither number agreed with the tiles between
+  them. The count with no honest denominator is gone; each engine still says for itself whether it
+  is ready, and the panel now states in words what the amber pill only implied — a cloud key changes
+  the *voice*, never what gets said.
+- **Debrief is redrawn around the race you picked.** Your recorded races are a list down the side
+  instead of a narrow strip, the race you are reading opens with its track, its car and where you
+  finished, and the four figures that answer *how did that go* — best lap, consistency, your record
+  here and how this race compared — sit above everything else. The stints read as a table with a line
+  per run, and the four charts are two to a row instead of one under another, so a whole race fits on
+  a screen. The screen also picks up the setup notice and the phrase-cache warning it was the only
+  screen missing, and *Re-check* asks for your races again without leaving it.
+- **Settings is three tabs instead of one long page.** *General* is what you change — how PitCrew
+  starts, the keys that reach it from inside the sim, the window size and the dash rate. *Data &
+  storage* is what is on disk and which build you are running. *Connections* is the cockpit dash:
+  the address, the code to scan and what is connected, now on a screen of its own rather than only
+  behind a button. Each card's settings are separated by a fine line, so a card reads as a list of
+  things you can change instead of a run of paragraphs, and *Clear audio cache* is now drawn in red
+  — the one button on that screen that deletes anything.
+- **The Overlay screen is redrawn, and it finally shows you the banner.** The preview used to appear
+  only if you shrank the interface, so on a normal window there was nothing to look at while you set
+  the size and the transparency; now it is on screen at every window size, with the four banner
+  shapes directly under it and everything you can change down the side.
+- **The Phrase catalog screen is now Language, and it has both halves of what gets said.** *It says* is
+  the catalog you already had — every line your engineer can speak, what voice makes it, and whether it
+  is on disk yet, with the parts a race fills in now marked inside the sentence. *You ask* is the phrase
+  book, moved here from Voice commands: every question you can ask, and the wording you recorded for
+  each one. Nothing on either tab is made up as you drive — which is the point of putting them on one
+  screen.
+- **Voice commands is now only about being heard.** The phrase book has moved to Language; what is left
+  is your key, your microphone and the test that tells you which of the two is at fault.
+- **The Voice commands screen is redrawn.** What you press and what hears you sit side by side, and
+  the test — press your key, say anything, read it back — spans the foot of both, where it belongs:
+  an empty take is as often the microphone as the key. The promise is now at the top of the screen
+  where you cannot miss it: the mic opens when you press your key and closes when you are done.
+- **The warning about iRacing bindings is shown before you pick a button**, not after. PitCrew cannot
+  see what iRacing has bound, and the moment that matters is while you are choosing.
+- **The Voice screen is redrawn.** Your three engineers sit across the top as three cards — engine,
+  voice and language, one line each, with a play button to hear them without opening anything — and
+  down the side is what your install can actually do: which engines are on this PC and how much they
+  take up, whether the studio voice has a key, and what was last said over the radio.
+- **Deciding who says what is now two boxes you drag between.** Every kind of call sits in the box of
+  the engineer who reads it; drag one across to hand it over, or press it, whichever you prefer. Under
+  them, PitCrew names whatever you have moved away from the built-in split.
+- **Names have their own tab on the Voice screen** — yours, your race engineer's and your strategist's
+  — instead of sitting at the bottom of the radio settings, where they had never really belonged. The
+  three boxes now line up across the tab, with the line explaining each one underneath it rather than
+  above, and an engineer you have not named yet says *Not set* instead of sitting empty.
+
+- **The first screen is redrawn.** Your races are a proper table now — finishing position, track and
+  car, best lap, laps, and how long ago — under four figures that say how it has been going: races,
+  laps, average finish, and your quickest lap of the last seven days. Down the side: what your
+  engineer remembers about the last track you raced, who is on your crew and which voice each of
+  them speaks with, and which version of PitCrew you are running.
+- **Cockpit dash is a button on the first screen**, instead of an unlabelled icon in the strip down
+  the left. Same panel, now named rather than guessed at, on the screen PitCrew opens on — and the
+  whole of it is also a tab of its own under Settings, if that is where you go looking.
+- **Show overlay is gone from the first screen.** The switch on the Overlay screen turns the banner
+  on and off *and* tells you which it is, which that button never could — it could only ever switch
+  it on. `Alt+H` still works while iRacing has the screen.
+- **The window has a new look, starting with the frame around every screen.** PitCrew is drawn in a
+  new typeface, on a darker window with a soft lime and blue glow behind it, and it now has a proper
+  title bar: the screen you are on is named at the top left, and whether iRacing has been found is
+  said at the top right — on every screen, not just the first one. The icons down the left are
+  narrower, and the one you are on is lit in lime.
+- **The icons down the left are in a new order, so the `Alt` keys have moved with them.** It now runs
+  Home, Debrief, Voice, Voice commands, Language, Overlay, Settings — `Alt+1` through `Alt+7` in that
+  order. `Alt+K` still opens the full list of keys. Sorry about the muscle memory.
+- **Nothing on screen has moved — but everything behind it has.** PitCrew's screens were rearranged so
+  that each one keeps its own pieces together instead of sharing one pile. You will not see a
+  difference in this release; it is the groundwork for the redesign of the whole window that follows.
+
 ### Fixed
 
+- **Your engineers' names are no longer cut short on the Voice screen.** On a fresh install — before a
+  voice pack has been downloaded — each of the three cards had to fit both a name and a longer
+  readiness note on one line, and the name was what gave way: *Race engineer* read *Ra…*. The note
+  now moves under the name when the two will not share a line, so the name is always whole. The
+  Engine, Voice and Language lines on those cards do the same, so *Portuguese (Brazil)* is readable
+  rather than clipped to *Portuguese …*, and hovering any of them still shows the full text.
+- **Three groups of calls were listed by their internal names.** Traffic, Track and Race appeared as
+  `traffic`, `track` and `race` in the Language screen's list of families and among the categories you
+  drag between your engineers on the Voice screen — the only three of the eighteen that had never been
+  given a name to show. The spotter's own family is now called *Car alongside* there, rather than
+  repeating the heading above it.
+- **The voice and cache column on the Language screen no longer cuts its own text in half.** A line
+  waiting to be warmed said "Supertonic · not warmed" over two lines in a space only wide enough for
+  one, so the second was clipped and a perfectly normal state read as a fault.
 - **An interface update no longer leaves people on test versions without one.** Publishing a fix to
   PitCrew's screens removed the test channel's list of what was available, so anyone with *Get test
   versions* on stopped being offered anything at all — quietly, since PitCrew read it as "nothing new"
   — until the next full release put it back.
+- **The four figures across the top of Home line up again.** *Best lap this week* is the only one of
+  the four whose heading needs two lines, and its time was sitting lower than the other three because
+  of it — on the one tile the screen is trying to draw your eye to. The four now sit on the same line
+  whatever their headings do.
+- **The phrase list shows half again as many lines at once.** Every row on the Language screen was
+  taller than it was drawn to be, so the longest list in PitCrew showed five phrases where it was
+  meant to show eight. The play button beside each line is the same size to hit as before.
+- **How you open the microphone no longer reads as half a sentence.** The setting on the Voice
+  commands screen was too narrow for its own answer and showed *Hold while speaki…*. The two choices
+  are now **Hold to speak** and **Tap on, tap off** — the same two things, said in the room the
+  setting has — and they stack under one another instead of clipping when the window is too narrow
+  for both.
 
 ### Added
 

@@ -35,9 +35,9 @@ Every release lists what changed in it. The full history is in [CHANGELOG.md](CH
 
 ## What it currently speaks
 
-PitCrew speaks **Brazilian Portuguese** or **English (US)** — you pick, and it is independent of the
-interface, which is in English. Spanish, German and French are written but not yet released; they
-appear in the language list as *coming soon*.
+PitCrew speaks **Brazilian Portuguese, English (US), Spanish, French and German** — you pick, and it
+is independent of the interface, which is in English. The engine selects each language's own catalog
+text, number wording and voice configuration before it generates audio.
 
 ## Status
 

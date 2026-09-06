@@ -6,8 +6,8 @@ PitCrew opens straight into the app — there's no setup wizard to get through f
 set on a first run lives on the **Voice** screen, and you can visit it whenever you like:
 
 1. **Your name** — how the engineer addresses you on screen.
-2. **A spoken language** — Brazilian Portuguese or English (US). This is what you *hear*; the
-   interface stays in English either way. See [voices and languages](voices.md).
+2. **A spoken language** — Brazilian Portuguese, English (US), Spanish, French or German. This is
+   what you *hear*; the interface stays in English either way. See [voices and languages](voices.md).
 3. **A voice** — download the speech model (~310 MB) and a voice pack. This is the one step that
    needs the internet; everything after it runs on your machine.
 

@@ -45,7 +45,7 @@ the Voice commands screen, and it decides what PitCrew listens for and how it wr
 said. They do not have to match: a Brazilian Portuguese engineer answering questions asked in English
 is a perfectly ordinary setup, and so is the reverse.
 
-All five languages are offered here, including the ones your engineer cannot speak yet — PitCrew needs
+All five languages are offered here, independently of the language your engineer speaks — PitCrew needs
 a voice to answer in one and only needs to recognise you to be asked in one.
 
 Anything you have recorded stays filed under the language you recorded it in. Switching shows you that
@@ -80,7 +80,7 @@ microphone opens when it goes down and closes when it comes up, so there is no w
 is ever listening in the background.
 
 If holding a button through a corner is awkward — plenty of wheel buttons are — switch
-`Settings → Voice commands → Hold it, or tap it` to **Tap to start, tap to stop**. Then one press
+`Settings → Voice commands → Hold it, or tap it` to **Tap on, tap off**. Then one press
 opens the microphone and the next one closes it. If you tap it open and get distracted, it closes
 itself after twenty seconds, so you can never leave it open by accident.
 

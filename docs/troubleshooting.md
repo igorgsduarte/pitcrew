@@ -54,7 +54,8 @@ The spoken language and the interface language are separate settings; the interf
 English. Set the spoken one in the app's settings — see [voices and
 languages](voices.md#languages).
 
-If you picked a language that shows as *coming soon*, it is not released yet and will not be spoken.
+German needs an engine that has a German voice: Piper, Supertonic, Azure or ElevenLabs. Kokoro has no
+German voice, so switch that engineer to one of those engines before choosing German.
 
 ## The overlay is invisible
 
