@@ -2,16 +2,19 @@
 
 ## First launch
 
-PitCrew opens onto onboarding, which asks for three things:
+PitCrew opens straight into the app — there's no setup wizard to get through first. Everything you'd
+set on a first run lives on the **Voice** screen, and you can visit it whenever you like:
 
 1. **Your name** — how the engineer addresses you on screen.
 2. **A spoken language** — Brazilian Portuguese or English (US). This is what you *hear*; the
    interface stays in English either way. See [voices and languages](voices.md).
-3. **A voice** — PitCrew downloads the speech model (~310 MB) and your chosen voice pack here. This
-   is the one step that needs the internet; everything after it runs on your machine.
+3. **A voice** — download the speech model (~310 MB) and a voice pack. This is the one step that
+   needs the internet; everything after it runs on your machine.
 
-Then it pre-generates the lines it can prepare in advance, so the first race does not spend time
-synthesizing the spotter's callouts while you are trying to make a corner.
+The header at the top of every screen tells you what's still missing, if anything is, and points you
+at the Voice screen to fix it. Once your voice is set up, press **Regenerate them now** there to
+pre-generate the lines PitCrew can prepare in advance — worth doing before your first race, so it
+does not spend time synthesizing the spotter's callouts while you are trying to make a corner.
 
 ## Running it with iRacing
 
@@ -58,7 +61,8 @@ whole point is that you should not be reading anything at 200 km/h.
   tank runs down.
 - **Gaps and position** — who is closing on you, who you are catching, and where you sit in the
   field. Multiclass races are filtered by class, so a leader from another class does not get
-  reported as if it were your race.
+  reported as if it were your race, and a car that is a lap ahead or a lap behind is named as
+  exactly that, so you do not defend against somebody who is not racing you.
 - **Your laps** — lap times, and a personal best when you set one.
 - **Session events** — flags, the roster, pit and penalty calls.
 - **Memory** — PitCrew keeps a profile per car/track combination, so it knows your best known lap
@@ -103,4 +107,5 @@ Two things are adjustable, and they are separate on purpose:
 ## Next
 
 - [Voices and languages](voices.md) — including the optional cloud voice
+- [Talking to your engineer](voice-commands.md) — asking it questions out loud
 - [Troubleshooting](troubleshooting.md)

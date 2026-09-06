@@ -19,11 +19,1181 @@ dated one. See `docs/release-process.md`.
 
 ### Added
 
-### Changed
+- **Test versions are now actually published, and they arrive on their own.** Turning *Get test
+  versions* on used to buy you the same builds as everybody else, a little earlier at best — nothing
+  was ever released to that channel by itself. Now a change to PitCrew's screens reaches you within
+  minutes of it being written, and the bigger changes are published to you ahead of everyone as they
+  are ready.
 
 ### Fixed
 
+- **An interface update no longer leaves people on test versions without one.** Publishing a fix to
+  PitCrew's screens removed the test channel's list of what was available, so anyone with *Get test
+  versions* on stopped being offered anything at all — quietly, since PitCrew read it as "nothing new"
+  — until the next full release put it back.
+
+### Added
+
+- **You can ask for test versions, in Settings.** Off by default. Turn it on under *Startup* and
+  PitCrew starts offering you new things before everyone else gets them — they are less tested, and
+  something may not work, which is the deal. Turn it off and you are back to released versions at the
+  next check.
+
+- **PitCrew's screens can now update on their own, without reinstalling anything.** When only the
+  interface has changed, the panel offers it like any other update — usually a few hundred kilobytes,
+  because PitCrew reuses everything that did not change. Installing it redraws the window and your
+  engineer keeps talking through it. If the new screens do not come up, PitCrew notices and puts the
+  ones you had back by itself; there is also a *Use the original interface* item in the tray menu if
+  you ever want to go back to the screens your PitCrew was installed with.
+
+- **PitCrew can now update itself.** When a new version is out, the panel in the corner offers it the
+  same way it already offers a new race engineer: it tells you the size, you decide whether to
+  download it, and then — separately — whether to install it. Installing closes PitCrew and hands
+  over to the Windows installer, which the panel says before you press. Nothing is ever downloaded or
+  installed without you pressing, and never while iRacing is running. Beta versions are not offered
+  this way.
+
+- **Each voice engine can now generate its own audio, and you choose which model to pay for.** Open
+  any engine on the Voices screen and there is a *Generated audio* section at the bottom: one press
+  fills that engine's cache with every fixed line the engineers on it say, all of them in one run.
+  On ElevenLabs each of the three models gets its own button with its price beside it, so you can
+  stock the expensive model for a race weekend while your engineers keep speaking on the cheap one —
+  the audio is waiting the moment you switch. Nothing is generated until you press, and the button
+  says when it is billed.
+
+### Fixed
+
+- **The radio banner came back on its own once a session started.** Turning *Radio messages* off — on
+  the Overlay screen or with Alt+H — held only until you got in the car: PitCrew put the banner back
+  up the moment the session went live, and the switch quietly moved itself back on to match. The
+  switch is now the one thing that decides. With it off the banner stays off whatever iRacing is
+  doing; with it on the banner comes and goes with the session as before. It starts off every time
+  you open PitCrew.
+
+- **While recording a phrasing, PitCrew told you to hold the wrong key.** If you had changed your
+  push-to-talk key, the recorder still said *"Hold Alt+V and say it"* — the key PitCrew ships with
+  rather than yours — at the one moment it was asking you to press something. It now names your own
+  key, and so does the microphone test.
+
+- **The microphone level bar was invisible when nothing was arriving.** It was drawn in the same
+  colour as the panel behind it, so a silent microphone showed no bar at all — on the screen you open
+  precisely because your microphone is silent. The empty bar is now visible, and a level loud enough
+  to clip still shows red.
+
+- **A dead *Play it back* button on a take with no sound.** When a test take came back without
+  playable audio the button stayed on screen greyed out, which reads as a broken player. It is simply
+  not there now.
+
+### Changed
+
+- **PitCrew now remembers which installation it is beside your settings, instead of inside the
+  window.** Nothing looks different, and nothing new is collected — this is the same anonymous
+  install id and the same *"which races have already been counted"* note as before, moved somewhere
+  that survives the interface being replaced. It is the first step towards updating PitCrew's
+  screens without reinstalling the whole app. Your existing id and race history are carried over, so
+  no race is counted twice.
+
+- **Every box you type in, pick from or press is now the same height across the whole app.** Text
+  fields, dropdowns, search boxes and buttons each used to work out their own size, so a row that
+  should have read as one line — a field with a button beside it — was three slightly different
+  heights. They all measure the same now, and nothing in the app is taller than that.
+
+- **One corner, everywhere.** The cards on the screens and the ones in dialogs were rounded by
+  different amounts, which showed the moment a dialog opened over a screen. They are drawn with the
+  same corner as each other and as the window itself, which is a touch rounder than before.
+
+- **The window's corners no longer show a seam against the desktop.** PitCrew draws its own frame,
+  and Windows was rounding the same window a second time a few pixels tighter — so at each corner
+  there was a sliver of Windows' shadow and border sitting outside PitCrew's own edge. The window's
+  corner is now PitCrew's alone. The trade is that the main window no longer casts the Windows drop
+  shadow: there is no way to have the system draw a shadow around a corner it is not drawing.
+
+- **A long device name no longer breaks a dropdown onto two lines.** *Microphone (2- Realtek(R)
+  Audio)* and names like it now end in an ellipsis inside the closed dropdown, which stays one line
+  tall. The full name is still there in the list when you open it.
+
+- **The Voice commands screen is now two tabs instead of three columns.** Setting the microphone up
+  and teaching PitCrew how you ask are two different jobs, and they were sharing one screen — with
+  everything about your microphone squeezed into a narrow strip down the right-hand side. *Push to
+  talk* now has the whole width for your key, your wheel button, the test and the microphone itself,
+  side by side; *Input catalog* has the whole width for the list of what you can ask and how you
+  phrase it. The switch that turns the whole thing on stays at the top of both, and the screen opens
+  on *Push to talk* — because if you came here in a hurry, that is usually why.
+
+- **The buttons on the Voice commands screen now match the rest of PitCrew.** That screen had kept
+  square, uppercase buttons from an older part of the app while every other screen moved to the
+  rounded sentence-case ones — so *RECORD A PHRASING* sat next to *Start the test* and neither looked
+  like it belonged. They are all one shape now.
+
+- **The push-to-talk panel is grouped instead of being one list of six rows.** What you press — the
+  key and the wheel button — is now separated from what happens once you have: hold or tap, and the
+  sound when the microphone opens.
+
+- **The Voice commands screen reads properly with a screen reader or with Voice Control.** Several
+  rows were captioned one way on screen and named another way to assistive technology — the field
+  under *Key* announced itself as "push-to-talk binding", so saying "click Key" to Windows Voice
+  Control reached nothing — and the sentence under each caption, including the one explaining that
+  the sound when the microphone opens is what stops your first word being cut off, was never read out
+  at all. Each control is now called what the screen calls it, and its explanation is announced with
+  it.
+
+- **The microphone panel no longer leaves a gap below it.** It was still sized as though it were the
+  whole right-hand column, which stretched it to the full height of the window and could put a second
+  scrollbar inside the first.
+
+- **Groundwork for better speech recognition.** PitCrew can now be pointed at a second, higher
+  precision copy of the recogniser, so the two can be measured against the same recordings rather
+  than against an impression. **Nothing changes for you yet** — same model, same download size, same
+  everything a driver sees. It is how the next improvement to *"não entendi"* gets chosen on
+  evidence.
+
+### Added
+
+- **Bind your push-to-talk key by pressing it.** The key was the one thing on that screen you still
+  had to *spell* — and PitCrew's spelling, at that, with the modifiers first, no spaces, and
+  `NumpadAdd` for the numpad plus. Press *Press the keys* on the Voice commands screen, hold the
+  combination you want, and it is bound. Your wheel button has always worked this way; the key does
+  now too. You can still type one in, and that is deliberate rather than left over: a chord Windows
+  hands to something else before it reaches PitCrew never arrives at that screen to be captured, so
+  typing is how you reach one you cannot press there.
+
+- **The screen now tells you which key is actually working.** Changing the key takes a restart —
+  PitCrew asks Windows for it once, when it starts — and until now nothing said so at the moment it
+  mattered. Rebind the key and the screen names the one still in use until you restart, and the
+  microphone test names the key it is genuinely listening for instead of saying "press your key".
+  Rebinding and testing straight away used to look exactly like a broken microphone.
+
+- **Your microphone's Windows level, on the same screen as everything else about it.** A microphone
+  Windows has turned down is the most ordinary reason a driver cannot be heard, and until now fixing
+  it meant leaving PitCrew, opening Sound Control Panel and picking the right device out of a list.
+  There is now a *Level in Windows* slider under the meter on the Voice commands screen — drag it and
+  watch the bar follow. It is **Windows' own level and not a setting of PitCrew's**: it is the same
+  number that control panel shows, it stays where you put it after PitCrew is closed, and anything
+  else recording through that microphone — your voice chat included — hears the change too. The
+  slider says so. Change it in Windows while the screen is open and it follows along.
+
+- **A test that tells you whether your microphone and your key actually work.** Until now the only
+  way to find out was to ask your engineer something on track and see whether anything happened. On
+  the Voice commands screen there is now a *Start the test* button under your push-to-talk key: press
+  your real key or wheel button, say anything, and let go. You watch the level move while you speak,
+  and when you stop you get your own take **played back to you** with the words PitCrew heard written
+  underneath — so a dead headset, a key that does nothing and a microphone that is simply too quiet
+  stop looking the same. It is a test and nothing more: nothing is saved, nothing is sent anywhere,
+  and the microphone closes when you leave.
+
+- **You can now talk to your engineer with a button on your wheel.** Push-to-talk was a keyboard key,
+  which meant letting go of the wheel to ask a question — at exactly the moment the answer was worth
+  having. Bind any button on your wheel, button box or gamepad instead: `Settings → Voice commands`,
+  press *Press a button*, then press the one you want and it is bound. Your key still works, so you can
+  keep it for the desk and use the button on track. And you can now choose how it behaves — **hold it
+  while you speak**, as before, or **tap it once to start and once more when you are done**, for a
+  button you cannot comfortably hold through a corner. If you tap it open and forget, it closes itself
+  after twenty seconds. The button takes effect the moment you bind it; the key still needs a restart.
+  Pedals and most rotaries cannot be bound — your rig reports those as dials rather than buttons, and
+  the screen tells you so instead of leaving you pressing something that will never register.
+
+- **A debrief screen, so PitCrew is worth opening after the race and not only during it.** Every
+  race your engineer finishes is now written down, and there is a new screen that reads it back:
+  your stints and where the stops fell, your fuel lap by lap — what the engineer *expected* each lap
+  to take drawn against what it actually took, which is the only way to see whether the strategy was
+  right — how consistent your lap times were, where your best lap left time on the table sector by
+  sector, and how your position moved through the race. The last twenty races are kept; the
+  twenty-first pushes the oldest out.
+
+- **Your engineer now calls the undercut and the overcut.** When the car directly ahead still has a
+  stop to make and it would drop them behind you, you hear it — so you can hold station instead of
+  burning the tyres chasing a place that is coming to you anyway. And when the car directly behind
+  has already stopped and yours would hand them the place, you hear that too, while there is still
+  time to build a gap. Both are estimates and both say so: your engineer says *"if he stops now"*
+  and *"by our maths"*, because nobody can see another car's fuel. When the numbers are not there —
+  you have not made a stop yet, so the pit loss has never been measured, or the car's fuel tank size
+  is not in the session data — the call is simply not made rather than guessed at. One call about
+  one car, then several laps of quiet about it, so a mid-pack fight does not fill the whole radio.
+
+- **You can teach your engineer how *you* ask for things.** The phrasings PitCrew ships are ours, and
+  yours are better — on a real session, changing how a question was asked took it from six right out
+  of nine to eight, while a bigger recogniser changed nothing. `Settings → Voice commands → Teach it
+  how you ask` opens a screen with every answer your engineer can give on one side and the ways you
+  can ask for it on the other. You **record** a phrasing rather than typing one: hold your key, say
+  it the way you would say it on track, see exactly what was heard, and keep it or say it again. A
+  typed phrase is a guess that your voice produces that exact sentence; a recorded one is something
+  your microphone has already produced once. It keeps what it *heard*, so if it hears "quanta gasosa"
+  when you said "quanta gasolina", keeping the odd-looking version is the right move — it will
+  mishear you the same way next time, and now the answer will be waiting for it. Ours and yours sit
+  side by side, each labelled and each removable on its own, and a PitCrew update that improves the
+  built-in phrasings still reaches you. It refuses a phrasing that would reach a different answer,
+  and tells you which one, rather than leaving you with a question that never works.
+
+- **You can now see your microphone working, and hear yourself on it, before you record anything.**
+  The Voice commands screen has a level meter with a switch: flip it, say something, and the bar
+  moves — or it does not, which is the fastest way to find out the wrong microphone is selected. It
+  tells you when you are too loud as well as too quiet. Turn on *Hear yourself* and it plays you back
+  through the same output your engineer speaks from, so you can judge how you actually sound —
+  **wear headphones for that one**, or your speakers will feed straight back into the microphone.
+  It opens the microphone only while the switch is on, closes it the moment you switch it off or
+  leave the screen, and steps out of the way if you press push-to-talk while it is running.
+
+- **You can now ask in one language and be answered in another.** There is a language selector on the
+  Voice commands screen for the language *you speak* — which decides what PitCrew listens for and how
+  it writes down what you said — and it is no longer tied to the language your engineer answers in.
+  So you can have a Brazilian Portuguese engineer and ask your questions in English, or the other way
+  round. All five languages are offered here, including the ones your engineer cannot yet speak.
+  Anything you have recorded stays filed under the language you recorded it in: switching shows you
+  that language's phrasings, and switching back brings the others straight back. Nothing changes for
+  an existing setup — it keeps asking in whatever language it was already using.
+
+### Changed
+
+- **Voice commands is its own screen now, and it has everything about it on it.** It used to be
+  split: a card on Settings held the switch, the push-to-talk key, the wheel button and the sound the
+  mic makes, while the microphone, the level meter, the language you ask in and the recogniser lived
+  somewhere else entirely. If your engineer could not hear you, the two things worth checking were on
+  two different screens. They are all on one screen now, reached straight from the bar down the left
+  side — **`Alt+6`** — with what you press on one side and what hears you beside it. Settings no
+  longer has a Voice commands card at all, and **Settings has moved to `Alt+7`**.
+
+- **Everything about your microphone is now on the Voice commands screen, beside the phrasings.**
+  Picking the microphone, downloading the recogniser and pointing PitCrew at a copy you already have
+  used to live under `Settings → Voice commands`, two clicks from the screen that shows you what was
+  actually heard — so a wrong microphone looked like a phrasing problem. They are now a column down
+  the right-hand side of the Voice commands screen, next to the answers and the recorder they belong
+  to. Settings keeps what it is good at: your push-to-talk key, your wheel button, whether you hold or
+  tap it, and the sound it makes. There is one row there taking you across, and on a fresh install it
+  is the first thing on the card.
+
+- **The Voice commands screen no longer refuses to open before you have downloaded the recogniser.**
+  It used to be a single paragraph pointing you back at Settings. Now it draws normally — you can read
+  through every answer your engineer can give and every way of asking for it — with the download in
+  the right-hand column and only the *Record a phrasing* button waiting on it.
+
+- **The Settings screen now tells you when a push-to-talk key will not work, instead of letting you
+  find out at the next race.** The key you type is checked as you type it: a key PitCrew cannot bind,
+  a letter with no `Alt` or `Ctrl` in front of it — which would take that key away from iRacing and
+  everything else on the machine — or a chord PitCrew already uses for something else, which would
+  stop the app starting at all. Each one says so under the field, along with what happens instead.
+  The keycap beside it shows *your* key rather than the one PitCrew ships with, and once you have
+  changed it there is a **Restore Alt+V** button to put it back.
+
+- **`Settings → Voice commands` is sorted into what you press and what does the listening**, so the
+  microphone and the wheel button are no longer mixed in with the recogniser's download and its model
+  folder. On an install that has not downloaded the recogniser yet, the download comes first. The
+  Hotkeys card above it leads with the keys that work while iRacing has focus, and no longer repeats
+  the screen numbers the rail already lists under `Alt+K`. On `Data & storage`, a Clear button with
+  nothing to clear now says **Nothing cached** rather than sitting there greyed out for no stated
+  reason.
+
+- **Your engineer is better at judging who still owes a pit stop.** It used to treat any car it had
+  once seen in the pit lane as done, and every other car as still owing a stop — which is wrong in a
+  race short enough that nobody has to stop, and wrong about a car that started on a small fill. It
+  now works out how far into its own stint each car is, so the pit-window advice on your dash lines
+  up better with what the cars around you are actually going to do.
+
+- **When it does not understand you, it now asks you to say it again.** It used to just say it had
+  not understood, which left you wondering whether to repeat yourself or give up on the question.
+
+- **Your engineer now knows which of its lines are answers, and it will only ever speak one of those
+  back to you.** Before, a question was matched to a line by name and spoken; anything that name
+  pointed at would have been said out loud, including the warnings it gives you on its own — and a
+  warning is only true at the moment it fires. *"Combustível pra cinco voltas"* is the right call
+  when you have five laps left and simply a false one when you ask with twenty. Every line is now
+  marked either as something you can ask for or as something the engineer says on its own, and a
+  question that lands on the second kind gets *"não tenho esse dado"* instead. Nothing you can ask
+  today has changed; this is what lets the list of questions grow without any of them being able to
+  lie to you.
+
+- **Generating an engineer's lines now shows you how it is going, in the panel you started it from.**
+  Pressing "Warm this engineer" used to do nothing you could see: the button changed its label and
+  the progress bar it was reporting to sits at the bottom of the window, behind the open panel. So the
+  one button in PitCrew that can spend your money was also the one that gave you no sign it had
+  worked. The panel now reports the run itself, right under the button — how many lines are done, a
+  bar for each voice doing the work, and "Stop using credits" where you can actually press it. Close
+  the panel and the run carries on, reported by the bar at the bottom of the window as before. One
+  thing it deliberately does not claim: a warm-up carries no engineer's name, so if you started one
+  under a different engineer, this says it may be that run rather than pretending it is this
+  engineer's.
+
+- **The model an engine runs on is now a card you can download from.** It was a dropdown that let you
+  choose a model and then gave you no way to fetch it: pick the Supertonic generation that is not on
+  your PC and you had picked something you could not use, with the download button one row above
+  describing the *other* one. Whether a model is on your machine — the single thing that decides
+  whether that engine can speak — was the last three words of an option inside a closed list. Models
+  are now cards, like the engines above them: the name, the size, whether it is on this PC, and a
+  Download button on the one that is not, with the progress shown on that card while it runs. It
+  reads the same way for every engine that runs on your PC, including Piper, where each *voice* is a
+  model and the card says so and points you at the voice list.
+
+- **The panel where you set an engineer up now fits on the screen.** It was one long scroll: the
+  engineer's name went past the top as you worked down it, and "Warm this engineer" — the button you
+  press *after* changing anything, and the only one that can spend money — sat at the very bottom
+  where you could never see it while you were making the changes. The name now stays at the top, the
+  middle scrolls on its own and fades where it is cut so you can tell there is more, and the warm
+  button is fixed at the bottom, always in reach. It also says which it is before you press it: free
+  when that engineer is on a voice from your own PC, and billed to your account when they are on an
+  online one.
+
+- **The engineer's panel opens from the bottom of the window now, instead of floating in the middle
+  of it.** It slides up from the edge and spans the width, so it grows upward when an engineer has
+  more to set up and the buttons never move: the name stays at the top of the panel and "Warm this
+  engineer" stays at the bottom, in the same place every time you open it.
+
+- **Choosing between a voice made on your PC and an online one now says what each costs, before you
+  choose.** That first choice was two words in a strip — "On this PC" and "Online" — with the trade
+  written underneath for whichever side you had already picked. It is now the same pair of cards the
+  engines themselves are picked from, so both sides state their price at once: *downloads once, works
+  offline, costs nothing* against *needs an account, billed per character*.
+
+- **The engineer's language is the first thing you set now, instead of the last.** It decides which
+  voices exist to be chosen at all, so setting it at the bottom of the panel meant re-opening the
+  question you had just answered. It sits at the top, in a field the size of a language name rather
+  than the width of the panel.
+
+- **When an engineer's voice cannot speak, the panel now takes you to the fix.** It used to tell you
+  what was missing — "Needs a key and a region", "Needs a voice" — and leave you to find the control
+  yourself, further down a panel you could not see the bottom of. That line is now the button: press
+  it and the right panel opens, whether that is where you paste a key, the voice list, or a download.
+
+- **PitCrew no longer throws away your settings when it meets one it does not recognise.** A single
+  unreadable entry — an engine that is no longer offered, say — used to fail the whole settings file,
+  and a settings file that fails to load is silently replaced with a fresh one: your key, your engine
+  choices and every voice you had picked, gone, with your own name disappearing from the app as the
+  only sign anything had happened. Now the one entry it cannot read is dropped, that engineer goes
+  back to the engine PitCrew would have given them, and everything else in the file is exactly where
+  you left it.
+
 ### Removed
+
+- **The desktop app no longer has its own Dash screen.** The cockpit panel is a phone thing now:
+  choosing the theme and the blocks it draws happens on the phone app, and the desktop page that used
+  to hold those settings was left pointing at the phone with nothing to point at. The quick "Cockpit
+  dash" switch in the rail — the QR code, the address and the server's on/off — is still there, one
+  click from any screen.
+
+- **Home is now just your race history.** The "Your engineer is ready" checklist, the "Radio last
+  race" strip and the "Your engineer" summary card are gone — engineer health is the app's own
+  problem, not a checklist to read before the green flag. Home keeps the race log (your results, laps
+  and what the engineer spent the radio on), your track memory and the list of recent sessions. The
+  keyboard shortcuts shifted by one to match: Debrief is now Alt+5 and Settings Alt+6.
+
+### Fixed
+
+- **PitCrew no longer disappears while it is listing your microphones or speakers.** Reading the
+  audio devices off Windows could take the whole app down with it — no message, no crash report, just
+  gone — and which of them did it depended on invisible timing, so it could happen while you opened
+  the microphone picker, unplugged a headset, or did nothing at all. Every device list PitCrew reads
+  now goes through one place that is safe to read it from.
+
+- **PitCrew now starts even when your push-to-talk key belongs to something else.** If you set
+  push-to-talk to a key Discord, ShadowPlay, Steam or any other program on your PC had already
+  claimed, PitCrew stopped opening at all — the next time you started it, with no message, and
+  hand-editing a settings file as the only way back in. It now starts normally: the key is left
+  unbound, `Settings → Voice commands` says Windows would not give PitCrew that key and that
+  something else on the PC has it, and your wheel button still works while you pick another one.
+
+- **The message about missing recogniser weights now spells the folder the way Windows does.** When
+  voice commands had nothing to listen with, the sentence naming the folder it had looked in wrapped
+  it in quotes and doubled every backslash — `"C:\\Users\\..."` — which is not a path you can paste
+  into Explorer or into the model-folder field it was telling you about. The same sentence on the
+  Voices screen, about a speaking voice that is not downloaded, had it too.
+
+- **Downloading the voice-command recogniser no longer ends in a red error.** The download itself was
+  finishing, but the screen misread the engineer's "done" and showed *"`voice.download` was answered
+  with something this build could not read"* — so the weights were on your PC and the switch still said
+  *Not loaded*, with nothing to press but Download again. It now reports the download it actually did
+  and loads the recogniser straight away, no restart.
+
+- **Every call your engineer makes now ends when the words do.** A full second of silence was being
+  added to the end of every line — 42% of a short one like *"Box, box!"* — on both of the voices that
+  run on your own PC. You will notice it most on the spotter, whose whole job is timing: the call
+  finishes and the next one can start, instead of the line holding the channel for another second with
+  nothing left to say. The pause between two halves of a longer sentence is untouched; that one is
+  deliberate. Audio already saved on your PC keeps its old ending until it is generated again.
+
+- **Switching Supertonic's generation no longer claims the other one is on your PC.** Picking
+  Supertonic 2 while Supertonic 3 was the one installed left the panel saying "On this PC", in green,
+  about files that were not there — and the two generations share nothing, so acting on it would have
+  meant an engineer that could not speak. The panel now re-checks your disk when you switch, and it is
+  honest in the meantime.
+
+- **The window has its rounded corners back.** They were lost in an earlier release and nothing else
+  changed with them; the panel that slides up from the bottom of the window follows the same curve
+  again.
+
+- **The licence you read inside PitCrew, and the one the installer shows you, now credit the voices
+  you can download.** Two of them — Siwis in French and Sam in English — are published under terms
+  that ask for an attribution, and only the copy of the licence on the website was carrying it. All
+  four copies say the same thing now, including that a voice you download is licensed to you by
+  whoever published it rather than by PitCrew.
+
+- **Looking at the other kind of engine no longer looks like you switched to it.** Flipping an
+  engineer's panel from "On this PC" to "Online" — or back — showed the first engine in that group
+  ticked and highlighted, as though your engineer had just been moved onto it. They had not, and
+  nothing had been saved; the panel was only showing you what is there. Nothing is ticked now until
+  you pick one.
+
+- **"Warm cache" now tells you when it could not actually save anything.** It used to fill its bar and
+  report success even when nothing reached your disk — so a full drive, or a folder it could not write
+  to, looked exactly like a finished warm-up until the next race. It now says so instead of claiming it
+  finished. This also closed a hole in the two new voices below, Piper and Supertonic, which prepare
+  their audio at a different quality to the others: nothing they made could be stored at all. Nothing
+  shipped with that; it is fixed before the voices that would have hit it arrive.
+
+- **French works. It never did.** An engineer you set to French went silent on their first call — the
+  part of PitCrew that turns writing into sounds was being asked for a French it does not answer to, on
+  both of the voices that run on your own PC. Nobody had heard it, because nothing had asked it to
+  speak until now. Spanish and German were always fine, and none of the audio PitCrew has already
+  generated is thrown away.
+
+### Added
+
+- **You can talk back.** Hold a key — `Alt+V` by default, and you can change it — and ask your
+  engineer a question out loud: *"combustível?"*, *"qual a minha posição?"*, *"quantas voltas
+  faltam?"*, *"quanto pro carro da frente?"*, *"quanto foi minha última volta?"*. It answers in the
+  same voice, from the same phrase catalog it always uses. *"Cala a boca"* silences it and *"pode
+  falar"* brings it back.
+
+  It listens **only while you hold the key** — there is no wake word and the microphone is never left
+  open — and it recognises what you said **on your own PC**: no key, no account, no network, and
+  nothing you say ever leaves the machine. Turn it on in Settings, where a one-off ~43 MB download
+  gets the recogniser; it is off until you do, and PitCrew never fetches it on its own.
+
+  It understands a fixed list of questions rather than anything you care to say, and that is
+  deliberate: anything it is not sure of gets *"não entendi"* instead of a guess, because a wrong
+  answer mid-race is worse than no answer. The list works in all five languages PitCrew speaks.
+
+  Say the whole phrase rather than one word — *"quanto combustível eu tenho?"* rather than
+  *"combustível?"*. Both are on the list, but a single word gives it nothing to go on and is the one
+  thing that reliably fails.
+
+- **The button tells you it is listening.** You now hear a radio click when the microphone opens and
+  a lower one when it closes — the same click your engineer's own voice is bracketed with, so it
+  sounds like the radio you are already on rather than like a notification.
+
+  It is worth more than knowing the button worked. Wait for the click before you speak and your first
+  word stops being cut off, because PitCrew does not start listening until it has finished. That was
+  the one thing you previously had to be told to work around. You can make it a plain tone instead,
+  or switch it off, in Settings.
+
+- **You can hear a voice before you choose it.** Every engine that runs on your own PC — Kokoro, Piper
+  and Supertonic — now lists its voices instead of hiding them in a dropdown, and every row has a play
+  button. Press it and that voice reads you a line in *this* engineer's language, at *this* engineer's
+  speed, so you can hold two of them against each other without putting your engineer on either. The
+  row also ticks the voice they are already on, and offers the download if that voice is not on your PC
+  yet — so you fetch what you are about to use rather than everything the engine has. Picking a voice
+  used to mean choosing a name off a list and finding out afterwards. If a voice will not play or a
+  download does not finish, the list says so underneath rather than leaving you pressing a button that
+  makes no sound.
+
+- **A fourth voice engine you can try, Piper, and it is the quickest of the lot to speak a new line.**
+  One pass through one model, where the others are four or more — by a wide margin the least your PC has
+  to do per callout. It runs on your own PC, needs no key and bills nothing. It is beta: nothing routes
+  to it until you pick it, and how it sounds is yours to judge. **It speaks all five languages, and has
+  fifteen voices to choose between** — nine in English, three in Brazilian Portuguese and one each in
+  Spanish, French and German. On Piper a voice *is* a language, so the language you set for an engineer
+  decides which voices they can be given. **Each voice is a model of its own and downloads on its own,
+  about 63 MB**: Piper is ready for an engineer the moment that engineer's voice is on your PC, rather
+  than after the whole set has arrived. One thing to know before you go looking for it — **none of
+  Piper's Portuguese voices is a woman's**, at any quality. That is true of the voices published for the
+  engine rather than a choice PitCrew made; Kokoro and Supertonic each have one.
+
+- **A new voice you can run on your own PC: Supertonic, with ten voices and no key.** It is a beta and it
+  is off until you pick it. Ten preset voices come with the download — five female, five male — and each
+  of your engineers can read in a different one at their own pace. There are two versions of the model
+  to choose between, and they are a real trade rather than old and new: version 3 is the steadier
+  reader, version 2 sounds closer to Brazilian Portuguese and is noticeably quicker to speak a line it
+  has not spoken before. They share no files, so switching downloads the other one in full — the panel
+  says so, and the size, before you start. Nothing about your install changes until you choose it.
+
+- **A second online voice you can put an engineer on: Azure AI Speech.** It is a beta and it is off
+  until you pick it. Paste a subscription key and the region it belongs to, and the pt-BR voices your
+  account can use appear in the picker — each engineer can have their own, at their own pace. Nothing
+  changes for an install that does not touch it: without a credential your engineers still say every
+  word, in the local voice, offline. If audio is refused after you save, check the region as well as
+  the key — Azure answers the same way for both, and the panel says so.
+
+- **Picking an engine now starts with one question: on this PC, or online.** Every engineer's panel asks
+  that first, then which engine of that kind, and then everything that engine has — its voice, its
+  weights or its account, and how it reads. The old row of engine tiles put a voice that costs nothing
+  next to one that bills your card and left you to know the difference; the two are separated now, with
+  the trade written under each side.
+- **Everything about an engine is inside the engineer who uses it.** The Voice screen had a tab per
+  engine — one each for `Kokoro` and `ElevenLabs` — and now has two tabs, `Engineers` and `Sound`. The
+  voice list, the key, the account and the weights are all still there, opened from the engineer they
+  belong to rather than from a strip along the top. Picking a voice no longer sends you to another tab
+  and leaves you to find your way back.
+- **A control that is shared between your engineers now says so.** A key, a download and a model graph
+  belong to your whole install, not to one engineer, so each is marked **All engineers** wherever it
+  appears. Pasting a key under the spotter's name is the same key the chief engineer uses, and the panel
+  no longer leaves you guessing.
+
+- **Each of your engineers can now speak their own language, and there are five to choose from.** PitCrew
+  spoke Portuguese or English; it now also speaks Spanish, French and German, and the language is set
+  per engineer rather than once for the whole app — so the spotter can call cars in English while the
+  race engineer talks to you in Portuguese. The list you are offered for a given engineer is what the
+  engine behind them can actually pronounce: the voice model that ships with PitCrew has no German
+  speaker, so German is offered on every other engine and not on that one. Numbers are spoken
+  properly in every one of the five — a lap time, a gap and a position are read the way that language
+  says them, not translated word by word. Nothing changes for an install that does not touch it: every
+  engineer keeps the language you already had, and none of the audio PitCrew has already generated is
+  thrown away.
+- **Everything about an engineer is now behind their own name.** Each engineer's card opens a panel
+  holding every choice about them — which engine makes their voice, which voice, which language, how
+  fast they read, and a button that generates their lines. The Voices screen used to be organised by
+  *engine*, which meant setting up one engineer took you across three tabs and back. Those tabs are
+  still there for the things that belong to your PC rather than to a person: downloading the voice
+  models, pasting your studio key, fetching the beta engine's files.
+- **Each engineer has their own cache warm.** Generating the fixed lines used to be one button for the
+  whole app, and that stopped making sense once every engineer could have their own voice and their
+  own language — two of them can be perfectly ready while the third has nothing on disk. The button
+  now sits inside the engineer it is about and generates only their lines, so changing one engineer's
+  voice no longer means regenerating everyone's. **The single "Warm cache" button on the Phrases
+  screen is gone**; that screen still tells you how much is generated and what finishing it would
+  cost.
+- **The wait between qualifying and the race is now a screen worth looking at.** Climb out after your
+  qualifying run and your phone used to say your car had not loaded into the session, which was true and
+  no use. It now shows you the grid: where you start, the cars either side of you, their licence and
+  iRating, their last lap and how far off you they were — over the track, your class, the strength of
+  field and the time left. It is the order the sim has the field in, not one PitCrew worked out, and it
+  goes back to your normal dash the moment you load onto the track. Your accent, your fonts and your idle
+  background all come with it.
+- **Your phone's dash now works out your pit stop.** A new block — on the practice and race screens out
+  of the box, at the top of the column, and off for qualifying — that answers the three questions a stop
+  actually raises: the lap your fuel window
+  closes on, how much to put in, and where the stop leaves you. The first two arrive as soon as you have
+  a clean lap to average. **The third needs one stop to learn from**: PitCrew times your own stop at your
+  own pit lane, so from your second stop onwards it can say which lap of the window comes out best, and
+  until then it says so rather than showing you a number it guessed. It reads the cars in your class that
+  have already stopped and the ones that still owe one, and it tells you it is a projection — it does not
+  know about tyre wear, traffic on your out-lap, or when the drivers who have not stopped are going to.
+- **The dash on your phone now switches between practice, qualifying and race by itself.** The three
+  arrangements you configure separately are now picked automatically from the session you are actually
+  in, decided on the rig rather than guessed from the session's name — so a race a league called
+  something unusual still gets your race screen. A session PitCrew cannot place falls back to the race
+  screen, which is the one carrying every block.
+- **Qualifying now gets a screen built for one lap.** FOCUS puts a single column down the middle of your
+  phone with nothing either side of it, and that is what the qualifying screen now starts as: your
+  predicted lap, your last, your best and the session's, at the size you can read them at from the corner
+  of your eye, with your TC, ABS and brake bias on a strip underneath. No leaderboard, because on a hot
+  lap you are not racing the car ahead — and the time left is already on the bar across the top. It is
+  still yours to change: every block on it has a switch, the leaderboard included. It is the one
+  arrangement the picker does not offer, though — it is where qualifying *starts*, and picking either of
+  the two panels instead is a one-way door, so the drawer shows you FOCUS selected for as long as you are
+  on it.
+- **You can reorder the cards down the side of the race dash by dragging them.** Press and hold one of
+  the three — pit strategy, the vehicle strip, fuel — and slide it up or down the column to where you
+  want it. They swap places among themselves and nowhere else: there is no drag that lands a card on the
+  leaderboard, in the bar, or across in the other column, so a stray thumb cannot rearrange your dash.
+  Let go without moving and nothing changes. It is the race screen only, and the one thing it costs is
+  that a long press on one of those three cards now picks the card up instead of opening the settings —
+  press and hold the board, the bar or the space between the cards for that, or use the button on the bar.
+- **The leaderboard now has a switch, like every other block.** It was the one block you could never
+  turn off. You can now leave it off on any screen — what PitCrew still refuses is an empty panel, so
+  the last block left on a screen keeps its switch on until you turn another one on.
+- **Each of your engineers can now have their own voice.** Putting the race engineer, the strategist and
+  the spotter all on the same local engine used to give you one voice saying everything — a voice
+  belonged to the engine, not to the person speaking. Every engineer's card on the Voices screen now has
+  its own voice, and says which one they fall back to until you give them one. Nothing changes for an
+  install that does not touch it: every engineer keeps the shared voice they already had, and none of
+  the audio PitCrew has already generated is thrown away. Giving one engineer their own voice does mean
+  their lines are generated again in it — they are genuinely different recordings — and this applies to
+  both engines that run on your own PC. It applies to the studio voice too, with the cost that comes
+  with it — see *Each engineer now reads at their own pace* further down.
+- **PitCrew now tells you when there is a new engineer or new phrases, and never installs either on its
+  own.** A small panel in the bottom-right corner says what is available and how big it is. You accept
+  the **download**; later, and separately, you accept the **install** — two answers, because a download
+  spends your connection while you are doing something else and an install stops the engineer for a few
+  seconds to start it again. Neither is ever offered or carried out while iRacing is running. Everything
+  PitCrew fetches is signed, and a file that is not exactly the one that was signed for is thrown away
+  rather than installed. If an update does not start, the engineer you had comes back by itself. New
+  phrases arrive this way too, without a new installer — so a better call, or a fix to something the
+  engineer says, no longer waits for a release you have to download and run.
+- **Your phone's dash is now yours to shape.** Settings moved into a drawer that slides in over the
+  board, so you can see what you are changing while you change it — every choice lands on the panel
+  behind it as you tap. Inside it: **two arrangements** to pick from, drawn as little diagrams rather
+  than described — the board on the left with the lap-times strip under it and three cards stacked
+  right, and the same panel mirrored for a phone cradled to your right — and **seven blocks** you place
+  into them: the board, the session bar, a big session clock, lap times, fuel, car adjustments and pit
+  strategy. A block goes where you put it and the slot's size *is* its size, so
+  there is no second control to argue with the layout. If a block will not fit, the drawer says so
+  before you commit rather than shrinking a number you were reading.
+- **Practice, qualifying and the race each get their own dash.** Three arrangements, configured
+  separately, so the panel you want for a qualifying lap is not the one you want at lap 40 of a race —
+  a block can be on for the race and off for qualifying. Out of the box practice and the race share the
+  panel PitCrew has always drawn, and qualifying gets a screen of its own — see above.
+- **A preview, so you can set all of this up with iRacing closed.** It draws the real panel from
+  made-up numbers — a full multi-class field, a tank that is short of the finish, a lap in progress —
+  and it is labelled `PREVIEW · MADE-UP DATA` the whole time it is open, in a bar above the panel, so
+  it can never be mistaken for your own session. You can flip between the three screens inside it. Reached
+  from the idle screen and from the drawer.
+- **Five accent colours and three font pairs.** The accent recolours *your* row on the board and nothing
+  else — every other colour on the dash keeps its one meaning, so purple is still a session best and
+  amber is still a warning. The fonts are three pairs of a text face and a number face, each previewed
+  in itself with a real lap time, and every number face keeps its digits the same width so a lap time
+  cannot jitter as it counts.
+- **The idle screen can be your own.** Your car number and name at the top, off the session's roster,
+  with a switch to hide them; a choice of what sits underneath — your last race, or a clock; and a plain
+  or graded background. Two options are visible and switched off with a note saying why: `NEXT RACE`,
+  because PitCrew cannot read your schedule yet, and a video background, which needs clips that are not
+  cleared.
+- **PitCrew now states plainly what it collects and the terms it's free to use under, in the app and
+  in the installer.** `Settings → About` has two new buttons — Privacy and License — that open the
+  full text: what is sent to Google Analytics and Sentry, what is never sent, and the free,
+  proprietary license PitCrew ships under, with the list of third-party components underneath it. The
+  installer now shows a short version of the same license, with a privacy notice, on the one screen it
+  can — none of this changes what PitCrew already collected, it makes it easy to actually read.
+- **Your engineer has three or four ways to say every call now, instead of one or two.** Two ways of
+  saying a thing is not variety — it is alternation, and after a handful of laps you could hear the app
+  taking turns. Every callout the driver hears repeatedly inside one race — the spotter, the gaps, the
+  positions, the traffic — now has at least four, and everything else at least three, in all five
+  languages. The spotter is the careful case: its calls still open with the same words in the same
+  order, because *"carro na esquerda"* has to be recognised before it is understood, and only the tail
+  of the call changes. The countdown to the green is untouched where it is counting — *"cinco",
+  *"quatro"* — because a number has no synonym.
+- **Qualifying finally has an engineer.** Until now a qualifying session got the race's phrases or
+  nothing at all. It now has its own: the session opening, the out-lap (*"essa volta não é a volta"* —
+  attacking on cold tyres is the most common way to waste a qualifying run), five minutes, two minutes,
+  and the call the app has never made — **one minute, and if you do not cross the line before the clock
+  hits zero the lap does not count**. It tells you when a lap improved and what slot that puts you in,
+  when it did not and to cool the tyres and go again, and where you start from when the session closes.
+- **A red flag is now called on the radio.** It was the most serious thing the app said nothing about.
+  So is a full-course yellow, which now has its own call — *"amarela geral, reduz e não ultrapassa"* —
+  told apart from a local yellow for the first time.
+- **The engineer talks in the window before the green, where a real one talks most.** The formation lap
+  (warm everything, hold formation), your grid slot, one lap to the green, a held start, crossed flags
+  at half distance, and the standing-start light sequence down to *"vai!"*. The app used to be silent
+  from "get in the car" until the green flag dropped.
+
+
+- **You can now choose which ElevenLabs model reads your engineer's lines**, on `Voice → Studio
+  voice`. Three of them, with what each one costs per character shown next to it: the fastest and
+  cheapest, a steadier one at the same price, and the most expressive one at double. Before this, the
+  app always used the expensive one and never asked.
+
+- **PitCrew now checks what your ElevenLabs key is *allowed* to do, not just that it works.** ElevenLabs
+  lets you restrict a key to certain parts of its API, and a restricted key passes an ordinary check and
+  then refuses the thing you wanted — the first time you try to hear the studio voice, or when the voice
+  list turns up empty. Pasting a key now has three answers instead of two: rejected, works, or works but
+  is missing a permission. The third names the permission, says which part of PitCrew is unavailable
+  until you enable it, and links to the page where you do. It is told apart from "your plan doesn't
+  include this", which looks identical and is not fixed the same way. Checking still costs no
+  characters, a key missing one permission keeps working for everything else, and no call is ever lost:
+  what the studio voice cannot say is read by the local voice.
+- **The spotter is its own voice now, separate from the race strategist.** *"Carro na esquerda"*,
+  *"livre"*, *"dois carros na direita"* — the six calls you hear most often mid-corner used to share a
+  voice with fuel warnings and penalties. The spotter has its own card on the Voices screen now, with
+  its own engine and voice picker, so you can put it on a different voice from the rest of the
+  strategist's calls if you want to. Nothing about when or how often it speaks changed.
+- **A warning in the header of every screen when phrases are missing from the cache**, saying how many
+  and roughly what generating them would cost. Clicking it opens the phrase catalog, where the button
+  that does it is. It goes away by itself once they are generated, and it says nothing at all while a
+  generation is running.
+- **The relative table on your phone now shows every class.** It used to list only the cars in your own
+  class, which meant the one car you most needed warning about — the prototype coming up behind you —
+  was never on it. The board now lists the cars physically around you on the track whoever they are, in
+  road order: furthest ahead at the top, you in the middle, furthest behind at the bottom. So you can
+  see the faster car arriving, and which direction a blue flag is about to come from, before you are
+  shown one.
+- **The interval column follows the track, not the standings.** In the new relative it counts the
+  seconds around the lap between you and each car, which is the number that tells you when they arrive
+  — a car a lap ahead of you sitting fifty metres back reads as two seconds away, not as a lap. The
+  column is labelled `REL` when it means that and `GAP` when it means seconds behind you in the race,
+  so the two can never be mistaken for one another.
+- **Your phone has its own dash settings.** Long-press the top bar, or use the button on the waiting
+  screen, and you can set the size, the theme, the units and which blocks are drawn on *that phone* —
+  useful because a phone in a cradle is not the same distance from your eyes as a tablet clamped to the
+  rig. Nothing here is sent to the rig, and nothing is changed for anyone else connected to it.
+- **The board's compact size really lists nineteen cars now.** All three sizes ask for a number of cars
+  — 19, 13 or 9 — and the two larger lists were quietly short, because the rig only ever sent eleven
+  cars to choose from. It now sends enough.
+
+- **Your phone shows your last race on the screen you meet before the next one.** The waiting screen —
+  the one your phone sits on with the sim shut — now carries where you finished, how many incidents it
+  cost you, the laps you completed, your best lap of that race, and whether the race took anything off
+  your record for that car and track. A race you left early keeps its position and says *did not
+  finish* beside it, because both of those are facts about your night. A rig that has not logged a race
+  yet shows exactly what it always did.
+- **What your iRating and safety rating did is not shown, and the screen does not pretend otherwise.**
+  iRacing tells the sim what your rating is when a session starts and never what a race did to it, so
+  PitCrew genuinely does not know. Rather than draw two empty boxes you would keep checking, they are
+  not there at all. The same goes for the race you are signed up for next.
+- **Your engineer now warns you about a car entering or leaving the pits nearby.** A car diving into
+  the pit lane directly ahead or behind you, or one rejoining the track as you come past the pit exit,
+  now gets its own call — the same kind of attention a spotter gives a car about to change what is
+  around you.
+- **Your phone's board shows the session's fastest lap, not just your own.** A fourth line under BEST
+  LAP on the lap-times card — the quickest lap set by anyone in the field, whoever that is, updated
+  live.
+- **A settings button now sits on your phone's live screen, next to the PitCrew mark** — the same
+  screen as before still opens with a long press, this is a second, faster way in for a driver who
+  knows where to look.
+- **The Dash settings screen now shows the panel it configures**, not just the controls for it. A live
+  preview above the settings draws the real board, session bar and cards — the exact layout your
+  tablet shows — over a sample race, and it redraws the moment you change a size, a theme, the units or
+  a block, so you see the result before it ever reaches the rig.
+
+- **Each engineer now reads at their own pace, and has their own studio voice and model.** These were
+  the last three things about an engineer that were really about the *engine* behind them: moving the
+  speech-rate slider in one engineer's panel changed how fast every engineer on that engine read, and
+  all your engineers on the studio voice were locked to one voice between them. Now the panel means what
+  it says — set the spotter to read fast and clipped while the race engineer takes their time, or give
+  each of them a different studio voice. Anyone you have not given their own keeps following the shared
+  setting, which still lives on the `Sound` and `ElevenLabs` tabs and is what a fresh install uses
+  throughout.
+
+  Two things worth knowing before you use it. A different voice, model or pace means that engineer's
+  fixed lines have to be generated again — free on your own PC, and **billed per character on the studio
+  voice**, so three engineers on three studio voices is three times the generation to pay for. And
+  nothing is ever generated until you press the button for it. Every screen where one of these choices
+  is made now says whose voice you are changing, and the tabs say plainly when you are editing the
+  shared one instead.
+
+- **A safeguard against settings showing up in two places at once.** Each setting now belongs to
+  exactly one screen, enforced at build time — a future duplicate control, like the radio filter
+  that once lived on two screens, fails before it can ship.
+
+- **`Settings → About` now shows your engineer's version as well as PitCrew's.** They are the same
+  number on every install today, because both arrive in one installer. They will not always be: your
+  engineer is its own program now, and the point of it being one is that it can be improved without you
+  reinstalling PitCrew. When that happens, "which version" is two questions — and a bug report that
+  answers only one of them is a bug report that guesses. The row reads `Not running` when no engineer is
+  running, which is a thing Home already tells you about.
+
+- **And if the two ever cannot talk to each other, PitCrew says which one to update.** It will not
+  happen to an install that came from one installer — this is the safeguard for the day your engineer can
+  update on its own. Rather than the app going quiet with "the race engineer is not running" while an
+  engineer is plainly running, every screen says which of the two is the older half and what to do about
+  it, and PitCrew refuses to drive an engineer it does not understand instead of half-working.
+
+- **A car on your left is now called from your left.** The spotter's callouts are placed in the stereo
+  field on the side the car is actually on — left for "car left", right for "car right", and the same
+  for two cars — so you know the side from the first instant of the call instead of waiting for the
+  word. Nothing else moves: "clear" and "cars both sides" stay in front of you, and so does everything
+  the race engineer and the strategist say. The words still name the side either way, so nothing is
+  lost on a mono headset or a single speaker — and there is a slider for how far the call is pushed
+  (including off) beside the volume, on the Sound tab. It changes only how a line is played, so no
+  audio is generated again and nothing is billed.
+
+### Changed
+
+- **Speech rate now belongs to each voice engine instead of to the app.** One slider used to set the
+  pace of everything, and it could not be honest about it: the local engine takes 50% to 200% and the
+  studio voice only 70% to 120% — so past the marks the slider was moving one voice and pretending to
+  move the other. Each engine now has its own rate, in its
+  own range, next to the rest of that engine's settings. **The pace you already set is kept**, on both
+  engines, and none of the audio PitCrew has already generated is thrown away.
+- **The dash on your phone is redrawn to the design it was meant to have.** The board goes back to the
+  type size it was cut for, so a driver's name reads whole instead of trailing off after two letters,
+  every column holds its number without clipping, and the leaderboard fits more of the field on the same
+  screen. A car a lap ahead or a lap behind — and your own car — now carries a coloured bar down the edge
+  of its row, so you find yourself and the traffic without reading a single cell. The interval column
+  reads `+1.4` and `−6.4` rather than a bare number, which is the sign you used to have to get from the
+  colour. The bar across the top is calmer: the numbers are back at the size the rest of the panel is set
+  at, `TIME LEFT` is yellow and your incident count amber so the two you glance at still stand out, and a
+  position or a lap now reads as `9` with a dimmed `/25` beside it rather than one run-on figure.
+- **The dash you get out of the box is the one the design was drawn around.** Practice and the race now
+  start on `TWO PANELS`: the board over a full-width lap-times strip — predicted, last, best and the
+  session's fastest, side by side under the leaderboard instead of stacked in the column — with pit
+  strategy, the vehicle strip and fuel down the side. That is six readings on the panel where the old
+  default fitted five. The lap-times block takes whichever of its three shapes the place you put it in
+  can actually hold, so moving it into the column still gives you the stacked card.
+- **The `CAR ADJUSTMENTS` card is now a slim `VEHICLE` strip.** Traction control, ABS and brake bias sat
+  in three boxed tiles under a heading, taking a third of the column for three numbers that change a
+  handful of times a stint. They are one line now — the reading, its name beside it, each still in its
+  own colour — and the height that frees up goes to the fuel card below, which is the one down there
+  that actually wants the room.
+- **The cards down the side of your phone's dash are in the order the dash was designed in**: pit
+  strategy at the top, the vehicle strip under it, fuel at the bottom. They used to come out in the
+  order PitCrew ranks them by importance, which is the order it still drops them in when you pick an
+  arrangement with fewer places than you have blocks — those are two different questions and they were
+  sharing one answer.
+- **The whole panel was being drawn at three quarters of its intended size on a 7" tablet.** Every card,
+  every label and every figure — the dash was solving its sizes against a 10" tablet's proportions and
+  then fitting the result to a smaller screen. It draws at full size now, which is the single largest
+  change to how the dash looks on a phone or a small tablet.
+- **Your licence rating is shown the way iRacing spells it.** The board rounded `B 3.41` to `B 3.1`,
+  which was a column that had run out of width rather than a decision about the number — and the last
+  digit is the one that actually moves after a race.
+- **The lap-times block reads by colour again.** Your last lap is plain white, your own best is violet —
+  the same violet the board already puts on a driver's personal best — and the session's fastest is
+  plain. Your last lap used to be yellow, which is the colour the bar above uses for a clock running
+  out, and one colour cannot mean two things on a panel read at speed.
+- **The board lists far fewer cars, and every one of them is readable.** `COMPACT`, `NORMAL` and `LARGE`
+  listed 19, 13 and 9 — counts taken from the desktop dash, which draws its board in a window twice the
+  height. On a phone that meant solving nineteen rows out of about a third of the screen and rendering a
+  driver's name at six pixels. The steps are **9, 7 and 5** now: `NORMAL` is the board the dash was
+  designed around, and `LARGE` is for reading at a glance with two cars each side of you.
+- **The leaderboard runs edge to edge.** It was inset twelve points on every side like the cards beside
+  it; a card holding three figures wants that air and a leaderboard wants the width, so the rows are
+  wider — the driver-name column gets the difference — and taller. Everything else on the dash keeps a
+  twelve-point inset, which is now the same number as the space between two blocks rather than a
+  second one.
+- **The places-gained reading is off the top bar.** It was one of six segments competing for a row that
+  fits five comfortably. Where you are running and which way you are moving are both on the board
+  already — your row, and every row above and below it.
+
+- **Your engineer now really does run as its own program, and the PitCrew window is the screen that
+  talks to it.** Opening PitCrew starts your engineer if it is not already running, and finds it if it
+  is — so closing the window to the tray, or the window itself going wrong, no longer takes your
+  engineer off the air mid-race. Everything you press still does the same thing: the voices, the
+  previews, the cache warm-up, the settings, the tablet dash, Alt+M and Alt+R. Quitting from the tray
+  icon still shuts the engineer down with the app.
+- **Your engineer is now a separate piece from the window it lives in — nothing changes about the way
+  PitCrew drives today.** Everything that decides what to say and then says it (the telemetry reading,
+  the phrase catalog, the voices, the audio, the tablet dash) moved into its own component, and the
+  app around it is now just the screen you click on. Same calls, same voices, same settings, same
+  files on disk. It is groundwork: keeping the two apart is what will later let PitCrew improve your
+  engineer without you reinstalling the whole app.
+- **Your engineer can now run on its own, without the PitCrew window open.** It is the next step of the
+  same groundwork and there is nothing for you to do with it yet — the app still starts your engineer
+  and drives it exactly as before, and the installer is unchanged. What it means is that the part that
+  reads the telemetry, decides what to say, speaks it and serves the tablet dash no longer needs a
+  window to exist at all. Two small things come with it: a crash in your engineer is now told apart
+  from a crash in the app around it, which is the difference between a report that can be fixed and one
+  that cannot, and none of this changes what PitCrew sends or when it sends it.
+- **The app and your engineer can now talk to each other over a private channel on your own PC.** Third
+  step of the same groundwork, and again nothing for you to do: PitCrew works exactly as it did. It
+  matters because of what it is *not* — that channel is reachable only from your own machine, never from
+  your network, and it needs a password that PitCrew generates fresh every time your engineer starts.
+  The tablet dash is unchanged and stays open to your Wi-Fi, because all it ever does is show you
+  numbers; the new channel is the one that will carry things like your settings and your ElevenLabs key,
+  so it is locked down instead. Nothing new leaves your PC, and nothing changes about what PitCrew
+  sends.
+- **Every screen in PitCrew is now answered by your engineer rather than by the window.** Fourth step of
+  the same groundwork: your settings, your race log, the disk figures, your recordings, the catalog, the
+  voice lists, the radio check, the cache warm and everything on the ElevenLabs side — the key check, the
+  credit readout, the auditions and the voice designer — all moved. Same screens, same values, same
+  files, and nothing new is bought or sent. Two things did get better: the "this install is incomplete"
+  banner now tells you which file is missing even when the voice engine itself failed to start, which is
+  exactly the case it was drawn for and the one case it used to stay blank in; and `settings.json` now
+  has exactly one writer for good, which is what keeps that promise once your engineer runs as its own
+  program. The one thing that stayed in the window is the file browser for importing a voice clip,
+  because picking a file needs a window to pick it in.
+- **Your engineer now answers all of those screens over that private channel too.** Same groundwork, and
+  still nothing to do: the app keeps asking for everything the way it always has. What changed is that
+  every question now has a second way in — the one the app will use once your engineer is its own
+  program — and one detail that will matter to you on a slow day: a long job like designing a voice or
+  downloading a voice model no longer holds up everything else your engineer is being asked. It answers
+  each question as it finishes, so PitCrew can keep telling you your engineer is alive while a
+  two-minute download is running instead of looking frozen until it ends.
+- **Two engineers can no longer start on one PC, and one that loses its window keeps the race going.**
+  The last piece of groundwork before the app and your engineer become two programs, and it is the one
+  that decides when your engineer stops. Only one can run at a time now — two of them reading iRacing's
+  data would be two voices talking over each other — and the second one to start says so and stops
+  instead of joining in. It costs nothing if a previous one crashed or the power went out: the claim is
+  released by the machine itself, so there is no leftover file to delete and nothing to repair. And when
+  PitCrew closes normally your engineer is told, and goes; when the *window* dies without warning your
+  engineer keeps working for a minute so relaunching the app picks up the same one — which matters
+  mid-race, because starting a fresh engineer means loading the voice again and a few seconds of silence
+  is exactly what you cannot afford there.
+- **The installer now carries your engineer, and PitCrew installs it into your own user folder the
+  first time it starts.** The last piece of groundwork before your engineer can be updated on its own.
+  Nothing to do and nothing to see: install PitCrew on a PC with no internet and you get a working
+  engineer, exactly as before. What changed is where it lives. The copy in the installer is a seed —
+  PitCrew copies it into your user folder on the first start and runs that copy from then on, keeping
+  the one before it beside it. That is what will let a future engineer arrive without a new installer
+  and without Windows asking for an administrator, and it is what keeps updating PitCrew from being
+  blocked by an engineer that happens to be running while the installer works.
+- **Your phone keeps its own dash settings, and no longer follows the desktop's.** Size, theme and units
+  used to arrive from the rig unless you had overridden them on the phone, with a `FOLLOW THE RIG` button
+  on each one to hand it back. The phone owns all of it now, with sensible defaults, because the desktop
+  no longer draws or configures the phone's dash — it sends telemetry. Nothing on your phone looks
+  different until you open the drawer: the settings you had set are kept, and the arrangement you get is
+  the panel you already had. The one thing you lose is that units could previously follow whatever
+  iRacing was set to; on the phone you now pick litres or gallons yourself.
+- **The settings screen is now a drawer**, and it opens the same three ways as before — the labelled
+  button on the idle screen, a long press on the live panel, and now from the preview. The long press
+  used to have to land on the session bar; it works anywhere on the panel now, because the bar is a block
+  you can switch off. A single tap on the live panel still does nothing at all.
+- **The second voice is now the race strategist.** It speaks the calls whose message is fixed text —
+  the spotter, fuel, pit stops, penalties and session — and "chief engineer" never said it also does
+  the spotter, so the label promised less than the app delivers. The name you gave that voice in the
+  settings keeps working; only the built-in label changed.
+- **The settings button on your phone's waiting screen now says "Settings".** It was an unlabelled icon
+  in a corner. The panel you drive by still hides settings behind a long press — a tap target on a
+  board you read at speed is a setting changed by a knuckle — but a parked phone is where you actually
+  go looking for the switch.
+- **The connection thread across the top of your phone's dash is gone.** The two-pixel line that swept
+  once per frame has been removed from every screen. Nothing about how the panel tells you it has lost
+  the feed has changed: it still dims when the sim stops publishing — whether that is a dropped
+  connection or a sim sitting frozen with the socket still open — and the bar still says which. What
+  you lose is the first few seconds of that warning, and what you get back is a panel with nothing
+  moving on it that is not a reading. (The dash you open in a browser is untouched and still has it.)
+- **The waiting screen is no longer dimmed.** Dimming means "these numbers may be out of date", and
+  that screen has no such numbers — a race that is over and a panel that is waiting do not go stale.
+  The live board still dims exactly as before.
+- **PitCrew never generates phrases in bulk on its own any more.** It used to start a run whenever you
+  changed something that invalidates the cache — a voice, the speech rate, the language — which meant
+  the app could spend ElevenLabs credits as a side effect of you adjusting a setting. Now it only ever
+  happens when you press a button: *Warm cache* on the phrase catalog, *Regenerate them now* on the
+  voice screen, or the last step of setup. Nothing about what gets generated changed; what changed is
+  who decides when.
+- **Generation progress is now a bar at the bottom of the window instead of a panel over the screen.**
+  It shows one bar per voice that is working — the one on your PC and the studio voice, separately,
+  because they run at the same time and only one of them costs money — and it stays visible while you
+  move around the app, so you can leave the phrase catalog without losing sight of a run you started.
+  Stopping the paid half is still one click, on the bar itself.
+- **The studio voice now uses ElevenLabs' cheap model by default, which halves what generating your
+  catalog costs.** If you had already generated phrases, they are still on disk but were made with the
+  old model, so PitCrew asks you to regenerate them — until you do, those calls fall back to the local
+  voice. If you preferred the old sound, pick `eleven_multilingual_v2` on `Voice → Studio voice` and
+  nothing changes.
+- **Scrollbars are PitCrew's own now, not Windows'.** Every list that scrolls used to get the pale
+  system scrollbar, which was the only light-coloured thing in a dark app and sat hard against the edge
+  of whatever card it was next to. It is a thin dark bar that brightens when you point at it.
+- **The window zoom now resizes the window once, a second after you let go of the slider.** It used to
+  redraw the whole app on every 5% step, so dragging the slider looked like the app was struggling. The
+  percentage still follows your finger; the window catches up when you stop.
+- **The Voice screen's four tabs are laid out to one measure.** Cards on *Engineers*, *Voice packs*,
+  *Studio voice* and *Sound* were built at four different sizes over four rounds of work, so switching
+  tabs moved every edge and the voice designer's two columns were spaced differently from each other.
+  Same content, one rhythm.
+- **The engineer now tells you when the car next to you is not in your race.** A car that is a lap
+  ahead or a lap behind is not somebody to fight, and until now PitCrew said nothing about it at all.
+  It now names the driver and which way round it is — you are being lapped, or you are the one doing
+  the lapping — and that there is nothing there to defend or chase. It only speaks when that car is
+  genuinely close on track, and how close, how many laps of difference count, and how often it
+  repeats are all yours to change in `tuning.json` and the phrase catalog.
+- **Brighter colours on the phone, so the numbers that matter stand out further.** The backgrounds went
+  darker and the signal colours louder — your own row, a session best, the predicted lap. The day theme
+  gained depth of colour rather than brightness, because a lighter colour on a light screen is harder to
+  read in sun, not easier. Nothing changed about what a colour *means*: your row is still the same
+  green, a session best is still violet, on the phone and on the desktop alike.
+- **The ready-made voices in the voice designer are a list you can read.** `Voice → Studio voice` has
+  always had six engineers to start from — a calm veteran, one tense under pressure, four others — but
+  they were drawn as six small tags under the description box, and what each one actually asks for only
+  appeared if you happened to hover over it. Each is a row now, showing the description it writes for
+  you and the seed that makes picking it twice give you the same voice. The list also says which file it
+  is read from, `phrases/voice_presets.json`, which you can edit to change the six or add your own.
+- **The tabs on the Voice screen are named after the engines they configure.** `Voice packs` is now
+  `Kokoro` and `Studio voice` is now `ElevenLabs` — so the strip reads as one tab per place a voice
+  can come from. Pressing `Change` next to an engineer takes you to the tab for the engine they are
+  actually on, which used to mean landing on the Kokoro catalogue whichever engine they were on.
+- **The lap card on your phone reads label-then-value now, right-aligned, instead of side by side.**
+  PREDICTED, LAST LAP, BEST LAP and SESSION BEST all sit the same way: the name above the number,
+  both flush to the right edge of the card, so the figures line up with each other instead of with
+  whatever their label happened to be that row.
+- **The fuel card on your phone dropped its gauge.** The ring around the laps-left figure is gone —
+  the number was always the answer, the ring was decoration around it. What is left is the figure,
+  "LAPS", and the pill underneath it that already told you whether that number is comfortable or
+  tight.
+- **The relative table on your phone breathes more.** The gap between columns is wider, and LAST LAP
+  has more room, so a slower driver's name and the times either side of it stop crowding together.
+  The interval column is also colour-only now — no leading `+` or `−`, just red for behind and green
+  for ahead, since the colour already said which one it is.
+- **The bar across the top of your phone changed shape.** Strength of Field now leads the row instead
+  of Position, and the settings icon is half again as big — a target you actually hit at a glance while
+  the car is moving.
+
+### Changed
+
+- **Your phone's dash is set on your phone now, and nowhere else.** PitCrew used to keep the panel's
+  size, theme and which blocks it shows in the desktop app, and send them to the tablet on every frame —
+  so after your phone got settings of its own, the same three things could be set in two places. The
+  desktop's copy is gone: open the dash's own settings on the tablet to change how it looks. **Units are
+  the one exception and still come from PitCrew**, because whether you see litres or gallons follows
+  what iRacing itself is set to, and only PitCrew can read that. The Dash screen in the app now says
+  where the controls went; connecting a tablet is unchanged and still one click from the rail.
+
+### Fixed
+
+- **The Cancel button on a cache warm would have stopped only one of the paid voices.** PitCrew is being
+  prepared for more than one, and the stop button was written when there was exactly one — so a second paid
+  engine's queue would have kept generating, and kept billing, after you pressed it. Nothing shipped with
+  that bug; it is fixed before the engines that would have hit it arrive.
+- **An engineer on a paid voice you have not set up is read by the local voice, as it always should be.**
+  With one paid engine this was already right. With more than one PitCrew would have checked the *wrong*
+  account before deciding — so an engineer set to a voice you had never configured could have waited on the
+  network mid-lap and then said nothing at all. It now asks about the engine that engineer is actually on.
+- **The English lines have been read end to end, and six of them were wrong.** English has been in
+  PitCrew's vocabulary for a while but had never been read as a whole, and reading it turned up
+  mistakes that no single line looks like on its own. The one that mattered most: with a lap of fuel
+  left, your engineer said *"we're out of fuel"* — a different thing from what the Portuguese line
+  says, on the one call you might act on straight away. A warning about the driver ahead read *"holds
+  a A licence"* whenever that licence was an A or an R. A closing gap was reported as *"one second to
+  go"*, which sounds like laps left in the race rather than the gap to the car. A blue flag was shown
+  *"for us"* instead of for you. And the spotter's own six calls were not written in one voice — *"Car
+  left."* next to *"Two cars on the left."* — which is audible when they land seconds apart. All six
+  are fixed, and English is still awaiting its listening test before it is offered as a finished
+  language.
+- **An update no longer leaves the previous race engineer installed.** PitCrew decided whether the
+  engineer that came with an update was new by looking at its version number alone, so a release that
+  reissued the same number — which every prerelease does — was installed and then ignored, and PitCrew
+  went on running the engineer it already had. It now notices that the file itself has changed and
+  replaces it. If the engineer that is running cannot be replaced at that moment, PitCrew says so in its
+  log and tries again the next time you open it, rather than quietly keeping the old one forever.
+- **PitCrew no longer sits on "Starting the race engineer" without saying why.** When the app and the
+  race engineer on your PC disagree about a version, PitCrew will not drive that engineer — and it had
+  written the reason to its log, shown it on screens you could not reach, and left you watching a
+  pulsing dot for as long as you were willing to. The starting screen now carries the sentence that
+  names which of the two to update, and PitCrew stops starting an engineer it has already refused twice
+  instead of starting a fresh one every half minute. It keeps watching, so an engineer it *can* drive is
+  still picked up without restarting the app.
+- **The session bar's readings now sit against the right-hand edge.** Strength of Field, position, lap,
+  time left and incidents were right-aligned inside their own share of the bar rather than against the
+  bar itself, so they floated with an empty strip of card after the incident count and no clear gap
+  between them and the session's name. The five readings hug the trailing edge now, with the space
+  falling where it should — between the race you are in and the numbers about it.
+- **The fuel card's tank gauge was never actually drawn.** The bar showing how full the tank is has been
+  missing since the card was built — the `TANK 45%` line underneath it was sitting on empty space. It is
+  there now, and it fills from the left in proportion to what is in the tank.
+- **`RACE NEEDS` beside that bar was reading back the fuel already in your tank.** Any time you had
+  enough on board to reach the flag, the figure said the race needed exactly what you were carrying —
+  and it went up every time you put more in. It is what the race actually needs from here now: your own
+  consumption times the laps left, so it is a number you can compare against the tank rather than one
+  that agrees with it. It reads as blank in a timed session, which has no lap count to work from.
+
+- **The small print on your phone's dash is readable again.** The labels on the lap-times card — the
+  ones naming your predicted lap and the delta beside it — were being drawn at about half their intended
+  size, and the three figures under the fuel gauge at three quarters. Every card now gets the height its
+  contents actually need, so nothing on the panel is shrunk to fit a box that was too small for it. The
+  session bar's six readings are at full size too, on every screen the panel is built for.
+- **Your licence rating is no longer cut off on the leaderboard.** Every row showed `A 5…` instead of
+  `A 5.0` — the safety rating gone from the whole board — and the column header itself was clipped
+  mid-word. The columns are sized against what actually goes in them now, including a three-digit car
+  number and an interval over a hundred seconds.
+- **The largest board size no longer reduces every driver to their initials.** At `LARGE · 9` on a 7"
+  tablet the names came out as `D. …` and `R. D…` on all nine rows, which is not a leaderboard. The
+  board now gives the names room and takes the difference out of the type size instead.
+- **The board's rows are easier to tell apart, and the faint text on the panel is legible.** The
+  alternating row shading was a twentieth of a step — invisible at arm's length, which is the one thing
+  it exists to avoid — and the hairlines under the column headers were fainter still. The quietest ink
+  on the panel, which is what every card's small print and every label on the session bar is set in, was
+  under the contrast a small reading needs on both the cockpit and the day theme.
+- **The preview no longer covers the session bar it is previewing.** The `PREVIEW · MADE-UP DATA` label
+  sat on top of the panel and hid the lap, the time left and the incident count on a 7" tablet. It has
+  its own bar above the panel now.
+- **PitCrew no longer wipes your settings when it starts.** The window used to open a couple of seconds
+  before the engineer's own program was ready, and in that gap it filled the screen in with blanks —
+  empty names, no studio-voice key, the language back at English — because it had no way to say "I
+  haven't read your settings yet". Everything then looked normal, so the next thing you changed saved
+  those blanks over the real file. PitCrew now waits for the engineer, says **"Starting the race
+  engineer"** while it does, and will not write anything until it has actually read what you had. It
+  also only ever sends the setting you just changed, so nothing else in the file can be overwritten by
+  it — and if the engineer restarts, the window notices and picks up the current values instead of
+  holding a stale copy.
+- **The readiness screen no longer reports installed files as missing.** During that same startup gap
+  it showed the Kokoro voice model as not installed, next to a button to download it — on machines where
+  it was installed all along. One driver re-downloaded a voice pack because of it. Nothing on that
+  screen now claims a file is absent unless it has actually looked, and the same applies to the Voices
+  screen, which briefly emptied its voice list, and to Home's race-log column, which briefly read as an
+  install with no races yet.
+- **The "phrases still to generate" badge no longer says everything is up to date when it doesn't
+  know.** If PitCrew could not read the cache state, the badge in every screen's header quietly
+  disappeared, which reads as "nothing missing". It now says nothing at all in that case, which is the
+  truth. The studio-voice audition had the same problem in a worse place — it claimed you had no
+  catalog on disk for that language, right beside the button that spends credits.
+- **The session bar on your phone no longer cuts off its last reading on a 4:3 tablet.** Six readings did
+  not fit the bar's width there, and the one on the end was silently clipped. They now shrink together
+  when the bar is short, so every one of them stays on screen and readable.
+- **The leaderboard on your phone no longer risks clipping its right-hand column** on a very wide screen
+  at the largest size. It now sizes its columns against the width it actually has as well as the height.
+- **Your engineer no longer calls a personal best a session record.** A quicker lap of your own was
+  announced as *"novo recorde da sessão"*, which may have belonged to somebody two seconds up the road.
+  It says *your* best now, and the app already had a separate call that names whoever actually holds the
+  session's fastest lap.
+- **A local yellow no longer gets full-course instructions.** *"Reduz o ritmo e não ultrapassa"* on a
+  single-corner yellow is wrong — it is caution in that sector, not a lap-wide speed limit and not a
+  blanket ban on passing. The two are separate calls now, and each says what is actually true.
+- **Reference lap times are read to the tenth.** *"O líder tá girando um minuto e quarenta e dois
+  segundos"* was rounded to the whole second, which is useless as a reference when the difference you
+  are chasing is hundredths. Your engineer now says *"um minuto, quarenta e dois e três"*, the way the
+  number is actually said on the radio — for the car ahead, the session best, the leader's pace and your
+  own best on a track you have run before.
+- **Race advice no longer arrives during qualifying.** *"Faltam cinco minutos, controla o ritmo"* used
+  to fire in every session there is, and in qualifying it means the opposite: five minutes left is the
+  last window to put a lap in. Every call that gives advice about a situation now knows which kind of
+  session it is in, so a race line cannot reach a qualifying session and the other way round.
+- **The engineer stops calling you *motorista*.** That is what you call someone driving a bus. You are
+  a *piloto*, and the radio check at the start of a session no longer says *"pronto pra corrida"* in the
+  middle of a practice session either.
+- **The spotter says *"livre"* instead of *"limpo"*.** *"Limpo"* reads as a clean lap; *"livre"* is what
+  a Brazilian spotter actually says when the car beside you has gone.
+- **Nobody speaks a colon.** *"iRating médio do grid na sua classe: 2340"* is a screen being read out,
+  not a person talking — the field-strength call is a briefing line now, and the same fix applies
+  everywhere it had crept in. The track-limits warning also stops saying *"preta enrolada"*, which is
+  *furled black* translated word for word and something no one says out loud.
+- **Coming out of the pits, the engineer says what is useful.** It used to narrate what you had just
+  done — *"entrando no pit"* — and now it says *"limitador ligado"*. And when a stop left the old tyres
+  on, it says so as a fact rather than only as a consequence.
+- **Buttons, toggles and tabs show the hand cursor again when you point at them.** Every clickable
+  thing in the app — the engineer toggles, the engine tiles on `Voice → Engineers`, the tab strips, the
+  routing tags — was showing the ordinary arrow, so nothing on screen looked pressable until you pressed
+  it. Controls the app cannot honour yet still show that they are unavailable.
+- **The gap calls no longer chase a car that is a lap away.** "You are catching the car ahead" and
+  "the car behind is coming" are about the people you are racing. On a short track — where a whole
+  lap can take less time than the window those calls look at — a car a lap down running up the road
+  could land inside that window and be announced as a threat closing on you. You would defend, or
+  attack, and lose time to a car that was never in the fight. How many laps apart you are is now part
+  of the decision instead of a side effect of how long a lap happens to be.
+- **When ElevenLabs refuses your key, PitCrew now tells you which of four reasons it was.** Some of
+  those refusals used to arrive on screen as "the request was refused" and a number, which reads like a
+  bug in PitCrew and is not one. There are four causes behind it, they look identical from the outside,
+  and each needs something different from you: your **plan** does not cover the feature; your **key** is
+  missing a permission; ElevenLabs has **flagged the account**, which no other key on that account gets
+  past and only they can lift; or the refusal **never reached ElevenLabs** at all, because something
+  between your PC and their API answered for it — a filtering proxy, a company or school network, or an
+  antivirus that inspects HTTPS traffic. Each of the four now says so in its own words, and says what to
+  do next. Two of them also stopped being reported as "that key was not accepted", which had drivers
+  re-pasting a key that was never the problem.
+- **A refusal from ElevenLabs is now always written to the log file**, with the reason ElevenLabs gave
+  for it. Some of them left no record at all, which made "I pasted my key and got nothing" impossible
+  to answer from a log a driver sent in. The log never contains your key.
+- **The board no longer marks the car two seconds behind you as a lap down.** It counted laps by
+  comparing lap numbers, and a driver right behind you has not crossed the line yet — so his lap number
+  is one lower than yours while he is on exactly the same piece of track. The board called him lapped
+  traffic, which was already misleading and became a whole row of the wrong colour once lapped cars
+  started being tinted. It now counts the way the engineer does, so the two can no longer tell you
+  different things about the same car.
+- **A car a lap ahead of you is blue and a car a lap behind is red — they were the wrong way round.**
+  The phone was tinting the cars you had lapped in blue and the cars that had lapped you in red, which
+  is exactly backwards: blue is the colour of the flag you are shown when a faster car is coming
+  through. It is also the whole row that is tinted now rather than a small badge on it, so you can read
+  it without looking straight at it.
+- **During qualifying, your engineer only talks about your lap.** Fuel, gaps, traffic and the rest of
+  the race radio used to keep talking through a qualifying session as if it were a race; now that
+  content stays quiet and only what qualifying is actually about — your lap, the session itself — gets
+  through.
+- **After the checkered flag, the radio winds down instead of carrying on.** Your engineer used to
+  keep reporting fuel, the car ahead, the car behind — all race information about a race that just
+  ended. Now the radio says only what closes out a session: a word about how it went, and to bring it
+  to the pits.
+- **The radio goes quiet when you are not on track.** Sitting in the garage or a menu used to still get
+  you spotter and engineer calls meant for a car that is out there; now nothing is said until you
+  actually are.
+- **Cars sitting in their pit box no longer show up on your phone's board.** A car in the pits is not
+  someone you are racing at that moment, and it was taking up a row that could have shown one who is.
+- **Your phone's predicted lap time stopped getting stuck empty.** A brief reconnect — a Wi-Fi blip, a
+  moment in the background — used to throw away your reference lap entirely, so on a phone that
+  reconnects more than a desktop ever does, PREDICTED could sit on "no reference lap" for the whole
+  session. A short reconnect no longer costs you it.
+- **Leaving your session for the garage or a menu now takes your phone back to the waiting screen.**
+  With iRacing still running but no car of yours on track, the panel used to keep showing whatever it
+  had last drawn instead of admitting there was no longer a race to report.
+- **The lap marker no longer pushes a driver's name off the row.** On smaller screens at the largest
+  size the `+1L` badge could overflow the name beside it. It now gives way to the name, since the row's
+  own colour already says the same thing.
+- **Pressing play twice no longer leaves two voices talking over each other.** Every preview in the app
+  — a voice on `Voice → Voice packs`, "hear the whole chain", a line in the phrase catalog, a studio
+  voice audition, a designed candidate — used to get a player of its own, so pressing play again while
+  one was still speaking gave you both sentences at once, and a third press gave you three. There is one
+  player now: pressing play ends whatever it was saying and says the new one instead, wherever in the app
+  the two presses were. Previews after the first are also quicker to start, because the audio device now
+  stays open between them. Nothing changes about what the engineer says during a race — those were
+  always one at a time.
+- **Your predicted lap time has an actual reference to compare against now.** The timer that builds
+  PREDICTED was watching the same thread that speaks to you, and that thread waits for a phrase to
+  finish playing before it does anything else — so any lap with a callout on it (which is most laps)
+  looked like a gap the timer couldn't explain, and it gave up on that lap rather than guess. It now
+  watches the telemetry feed directly, which never waits on the radio, so a lap finishing in silence
+  is no longer the only kind that counts.
+- **The Windows build no longer prints a spurious linker warning about a missing debug-symbol file
+  for the audio codec.** Nothing the driver sees changed — this is build hygiene, so the next release
+  logs stay readable.
+
+### Removed
+
+- **Removed the first-run setup wizard.** PitCrew now opens straight to the app — set your name,
+  voice, and language from the Voice screen whenever you like, and the header tells you what's still
+  missing.
 
 ## [0.1.0] - 2026-08-05
 

@@ -41,7 +41,7 @@ In roughly the order worth checking:
 3. **Is it playing to the device you are listening to?** The output device is a setting. If your
    headset arrived after PitCrew started, it may be talking to the speakers.
 4. **Did the voice finish downloading?** With no model on disk there is nothing to speak with.
-   Onboarding will say so; the log will too.
+   The Voice screen will say so; the log will too.
 5. **Press Alt + R.** If the last message repeats, speech works and the real question is why nothing
    *triggered* — which is a different problem, and a much more interesting bug report.
 

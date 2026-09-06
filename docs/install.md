@@ -17,7 +17,10 @@ imaged Windows machine with no preparation.
 1. Download the `.msi` from the [releases page](https://github.com/igorgsduarte/pitcrew/releases) —
    the newest build is at the top. (Not `/releases/latest`: that shortcut skips pre-releases, and
    every beta is one, so it stays empty until the first stable build.)
-2. Run it. It installs to `C:\Program Files\PitCrew` and adds a Start-menu entry.
+2. Run it. It shows a license screen — PitCrew's terms and a short privacy notice, condensed onto the
+   one screen Windows' installer can show. The full [license](license.md) and
+   [privacy policy](privacy-policy.md) are always reachable from **Settings → About** once PitCrew is
+   installed. Accepting installs it to `C:\Program Files\PitCrew` and adds a Start-menu entry.
 3. Launch **PitCrew**.
 
 ### Windows will warn you about the installer
@@ -38,7 +41,7 @@ The installer is small because it **does not bundle the voice model** — those 
 megabytes of neural-network weights, and shipping them inside every update would mean
 re-downloading them on every update.
 
-So the first time you launch PitCrew, onboarding downloads:
+So the first time you open the **Voice** screen and download a voice, PitCrew fetches:
 
 - the **Kokoro** speech model, about **310 MB**, and
 - one **voice pack**, about **0.5 MB** each.
@@ -70,8 +73,22 @@ To remove PitCrew completely: uninstall it from **Settings → Apps**, then dele
 
 ## Updating
 
-Download the newer `.msi` and run it — it replaces the installed version in place. There is no
-in-app updater yet. Your settings, profiles and downloaded voice are untouched.
+**PitCrew tells you.** A small panel appears in the bottom-right corner when there is a new engineer
+or new phrases, and it waits. You accept the download; later, and separately, you accept the install.
+Two answers rather than one, because a download spends your connection while you are doing something
+else and an install stops the engineer for a few seconds to start it again.
+
+- **Nothing happens on its own.** No download, no install, no restart you did not press.
+- **Never during a session.** PitCrew does not even ask while iRacing is running, and the install
+  button refuses if you go on track between the two answers.
+- **"Not now" costs you nothing.** A download you already made stays on disk, and you are offered the
+  install again next time.
+- Everything is signed, and a file that is not exactly the one that was signed for is thrown away
+  rather than installed. If an update does not start, the engineer you had comes back by itself.
+
+**A new PitCrew itself is still an `.msi`**: download the newer one and run it — it replaces the
+installed version in place, and your settings, profiles and downloaded voice are untouched. What the
+panel updates for you is the engineer and what it says.
 
 ## Uninstalling
 

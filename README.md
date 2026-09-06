@@ -26,8 +26,9 @@ Every release lists what changed in it. The full history is in [CHANGELOG.md](CH
 | | |
 |---|---|
 | [Installing](docs/install.md) | The `.msi`, the Windows SmartScreen warning, and what the first run downloads |
-| [Getting started](docs/getting-started.md) | Onboarding, the overlay, and what PitCrew says during a race |
+| [Getting started](docs/getting-started.md) | Setting up your voice, the overlay, and what PitCrew says during a race |
 | [Voices and languages](docs/voices.md) | The local voice, the optional cloud voice, and which languages are spoken |
+| [Talking to your engineer](docs/voice-commands.md) | Hold a key and ask about fuel, position, gaps or laps left — recognised on your own PC |
 | [Troubleshooting](docs/troubleshooting.md) | It says nothing, the overlay is invisible, the download stalls |
 | [Reporting a problem](docs/reporting-issues.md) | What to include so a bug can actually be fixed |
 | [What PitCrew sends](docs/what-pitcrew-sends.md) | The complete list of what is measured, what never leaves your machine, and how to block it |

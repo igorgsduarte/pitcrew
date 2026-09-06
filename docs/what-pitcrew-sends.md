@@ -4,6 +4,10 @@ PitCrew is free, has no accounts and no ads, and nobody is being sold anything. 
 information about how the app is used, and this page is the complete list. There is no setting to turn
 it off — so the least this page owes you is to be specific rather than reassuring.
 
+This page is the short, conversational version. [The privacy policy](privacy-policy.md) covers the same
+facts in the fuller shape a policy needs — third parties, retention, contact — and is also what
+Settings → About → Privacy shows inside the app.
+
 **An earlier version of the release notes said PitCrew made no analytics requests at all. That is no
 longer true**, and this page exists because saying so plainly is better than quietly leaving the old
 sentence in place.
@@ -30,7 +34,7 @@ Usage measurement goes to Google Analytics. Every one of these is an event about
 | You finished setup, and how far you got if you did not | Whether the setup steps are getting in the way |
 | PitCrew found iRacing and started reading telemetry | An install that never manages this looks exactly like one that was never opened, and the two need opposite fixes |
 | A race was logged: laps, where you were classified, whether you finished, how many calls the engineer made, and whether you beat your own best lap | Whether the app is actually being used to race, for whole races |
-| You pressed a button to hear a voice, or changed voice | Whether people get sound working |
+| You changed the engineer's voice | Whether people get sound working |
 | An ElevenLabs key was checked, and which of the five answers came back | "The studio voice doesn't work" has five different causes and five different fixes |
 | A phrase cache finished warming, and whether you stopped it part-way | Stopping it means a cost surprised you, which is a bug in the app, not a statistic |
 | The overlay was asked to appear | Whether the in-race overlay is worth the work it takes |
@@ -47,6 +51,19 @@ disables crash reporting completely.
 
 ---
 
+## Checking for updates
+
+A few times a day PitCrew asks GitHub whether there is a new engineer or new phrases. It is a request
+for a small file, it **sends nothing about you or your PC**, and it is not measurement — there is no
+identifier on it and nothing is recorded on our side, because there is no "our side": the file is
+served by GitHub like any other public download.
+
+Nothing is downloaded or installed unless you say so, twice — once for the download, once for the
+install. If you would rather it did not check at all, blocking `raw.githubusercontent.com` stops it,
+and PitCrew keeps working exactly as it does now.
+
+---
+
 ## What is never sent
 
 - **Your name.** Not the one you gave PitCrew, and not the one on your iRacing account.
@@ -59,6 +76,13 @@ disables crash reporting completely.
 - **The words the engineer says.** Phrase text never leaves your machine for measurement. (If you have
   configured a studio voice, phrase text does go to ElevenLabs to be spoken — that is the service you
   set up, billed to your own account, and it is not part of this.)
+- **Anything you say.** If you switch voice commands on, PitCrew opens your microphone *only while you
+  hold the push-to-talk key* — there is no wake word and it is never listening in the background. The
+  recording is turned into text on your own PC, matched against a fixed list of questions, and thrown
+  away. **No audio and no transcript is uploaded anywhere, to us or to anyone else**, and neither is
+  measured — not what you asked, not whether you were understood, not how often you ask. The screen
+  shows you the last thing it heard; that readout is local and goes no further. See
+  [talking to your engineer](voice-commands.md).
 - **Anything to do with advertising.** Google's advertising and ad-personalisation features are
   switched off, so none of this can be joined to an ad profile or used to target you.
 
