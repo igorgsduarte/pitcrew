@@ -19,6 +19,16 @@ dated one. See `docs/release-process.md`.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.5.0] - 2026-10-16
+
+### Added
+
 - **Your tyres at every pit stop, in the race debrief.** iRacing only measures the tyres while the car
   stands in its pit box, so PitCrew now reads them at each stop and keeps them with the race: tread
   left across each tyre, carcass temperatures, hot pressure and the cold pressure you left with, which
@@ -1681,7 +1691,6 @@ dated one. See `docs/release-process.md`.
   missing.
 
 ## [0.1.0] - 2026-08-05
-
 ### Added
 
 - **The first public beta.** PitCrew speaks to you during an iRacing session: the spotter (a car
