@@ -1,15 +1,15 @@
 # Talking to your engineer
 
 Press a key or a button on your wheel, ask a question, get an answer in your engineer's own voice.
-Everything happens on your own PC: no account, no key, no network, and nothing you say leaves the
-machine.
+Everything happens on your own PC after a one-time model download: no account, no key, and nothing
+you say leaves the machine.
 
 ## Turning it on
 
-It is two screens, and the split is simple: **Settings** is how you open the microphone, **Voice
-commands** is the microphone itself and everything it hears.
+Open **Voice commands** from the rail to set up your microphone, push-to-talk key or wheel button,
+and the phrases PitCrew listens for.
 
-Start at `Settings → Voice commands`:
+Start on **Voice commands**:
 
 1. **Switch it on.** It is off on a fresh install.
 2. **Check the key.** `Alt+V` by default. You can change it, and a change takes effect the next time
@@ -18,8 +18,7 @@ Start at `Settings → Voice commands`:
    field, and *Restore Alt+V* puts it back.
 3. **Bind a button on your wheel.** See below. This is the one most drivers want.
 
-Then press **Voice commands** on that same card to open the screen where the rest lives. Down the
-right-hand side:
+On the right-hand side:
 
 4. **Pick your microphone.** Leave it on *System default* unless you have more than one and PitCrew
    picks the wrong one.
@@ -29,34 +28,37 @@ right-hand side:
    speakers your engineer talks out of, which is the quickest way to judge how you actually sound —
    **wear headphones for this**, or your speakers will feed back into the microphone. It closes the
    microphone the moment you switch it off or leave the screen.
-6. **Choose the language you ask in.** See below.
-7. **Download the recogniser** — about 43 MB, once. PitCrew never fetches it on its own, which is why
-   the button is there.
+6. **Choose the phrasings you want to view or record.** See below.
+7. **Download Parakeet TDT** — about 670 MB, once. PitCrew never fetches it on its own, which is why
+   the button is there. Your engineer can speak without it; it is only needed to hear your commands.
 
-If you already have these weights on your PC — the ONNX export of Whisper tiny — put the folder in
-*Model folder* and skip the download.
+If you already have the matching Parakeet TDT 0.6B v3 int8 export on your PC, put its folder — with
+the encoder, decoder, joiner and `tokens.txt` together — in *Model folder* and skip the download.
+If the model is incomplete or damaged, the screen tells you which files need attention and offers a
+download.
 
 ## The language you ask in
 
 Your engineer's language and your own are two separate settings.
 
-The one your engineer *answers* in is on the Voices screen. The one *you ask* in is **You ask in**, on
-the Voice commands screen, and it decides what PitCrew listens for and how it writes down what you
-said. They do not have to match: a Brazilian Portuguese engineer answering questions asked in English
-is a perfectly ordinary setup, and so is the reverse.
+The one your engineer *answers* in is on the Voice screen. Parakeet detects Portuguese and English
+utterances automatically, even if you switch between them from one question to the next. The
+**Phrasings to edit** picker on Voice commands chooses which language's recorded phrasings you see
+and add; it does not force the recogniser to decode in just that language. A Brazilian Portuguese
+engineer answering a question asked in English is a perfectly ordinary setup, and so is the reverse.
 
-All five languages are offered here, independently of the language your engineer speaks — PitCrew needs
-a voice to answer in one and only needs to recognise you to be asked in one.
+The picker also offers Spanish, French and German. Choosing one includes its phrasings alongside
+Portuguese and English while leaving your engineer's output language alone.
 
-Anything you have recorded stays filed under the language you recorded it in. Switching shows you that
-language's phrasings; switching back brings the others straight back. Nothing is thrown away.
+Anything you have recorded stays filed under the language you recorded it in. Switching the picker
+shows that language's phrasings; switching back brings the others straight back. Nothing is thrown away.
 
 ## Using a button on your wheel
 
 A key means letting go of the wheel, which is the last thing you want to do in the middle of a corner.
 Bind a button instead:
 
-1. `Settings → Voice commands → Push to talk — wheel or gamepad`.
+1. `Voice commands → Push to talk → Wheel or gamepad`.
 2. Press **Press a button**.
 3. Press the button you want, on the wheel, the button box or the pad. That is it — no restart.
 
@@ -80,24 +82,24 @@ microphone opens when it goes down and closes when it comes up, so there is no w
 is ever listening in the background.
 
 If holding a button through a corner is awkward — plenty of wheel buttons are — switch
-`Settings → Voice commands → Hold it, or tap it` to **Tap on, tap off**. Then one press
+`Voice commands → Hold it, or tap it` to **Tap on, tap off**. Then one press
 opens the microphone and the next one closes it. If you tap it open and get distracted, it closes
 itself after twenty seconds, so you can never leave it open by accident.
 
 You will hear a **radio click** when the microphone opens, and a lower one when it closes. **Wait for
 the first one before you start talking** — that pause is not politeness, it is what stops your first
-word being cut off, and PitCrew does not begin listening until the click has finished. If you would
-rather it was a plain tone, or silent, `Settings → Voice commands → Sound when the mic opens` has
+word being cut off. PitCrew discards the click from the recording. If you would
+rather it was a plain tone, or silent, `Voice commands → Sound when the mic opens` has
 both. Silent works, and the first word is on you.
 
-You do not have to wait for a gap in the conversation. Ask whenever you like; the answer takes about
-half a second and arrives when the engineer is next able to speak. A spotter call always wins that
+You do not have to wait for a gap in the conversation. Ask whenever you like; the answer arrives
+when the engineer is next able to speak. A spotter call always wins that
 race — a car on your left matters more than the fuel number you asked for a moment ago.
 
 ## What you can ask
 
-Say any of these, or something close to them. They work in every language PitCrew speaks, in that
-language — the Portuguese below is what a pt-BR engineer expects.
+Say any of these, or something close to them. Portuguese and English both work without switching
+language; the examples below are in Portuguese regardless of what language your engineer speaks.
 
 | Ask | Say | You get |
 | --- | --- | --- |
@@ -111,11 +113,9 @@ language — the Portuguese below is what a pt-BR engineer expects.
 | Silence | *"cala a boca"* | The engineer stops speaking |
 | Speak again | *"volta a falar"* | It starts again |
 
-**Say the whole phrase, not one word.** Shorter forms are listed in the app and mostly work —
-*"combustível?"*, *"posição?"* — but a single word gives the recogniser nothing to go on, and it is
-the one thing that reliably fails. Measured on a real session, the same nine questions went from six
-right to eight just by being asked as whole sentences. *"Gap"* on its own is the worst of them in
-Portuguese and is better said as *"quanto tempo pro carro da frente"*.
+**Say the whole phrase, not one word.** Shorter forms are listed in the app — *"combustível?"*,
+*"posição?"* — but a whole sentence gives the recogniser more to go on and lets the matcher forgive
+one missed word. *"Gap"* on its own is better said as *"quanto tempo pro carro da frente"*.
 
 ## When it says "não entendi"
 
@@ -125,13 +125,13 @@ it asks you to say it again rather than guessing. A wrong answer during a race i
 answer: being told you have five laps of fuel when you have one is not a mistake you get to notice
 in time.
 
-If it happens often, `Settings → Voice commands` shows the last thing it actually heard. That is the
+If it happens often, `Voice commands` shows the last thing it actually heard. That is the
 quickest way to tell the two problems apart:
 
 - **Nothing shown, or nonsense** — it is not hearing you. Open the Voice commands screen and switch on
   *Check the level*: if the bar does not move when you speak, the microphone is the problem and no
   phrasing will fix it. Also check you are waiting for the click before you speak rather than talking
-  over it, and that *You ask in* is set to the language you are actually speaking.
+  over it. Portuguese and English need no input-language switch.
 - **Roughly what you said, but no answer** — it heard you and that phrasing is not on the list. Try
   one of the phrasings in the table above, or teach it yours: see *Teaching it how you ask* below.
 
@@ -140,14 +140,12 @@ average yet, so *"combustível?"* gets *"ainda não tenho esse dado"* rather tha
 
 ## Teaching it how you ask
 
-The phrasings above are ours. Yours are better, and that is measurable: on a real session, changing
-how the question was asked moved recognition from six right out of nine to eight. A bigger recogniser
-moved nothing. **How you say it is the whole game.**
+The phrasings above are ours. The ones you record on your own headset may be easier for the model to
+hear when you are driving. **How you say it matters.**
 
-The **Voice commands** screen — the one you reached from Settings to set the microphone up — is where
-this happens. On the left, every answer your engineer can give. In the middle, the ways you can ask
-for the one you have selected. On the right, the microphone settings from earlier, so you can fix a
-level or switch language without leaving.
+Open **Language → You ask** to see every answer your engineer can give and the ways you can ask for
+it. The **Voice commands** screen holds your microphone settings and the *Phrasings to edit* picker;
+choose a language there before recording it on the Language screen.
 
 **You record a phrasing — you never type it.** Press *Record a phrasing*, press and hold your
 push-to-talk key or button, and say it the way you would say it on track. PitCrew shows you exactly what it heard and what would
@@ -188,14 +186,11 @@ no per-question charge — the same standard as the voices that run on your own 
 come from the phrase catalog PitCrew already ships, in whichever voice that engineer already uses, so
 asking a question never spends studio-voice credits either.
 
-The recogniser is [Whisper tiny](https://github.com/openai/whisper), under the MIT license, and it is
-credited on the [license page](license.md). PitCrew does not redistribute it: your PC downloads it
-from the publisher when you press the button.
+The recogniser is [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3),
+under CC BY 4.0, and it is credited on the [license page](license.md). PitCrew does not redistribute
+it: your PC downloads a pinned ONNX export when you press the button.
 
 ## What it does not do yet
 
-- **A wheel button cannot be bound.** The binding is a keyboard shortcut. On Windows a wheel button
-  is a different kind of device entirely, and PitCrew cannot see it yet.
-- **It only asks.** Nothing you say changes the car or the strategy — *"boxes essa volta"* is not a
-  command it takes. A misheard question costs you a wrong sentence; a misheard instruction would cost
-  you a pit stop.
+- **It cannot command the car or change strategy.** *"Boxes essa volta"* is not a command it takes.
+  A misheard question costs a wrong sentence; a misheard instruction could cost a pit stop.

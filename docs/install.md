@@ -41,7 +41,7 @@ The installer is small because it **does not bundle the voice model** — those 
 megabytes of neural-network weights, and shipping them inside every update would mean
 re-downloading them on every update.
 
-So the first time you open the **Voice** screen and download a voice, PitCrew fetches:
+So on the first run — from the welcome screen, or later from the **Voice** screen — PitCrew fetches:
 
 - the **Kokoro** speech model, about **310 MB**, and
 - one **voice pack**, about **0.5 MB** each.

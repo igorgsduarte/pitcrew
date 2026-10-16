@@ -22,6 +22,21 @@ finished, where you were classified, how much the engineer said — never who yo
 There is no setting to turn this off, which is exactly why this page has to be specific rather than
 reassuring.
 
+## The phone app collects nothing
+
+Everything else on this page is about PitCrew for Windows. The PitCrew phone app is a separate program:
+it finds and remembers a rig, then opens its Companion or PIT page in a WebView. Its answer is much
+shorter: it collects nothing at all. No account, no sign-in, no usage measurement, no crash reporting,
+no advertising identifier, no ads.
+
+- It talks to exactly one thing: the PC on your own network that is running PitCrew. What passes between
+  them stays on that network, and none of it reaches us.
+- The camera is used for one thing — reading the QR code on the desktop's screen so the phone can find
+  the rig. The frames are read on the device, and are never stored and never sent anywhere. It asks the
+  first time you open the scanner, and the app works without it if you type the address instead.
+- The rig you last connected to is kept on the phone itself. Companion and PIT keep their layout and
+  appearance in the browser or phone WebView that opened them, and nowhere else.
+
 ## What we collect, and why
 
 Usage measurement goes to Google Analytics. Every one of the following is an event about the app, not

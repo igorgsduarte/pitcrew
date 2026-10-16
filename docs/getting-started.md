@@ -2,8 +2,14 @@
 
 ## First launch
 
-PitCrew opens straight into the app — there's no setup wizard to get through first. Everything you'd
-set on a first run lives on the **Voice** screen, and you can visit it whenever you like:
+The first time PitCrew opens, a short welcome walks you through the two things it needs before your
+first session: **downloading the voice model** (about 310 MB, once) and **setting up your audio**. The
+download starts from the welcome itself and shows its progress; if it fails, try again or skip it —
+nothing there is a dead end. The audio step then takes you to **Voice → Sound**, where you pick the
+device the engineer plays on and hear a test call.
+
+You can skip the welcome entirely. Everything it covers — and everything else you'd set on a first
+run — lives on the **Voice** screen, and you can visit it whenever you like:
 
 1. **Your name** — how the engineer addresses you on screen.
 2. **A spoken language** — Brazilian Portuguese, English (US), Spanish, French or German. This is
@@ -25,6 +31,25 @@ You do not need to restart PitCrew between sessions, or when you switch car or t
 
 Leave the main window wherever you like; you never need it during a race. If you want PitCrew to
 launch with Windows, there is a setting for it.
+
+## Companion and PIT on your network
+
+Open **Cockpit dash** in PitCrew and turn on **Serve the dash on this network** when you want a
+phone or another computer to follow the race. The code and address there work only on the same Wi-Fi
+or Ethernet network as the rig.
+
+The phone app finds and remembers the rig, then opens either **Dash Companion** or **Pit Strategy**.
+You can also open the same pages directly in a browser at the rig's address:
+
+```
+http://<rig-address>:8422/companion/
+http://<rig-address>:8422/pit/
+```
+
+Companion and PIT link to each other, reconnect when the rig returns, and keep their appearance and
+layout in the browser or phone WebView you use. Turning the dash server off stops its network
+announcement and makes both pages unavailable; it does not affect the engineer, overlay or sim
+connection.
 
 ## The keys to remember
 

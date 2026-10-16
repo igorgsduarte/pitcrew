@@ -160,7 +160,7 @@ kept; these are the ones that do:
 | --- | --- | --- |
 | Siwis (French) | [SIWIS French Speech Synthesis Database](https://datashare.is.ed.ac.uk/handle/10283/2353), University of Edinburgh | CC BY 4.0 — attribution required |
 | Sam (English) | [Non-Binary Voice Files](https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files), Accenture | Apache-2.0 — attribution required |
-| Whisper tiny (speech recognition) | [OpenAI Whisper](https://github.com/openai/whisper), ONNX export by [onnx-community](https://huggingface.co/onnx-community/whisper-tiny) | MIT — attribution required |
+| Parakeet TDT 0.6B v3 (speech recognition) | [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), ONNX export by [sherpa-onnx (csukuangfj)](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8) | CC BY 4.0 — attribution required |
 
 ## 7. Privacy
 
