@@ -81,9 +81,15 @@ whole point is that you should not be reading anything at 200 km/h.
 
 ## What PitCrew tells you
 
-- **The spotter** — a car alongside, on which side, and when you are clear again.
+- **The spotter** — a car alongside, on which side, and when you are clear again. A car that stays
+  alongside is called again every three seconds. On an oval the sides are the inside and the outside,
+  and when you are three wide you hear which of the three you are.
 - **Fuel** — how much you are using per lap, whether it gets you to the end, and warnings as the
   tank runs down.
+- **Your pit plan, live (beta)** — with **Settings → Pit stops → Let the live plan act** on, the
+  strategist tells you when your saved plan needs a stop more or a stop less, when a stop moves,
+  when a little fuel saving would drop a stop, and when a fuel amount you set by hand falls short.
+  None of these changes the plan until you accept it on the PIT page or on the phone.
 - **Gaps and position** — who is closing on you, who you are catching, and where you sit in the
   field. Multiclass races are filtered by class, so a leader from another class does not get
   reported as if it were your race, and a car that is a lap ahead or a lap behind is named as
@@ -128,6 +134,64 @@ Two things are adjustable, and they are separate on purpose:
   ```
 
   If you get this file wrong, PitCrew falls back to the defaults rather than refusing to start.
+
+After a complete clean lap, PitCrew remembers the braking and cornering zones for that car and
+track. During the race, routine calls wait for a straight long enough to say them. Flags, overtake
+calls, the spotter, urgent alerts and answers you request still come through at once. Lifting off
+the throttle on a straight, banking on an oval, the formation lap, a caution and the cool-down lap
+never hold a call. Whenever a car is alongside, everything except the spotter waits until it is
+clear. These optional overrides show the defaults:
+
+```json
+{
+  "straights": { "throttleMin": 0, "brakeMax": 0.05, "steerMaxRad": 0.6, "cornerLatG": 0.8 },
+  "quietZones": { "enabled": true, "straightMinS": 3, "maxHoldS": 30, "charsPerS": 14 },
+  "tyreBaselines": {
+    "minRuns": 3,
+    "historyRuns": 30,
+    "minLaps": 3,
+    "tempDeltaC": 15,
+    "pressureDeltaPct": 15
+  }
+}
+```
+
+A point on track is a corner while you brake past `brakeMax`, turn the wheel past `steerMaxRad`
+radians, or pull more than `cornerLatG` g sideways. A routine call starts only where the straight
+ahead is long enough to say it at `charsPerS` characters a second. A call longer than every
+straight waits for the longest one. A track whose longest straight is shorter than `straightMinS`
+seconds holds nothing. `maxHoldS` discards a routine call that waited too long. Changing the
+`straights` inputs starts zone learning again.
+Set `quietZones.enabled` to `false` to disable this hold.
+
+Tyre warnings use fresh readings after a run, compared with earlier runs at the same car and track,
+compound and wet/dry state. Each corner needs `minRuns` earlier readings from runs of at least
+`minLaps` laps. `tempDeltaC` is the temperature deviation in either direction; `pressureDeltaPct`
+is how far below the usual hot pressure a tyre must be. Missing readings stay silent. The last
+`historyRuns` runs are kept for comparison. These are last-run observations, not live tyre readings
+or recommended operating temperatures.
+
+The garage briefing suggests cold tyre pressures once you have enough similar runs in a car at a
+track. A similar run has the same compound, the same wet or dry track, and a track temperature
+within `trackTempWindowC` of today's. A run counts only if it has at least `minCleanLaps` clean laps
+and no yellow, reconnect or missing lap. The suggestion aims for the average hot pressure of your
+`bestRuns` fastest similar runs. The rise from cold to hot is estimated from how the track
+temperature changed it in those runs. When left and right are within `axleToleranceKpa`, you hear
+one number per axle. Below `minRuns` similar runs, or on a fixed setup, no number is given, and
+nothing is ever changed in the car. These optional overrides show the defaults:
+
+```json
+{
+  "pressureEstimate": {
+    "minRuns": 3,
+    "minCleanLaps": 3,
+    "trackTempWindowC": 8,
+    "bestRuns": 3,
+    "minTrackSpreadC": 4,
+    "axleToleranceKpa": 1
+  }
+}
+```
 
 ## Next
 

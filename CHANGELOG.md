@@ -19,11 +19,437 @@ dated one. See `docs/release-process.md`.
 
 ### Added
 
+- **A briefing before you get in the car.** With a session loaded and you out of the car, the
+  Companion shows the weekend's sessions and which one is running, the weather and track
+  temperature, the grid from qualifying (or the field by iRating before there is one) around your
+  slot, your car and setup, your best lap there and your saved pit plan. It works for practice and
+  qualifying too, not only races. With the sim closed it shows your last race and the ones before it.
+  The waiting-screen options in the Companion's settings are now the clock, how many recent races to
+  list and how much of the grid to show.
+- **Assetto Corsa EVO.** Open Assetto Corsa EVO and the engineer is listening, with nothing to
+  install or set up: fuel, laps and lap times, your position, flags, pit lane, the session clock,
+  and tyre temperatures and pressures. The spotter calls cars alongside from where every car is on
+  track. After your first clean lap at a track, which PitCrew remembers for next time, the gaps to the
+  cars ahead and behind are heard too. EVO does not share the other cars' names, positions or lap
+  times, so calls that need those stay silent. Settings → Connections has an Assetto Corsa EVO card
+  that says whether the game was found and is coming through, and whether the clean lap is still
+  needed. With iRacing and both Assetto Corsas on one rig, PitCrew follows whichever one you are
+  driving.
+- **The other cars on Assetto Corsa.** PitCrew now puts a small app in Assetto Corsa's folder and
+  switches it on, so the engineer hears the rest of the field: gaps, traffic, rivals and the
+  undercut, as on iRacing. Settings → Connections has an Assetto Corsa card that says whether the
+  app is installed, switched on and sending, and what to do when it is not, such as updating it or
+  restarting the session. An Assetto Corsa started before the app was installed needs one restart.
+- **Visual checks of the desktop app through the agent MCP.** A remote development agent can
+  inspect the real PitCrew window, operate its controls through Orca, and receive screenshots
+  directly to help verify interface changes.
+- **Live pit plan (beta).** Your saved pit plan now follows the race. Every lap it works out again,
+  from the fuel you are actually using, how many stops you need, where they fall and how much fuel
+  each one takes. Each plan keeps a strategy profile, conservative, balanced or aggressive, that you
+  pick on the PIT page or on the phone. The fuel of a stop that follows the plan adjusts on its own.
+  Anything bigger is only proposed, on the PIT page and on the phone, and nothing changes until you
+  accept it: one stop more, one stop less, a stop that moves, or a stop you can drop by saving a
+  little fuel each lap. The plan also warns when a fuel amount you set by hand is no longer enough.
+  It recovers the stops already made if PitCrew restarts mid-race. **Settings → Pit stops → Let the
+  live plan act** is off by default. Turned on, the radio, the PIT page and the phone all read the
+  same fuel figure, a stop that follows the plan is armed with the litres worked out at that moment,
+  and the strategist tells you when the plan changes or an accepted fuel saving is not happening.
+  **Settings → Data** shows how much of your driving history is kept for each car and track, and
+  deletes it.
+- **The Debrief reads like a timing sheet.** Pick a race at the top and step to the one before or
+  after. A summary gives where you started and finished, your best and ideal lap, how many laps were
+  within half a second of your best, your incidents and your time on pit road. A strip under it
+  shows your lap times and your position through the race, with the stops and the cautions marked;
+  click it to jump to that lap. The lap table colours each sector against your best and, in races
+  recorded from now on, shows the gap to the car ahead, the car behind and the leader, and marks the
+  caution laps. Stops lists the stops where the car stood in its box, each with the laps before it,
+  the places won or lost and the time it cost; a drive-through, or leaving the pits before the
+  start, is named for what it is. Sectors, Fuel and At this track complete it. Older debriefs still
+  open, without the columns they never recorded.
+- **Pit strategy is one sheet per plan.** The fuel calculator and the planner are now one set of
+  race figures: race length, lap time, fuel per lap, starting fuel, tank, reserve, tyre life and the
+  series' rules. Each says where its number came from, and what the race needs is highlighted. Under
+  them are a chart of the fuel in the tank lap by lap and the plan as a table, with a row per stint
+  (laps, fuel in, fuel used, fuel left, tyre age against tyre life) and a row per stop. Adding or
+  editing a stop opens one window. You pick the tyres on a drawing of the car seen from above, see
+  the tread left at your last stop at that track, and see how the stint splits and what the stop
+  does to the fuel. Your saved plans sit in a column on the right, and pit presets have their own
+  tab. When iRacing runs that car and track, the live plan sits above the sheet.
+- **Generic plans.** A plan can now fit any car and track, such as "fuel only, tyres kept, 60
+  minutes". Generic plans are listed under each car and track's own plans. **Use for this car and
+  track** copies one there, sized to that race, and makes the copy the active plan, so the engineer
+  arms its stops as usual. A stop with no window is called when the fuel runs short. Changing the
+  generic plan later leaves the copies alone; using it again updates the copy.
+- **Curved monitor correction (beta).** Settings → iRacing → Curved monitor works out iRacing's
+  monitor values from your monitor's size, curve, eye distance and bezel gap. Your rig is on the
+  left, with a status list right under it that says whether the correction is in this build,
+  installed in the iRacing folder, blocked by another program's dxgi.dll (ReShade, for example),
+  when it last ran in iRacing and with which values, and whether iRacing's settings match. On the
+  right are the numbers iRacing needs, a view from above of your screens next to the ones iRacing
+  is set up for now, the picture the correction sends to the screens, and iRacing's monitor
+  values. If iRacing is set up for a different monitor, a warning next to those values gives both
+  fields of view, because lines cannot line up until they match. One button, Apply to iRacing,
+  saves the settings, installs or updates the small add-on in the iRacing install folder, and
+  opens iRacing's monitor values for the usual review and backup; what it saved and installed is
+  still shown while you review. The on/off switch, the install folder and Uninstall sit in a
+  folded Install section under that button. Test mode covers all your monitors with two patterns.
+  Horizon lines every 5° show the curve: when they look straight, the radius is right. A 3D room
+  shows the seams: when its lines carry on across the gaps, the bezel gap is right. A small panel
+  in the middle shows the radius, the eye distance and what to look for; H opens the full panel
+  with buttons. The arrow keys adjust the radius and eye distance, Tab switches the pattern, and
+  Ctrl+Shift+F10 compares with and without the correction, in test mode and while driving. If another program's dxgi.dll was there, it is kept as a backup and put back
+  when you uninstall. The add-on is unsigned and has not been cleared for iRacing's anti-cheat, so
+  use it in offline sessions until that is confirmed.
+
+- **The garage briefing suggests your cold tyre pressures.** Once you have at least three similar
+  runs in a car at a track, the briefing suggests a cold pressure for the front and rear, or for each
+  tyre when the sides differ, and says how many runs it is based on. A similar run has the same
+  compound, the same wet or dry track, and a track temperature close to today's. The suggestion
+  aims for the hot pressures of your fastest of those runs. A run with a yellow, a reconnect or a
+  missing lap is not counted. With too few runs, or on a fixed setup, no number is given. Nothing
+  is changed in the car. The thresholds are in `tuning.json`'s `pressureEstimate` section.
+- **Follow a rival from the Companion.** Tap a driver on the Companion's leaderboard and the engineer
+  confirms it, then calls that car's lap times and the gap to it each lap, and tells you when it
+  enters and leaves the pits. Tap the same row again to stop. The followed row is marked on every
+  connected screen, and the choice carries over from practice to the race at the same event. Set
+  `rivals.watchLapEvery` in `tuning.json` to hear the lap calls less often.
+- **Gap calls say whether the rival has pitted.** Once the stops begin, the lines about the car ahead
+  and behind end with *"esse carro já parou"* or *"esse carro ainda tem parada pra fazer"* when
+  that car has made a different number of stops than you.
+- **Who you'll come out behind.** When your stop is called for the next lap and the time you lose in
+  the pits is known from a previous stop, the engineer estimates which car in your class you will
+  rejoin behind, and by how much. With no measured pit loss it says nothing.
+  `rivals.rejoinMaxGapS` in `tuning.json` sets how far back a car may be and still be named.
+- **The engineer learns where to stay quiet.** After a complete clean lap in a car at a track,
+  routine calls wait through braking and corners for the next straight. Spotter calls and urgent
+  alerts still come through immediately. The learned zones are kept between sessions, and the
+  waiting time and straight length are adjustable in `tuning.json`.
+- **Tyre warnings compare with your own runs.** A fresh reading after a run is compared with your
+  earlier readings in that car at that track, per tyre, compound and wet or dry conditions. The
+  engineer says when temperatures are unusually high or low, or a hot pressure is low against your
+  history, and stays silent until enough runs are recorded. These calls describe the last run,
+  because iRacing does not continuously report hot tyre readings on track.
+- **The engineer tells you where your lap time is going.** In practice and in a race, when one sector
+  of a lap cost you clearly more than the others against your own best lap in that car at that
+  track, you hear which sector and by how much (*"setor dois, cinco décimos acima da sua
+  referência"*). It waits for a straight with nobody alongside, never speaks on consecutive laps, and
+  stays quiet about a sector you spent behind another car, a lap with a yellow or a pit stop in it,
+  and a best lap that is old, on another setup or in the other weather. Your best clean lap is kept
+  between sessions, so from the second session at a track it can speak from the first lap. The
+  thresholds are in `tuning.json`'s `sectorCoaching` section.
+- **Prepare your iRacing settings before entering the simulator.** Settings → iRacing edits the
+  values in your existing INI files, loads selected values from an imported INI or from your own
+  named presets, and shows every change for review before saving. A complete backup of each file is
+  kept before it is replaced, and History restores selected values or a whole file. Editing is
+  blocked while iRacing is running, and starting iRacing discards unsaved changes.
+- **The spotter tells you a car is still there.** A car that stays alongside is called again every
+  three seconds (*"continua na esquerda"*) until it clears, so you are never left wondering whether it
+  has gone. Set `spotter.stillIntervalMs` in `tuning.json` to change how often, or to `0` to turn it
+  off.
+- **Inside and outside on ovals.** On an oval the spotter says *"carro por dentro"* and *"carro por
+  fora"* instead of left and right. Road courses keep left and right.
+- **Three wide tells you where you are.** With a car on each side you hear *"você no meio"*, and with
+  two cars on one side you hear which side you are on, instead of where the two other cars are.
+- **Change your pit stop by voice.** Say *"coloca vinte litros"*, *"abastece até o fim"*, *"troca os
+  quatro pneus"*, *"só os dianteiros"*, *"sem pneus"*, *"reparo rápido"* or *"tear off"* and the engineer
+  sets it in the car, then tells you what the car now shows. If iRacing caps the fuel to what fits
+  in the tank, you hear the capped amount. Each command changes only what you asked for, and an
+  automatic arm from your pit plan never overwrites it: the plan waits until you have made the stop.
+  A command is only obeyed when it is heard in full, and never when you said *"não"* in the middle.
+- **Fifteen more questions you can ask by voice.** Ask for the gap to the leader, the last lap of the
+  car ahead, the car behind or the leader, your best lap, the time left, how much fuel you need to
+  finish, how many laps you have done since your stop, your tyres, your repair time, your incidents
+  and how many are left before the limit, your iRating, your licence and safety rating, the strength
+  of field, and the track and air temperature. Tyre wear is the reading from your last stop, because
+  iRacing only reports it in the pit box. *"Quem está na frente?"* and *"quem tá atrás?"* now
+  work too, and answer with the name and the gap. The questions you could already ask are understood
+  exactly as before.
+- **A briefing before every session.** When you sit in the garage, or in your pit box before you pull
+  away, the engineer goes over the track and air temperature and whether the track is wet. From the
+  second session on, you hear only what changed: a warmer or cooler track, more rubber down, a wetter
+  or drier surface, and which way to move your starting pressures. If nothing changed, the engineer
+  says so in one line. The briefing stops as soon as the car moves, and it is never repeated for the
+  same session, even after a restart. Turn it off under Settings → Race engineer.
+- **The weather is followed over time.** The engineer now tells you when the rain is getting heavier,
+  when the track is getting wetter, when race control declares the track wet, and when the track has
+  warmed or cooled by several degrees since the start of the race, which changes your tyre pressures.
+- **Every run's tyre pressures are kept.** After each run PitCrew saves the cold and hot pressures,
+  tyre temperatures and tread with the track conditions, next to your lap history. This is the data
+  a future pressure recommendation will learn from. Nothing is sent anywhere.
+- **High oil temperature is called.** When the car's oil temperature warning comes on, the engineer
+  now tells you, the same way it already did for the water temperature.
+- **An early warning when the engine runs hot.** The engineer learns what water and oil temperature
+  are normal for your car in the current session, then tells you when either climbs well above that,
+  before iRacing's own warning light comes on. The classic case is a long stint in another car's
+  tow: you hear the call in time to pull out and let the engine breathe. It stays quiet for the first
+  15 minutes in the car while the engine warms up and it learns your normal running.
+- **Ask "how is the engine?"** Press push-to-talk and ask about the engine, the water or the oil, and
+  the engineer answers with the water and oil temperatures and the oil pressure, in your sim's units.
+- **Where you line up behind the pace car.** On the formation lap and when a caution forms, the
+  engineer tells you whether it is single or double file and where you are: your place in the line,
+  or your row and which side of the grid. At one lap to green, that call includes your current row.
+  You also hear when you get the free pass, when you are waved around, and when you are sent to the
+  end of the line. Races only.
+- **Telemetry health on the Companion.** The Companion's settings drawer now shows how many
+  telemetry frames were thrown away, how many times PitCrew lost and found the sim again, and how many
+  times it re-read the session details. If a session sounded wrong, include these numbers when you
+  report it.
+- **"Are you OK?" after a big hit.** When the car takes a heavy impact, the engineer checks on you
+  straight away, then tells you about any damage once the car reports it. Kerbs and hard braking do
+  not set it off.
+- **DRS and push-to-pass calls.** In a race, on cars that have them, the engineer tells you when DRS
+  is enabled for the next zone, and after each push-to-pass how many you have left. Cars without
+  them hear nothing new.
+- **The race briefing names the start.** Before a race with a standing start or a short parade lap,
+  the engineer says so right after the briefing opens. A normal rolling start is not mentioned.
+- **The pit planner follows a mandatory compound change.** When the race requires a change of tyre
+  compound, the Pit strategy screen turns the rule on by itself, the proposal puts all four tyres on
+  the first stop and says that is where the compound changes, and a plan where no stop picks a
+  compound gets a warning. You can still switch the rule on or off by hand.
+- **A warning when the planned stop doesn't take in the car.** If the engineer sets your stop and
+  the car's pit menu still shows something else a few seconds later, you hear it and can check.
+- **The engineer tells you when the car ahead retires**, by name, once.
+- **The overtake call works from the first laps of a race.** Until there are three race laps to
+  compare, the engineer compares your qualifying lap with the car ahead's.
+- **Re-running one of iRacing's own `.ibt` telemetry files now includes the gap calls.** Those files
+  do not record the other cars, so the engineer says "the car ahead" or "the car behind" instead
+  of a name when you are catching someone or being caught.
+- **A warning before the pit-road line when you are coming in too fast.** Approaching the pits,
+  the engineer works out the speed you will cross the line at from how hard you are braking, and
+  tells you to brake while there is still room. It learns where pit road starts from your first
+  stop of the event, so it speaks from the second one on.
+
 ### Changed
+
+- **The Companion opens a race on a pit wall.** The phone and tablet screen for a race now looks
+  like the pit walls drivers already know: a black screen with outlined panels, the session along
+  the top (position and places gained, strength of field, time left, lap, incidents, session best),
+  the two cars ahead and the two behind with their gap, last and best laps and whether the gap is
+  growing or shrinking each lap, and your car and lap times along the bottom, with traction
+  control, ABS and brake bias each in its own colour. Down the right is the next stop: the fuel
+  going in as the biggest number on the screen, the lap to box, the pit window, which tyres and
+  repairs are armed, what the stop costs and the two cars you will come out between. Your race
+  screen and font switch to the new ones once after the update; practice, qualifying and your
+  other settings stay as you left them, and the old arrangement is still in the settings drawer.
+- **On Assetto Corsa, sector times start on the first lap at a track you have driven before.** The
+  sector lines PitCrew works out on your first lap at a track are now remembered, so the next session
+  there has sector times and sector calls from the start instead of after a full lap. If the game's
+  sector lines have moved, the ones from the new lap replace them.
+- **Assetto Corsa started as `acs_pro.exe` is recognised.** PitCrew now listens to that build of the
+  game the same way it listens to `acs.exe`. Competizione is still never read as Assetto Corsa.
+- **Pit-stop timing uses your car's real refuelling speed.** The engineer times how fast the crew
+  fills the tank at your stops and uses it for the pit loss and the stop calls, and remembers it for
+  the next time you race this car at this track. The debrief shows the rate for each stop.
+
+- **The phone Companion reads like a timing sheet.** Qualifying now opens on the lap in progress
+  drawn the way an engineer's timing sheet is: one cell per sector that fills in as you cross it,
+  the delta to your best owning the top of the sheet, then one ruled line per time of the session
+  (predicted, last, best, session best, ideal, personal best) with the class order beside it. A
+  sector or lap lost to track limits stays on the sheet, struck through and stamped OFF TRACK,
+  instead of vanishing. The whole Companion takes the sheet's palette, bone ink on a carbon copy at
+  night and on paper by day, its condensed capitals over tabular figures as the default font pair,
+  and squarer corners. Your font pair, accent and arrangements are kept as you set them.
+- **The engineer's voice now matches the moment.** Every call is said in one of five tones. Urgent
+  calls, like the spotter, "box, box" or a waved yellow, come faster and tighter. Alerts are a little
+  quicker. Briefings and debriefs are calmer, and a personal best or a strong finish sounds pleased.
+  Routine information is unchanged. With the studio voice the tone changes its expressiveness too.
+  Lines that should be called out now end that way, like "Box, box!" and "Manda tudo!". Routine
+  engineer lines no longer arrive on a fixed beat. Each waits a random moment of up to a quarter of a
+  second. Each tone, and that wait, can be adjusted in `tuning.json`. Toned lines are new audio, so
+  they are synthesized again when first said or with *Warm cache*. With the studio voice, that is billed.
+- **The engineer speaks each language like a native.** The lines in Portuguese, English, Spanish,
+  French and German were rewritten in the words racers of that language use on the radio, instead of
+  reading like a translation. Spanish is neutral Latin American Spanish, English uses iRacing's own
+  words (pit road, caution, checkered), and no line assumes another driver is a man: rivals are called
+  by name or as *"esse carro"*. Sentences around numbers and positions now read correctly at every
+  value, such as one car or one lap. The start-of-race line about the field no
+  longer calls every grid strong; it gives the average iRating. Changed lines are new audio, so with
+  the studio voice they are said in the local voice until their studio audio is fetched in the
+  background, or all at once with *Warm cache*, which is billed.
+- **The engineer talks like a Brazilian on the radio.** The Portuguese lines now sound like a friend in
+  your pit box rather than a polite announcement: short sentences, more exclamations and questions,
+  *"pô"*, *"eita"*, *"bora"* and *"hein"*, and *gasolina* instead of *combustível*. Nothing crude, no
+  regional slang, and still no line that assumes another driver is a man. Answers to the questions
+  you ask by voice stay direct, and the other languages are unchanged. Changed lines are new audio:
+  the local voices pick them up on their own, and with the studio voice they are said in the local
+  voice until their studio audio is fetched in the background, or all at once with *Warm cache*,
+  which is billed.
+- **The iRacing tab has controls instead of text boxes.** It now opens on *Essentials*: the
+  settings most drivers change, such as the frame-rate limit, anti-aliasing, cars drawn, detail
+  levels, mirrors, monitor setup, field of view, volumes, the iRacing spotter and autofuel. They use
+  iRacing's names, with switches, lists and sliders that show units. *Advanced* still lists every
+  value in every INI. Each value there now gets a switch, list, slider or number field based on
+  iRacing's own note for that line, so a typo can no longer be saved. Text boxes remain only for text,
+  such as chat macros. Values iRacing manages itself, such as audio device IDs, are read only.
+  The review before saving reads the way you set each value ("Field of view 141° → 143°"). Each
+  changed setting has its own Revert, and discarding everything asks first. Turning off Live
+  telemetry, which silences your race engineer, asks first too. Backup copies of the INIs no longer
+  appear as files to edit. Settings are grouped in tabs down the left side and laid out in two
+  columns, so a whole group, such as Performance, fits on one screen.
+- Preparatory work for driver-specific adaptive strategy history. Current fuel advice and pit
+  commands only change when you let the live pit plan act (above). The recording backend now
+  supports explicit engine-side start/stop, bounded storage, protected references and confirmed
+  deletion by driver/combo. Your laps are now recorded automatically whenever you drive in a live
+  iRacing session; only clean laps close to your usual consumption are remembered, and
+  `adaptiveRecording.autoStart` in `tuning.json` turns recording off. Remembered laps only count
+  for the same setup file and a track within 10 °C of today's.
+  An SDK diagnostic (`ire-dump --adaptive`) checks driver identity and data freshness. In a team
+  race only your own stints are recorded, never a teammate's. While recording, the engineer also
+  notes, lap by lap, what its current fuel figure and the new history-based estimate predicted, so
+  the two can be compared before the new one is trusted, including how much fuel each expected
+  to be left at your stops and at the flag; neither changes what it says or does.
+
+- The spotter now watches every frame iRacing sends, not one in three, so a car is called as soon as
+  it has really been alongside long enough, and a car that only brushed alongside for an instant is
+  no longer mistaken for one that stayed.
+- Temperatures and pressures are spoken in the units your sim is set to, and numbers above 99 are
+  now spoken as words in every language.
+- The engineer can now be tested against the `.ibt` telemetry files iRacing saves for your own
+  sessions, not only against PitCrew's own recordings, so a problem you report can be checked on the
+  session where it happened. No visible change in the app.
+- The garage briefing can now be checked against a recorded session like every other call, and
+  checking the same recording twice gives the same result. No visible change in the app.
+- Every change to what the engineer says is now checked against a set of recorded race situations
+  (a formation lap, a caution, a multiclass race, a driver disconnecting, a timed finish and a reset
+  practice) before it ships. No visible change in the app.
+- The closing rate the dash server sends with each leaderboard row is measured per second of
+  session time, so it stays right at any dash update rate. Above five updates a second it used to
+  read several times too fast.
+- With several phones and tablets connected, the dash server builds each update once and sends
+  the same one to every screen, instead of building it again for each screen, so another screen
+  adds almost no work on the PC.
+- Behind the scenes, the race engineer's code was tidied so it is easier to maintain: its tests sit
+  beside the code they check, the part that reads iRacing's memory explains what it relies on, one
+  shared way of recovering after an internal error replaces dozens of copies, `tuning.json` is read
+  straight into the settings of each part of the engineer, the pit stops the engineer, the debrief
+  and the pit history keep are all worked out in one place, the whole field's positions are read
+  once per update instead of once per thing that looks at them, and when each line may be said
+  (before the start, under a caution, in the pits) is now written beside the line in the phrase
+  catalog. Nothing you hear or see changes.
+- **Groundwork for new calls from telemetry PitCrew does not read yet.** A developer tool now
+  measures which channels of an iRacing telemetry file change while you drive and which change only in
+  the pits, so a future call is built only on data that is up to date on track. Nothing you hear or
+  see changes.
+- **The engineer warns you before an incident penalty, not only before disqualification.** When a
+  series gives a penalty at a set incident count (17x, for example), you hear that it is close and
+  that one more point brings it. The debrief's lap sheet now names what each incident was: a car
+  contact, a contact with the wall, an off-track or a loss of control.
+- **A second hit on an already damaged car counts as new damage** in your driving history, so the
+  laps after it no longer pass for the car you had before.
+- **A timed race has a length from the green flag.** Before your first timed lap, the strategist and
+  a new pit plan use iRacing's own estimate of a lap for this car and track, so the fuel to finish
+  and the stop count no longer wait for a lap. Your own laps replace it as soon as there are some.
+  A lap far shorter than that estimate, such as a spin across the line, no longer counts toward the
+  fuel average or your driving history.
+- **Your driving history tells setups apart by their settings, not their file name.** Two setup
+  files with the same values now share their history, and a setup changed by even one click starts
+  its own. The tyre wear, temperatures, fuel load and in-car dials a race changes do not count. Laps
+  recorded before this update were kept under the file name, so each car and track's history starts
+  again once.
+- **Your driving history tells car builds and balance of performance apart.** Laps recorded after
+  iRacing updates the car, or after the series changes its weight or power, no longer count as the
+  same car as the laps before when PitCrew learns your fuel use.
 
 ### Fixed
 
+- **A new pit plan no longer replaces the active one.** Saving a plan you had just created on the Pit
+  strategy screen wrote its stops over the active plan for that car and track, under the active
+  plan's name. It is now saved beside it.
+- **The fuel per lap no longer drops after you spin across the start line.** iRacing can count a
+  lap, and sometimes take it back, while the car spins over the line. That "lap" of a few seconds
+  went into the fuel average and made the laps left in the tank look much better than they were,
+  for several laps. A lap now counts only once the car has been seen past halfway.
+- **The live pit plan learns your fuel use again after a small contact.** A knock that left
+  optional repairs pending marked every lap after it as damaged until the flag. The plan then
+  ignored the whole race. Now only mandatory repairs, the meatball flag, or new damage on that lap
+  keep a lap out.
+- **The live pit plan no longer loses laps at random.** iRacing sometimes repeats its session clock
+  for a frame, and PitCrew threw away the lap in progress each time. In a two-hour race that was
+  about one lap in five.
+- **In a series that limits how full the tank may be, the live pit strategy now plans with the tank
+  the series allows.** The radio, the PIT screen and the Companion counted the car's whole tank, so
+  the laps per tank, the stop window and the top-up could disagree with the plan you made on the
+  desktop.
+- **Pit history keeps counting stints after PitCrew restarts in the middle of a session.** Laps
+  recorded after a restart were filed as the first stint again, which mixed up the stint and tyre
+  figures for the rest of that session. A stop made while PitCrew was closed is still not seen.
+- Three of `tuning.json`'s error messages (for `traffic.clearS`, `traffic.imminentS` and
+  `engineTemps.baselineMinS`) no longer have a long run of spaces in the middle.
+- **After installing an update, PitCrew now switches to the new race engineer without a restart.**
+  Before, the window kept talking to the previous version's engineer when it was still running, so
+  newer screens such as the iRacing settings tab said the engine did not support them until PitCrew
+  was restarted. If a session is live when PitCrew opens, the switch waits until you leave the car.
+  The same fix lets a downloaded engine update take effect straight away. Before, it usually waited
+  until the next launch.
+- **Clicking Install on an update no longer freezes the window.** PitCrew checks whether you are in a
+  session before it installs, and the window used to stop responding until the answer came back.
+- **Kokoro and Piper work on a fresh install.** Both voices need espeak-ng's pronunciation data,
+  and the installer did not include it, so on most PCs they could not say a line. PitCrew now
+  installs that data with the app and points the engineer at it.
+- **The local voices speak in sentences, not in pieces.** Kokoro and Piper no longer stop at
+  every comma: each sentence is said in one breath, with a short pause between sentences, so
+  `Car left, careful.` no longer has a hole in the middle. Driver names are said as the surname
+  (`Howard`), or the initial and surname when two drivers share it, instead of `Howard, J`. Local
+  lines are synthesized again the first time they are said after the update.
+- **The local voice no longer goes silent when Kokoro or Piper cannot start.** If one local voice
+  fails, the line is now tried in each of your other installed local voices, and then in the
+  studio voice's saved audio, instead of being dropped. The log says once why Kokoro and Piper
+  stopped.
+- **The spotter no longer waits for the engineer to finish.** When a car comes alongside while the
+  engineer is talking, the engineer stops mid-sentence, the spotter calls the car, and the engineer
+  repeats the line once the car has cleared. The pause between two lines now starts when a line
+  ends, so long lines are no longer followed straight away by the next one.
+- **The engineer talks again during the race.** The green and white flags are called the moment
+  they are shown, and the race debrief starts seconds after the finish line instead of half a minute
+  later. Overtake calls are never held either. Lifting off, part throttle and oval banking no longer
+  count as a corner, so routine calls find a straight again. They wait only for braking and
+  cornering, and only while racing, never under caution or on the formation lap. A routine call
+  waits for a straight long enough to say it. While a car is alongside, everything except the
+  spotter waits until it is clear, flags included. The zones you learned before are learned again
+  on your next clean lap.
+- PitCrew now logs a warning once per connection when iRacing's telemetry layout differs from the
+  expected version or Assetto Corsa's layout is unverified, helping diagnose incompatible game updates.
+- "Track drying" is said once while the track dries, instead of at every step of the drying.
+- A stalled engine is called once, as a stall, instead of also as an oil-pressure and a fuel-pressure
+  warning. Nothing is called any more when you switch the engine off in your pit box, when you are out
+  of the car, or when the car is placed on track at the start of a session before its engine fires.
+- The end-of-race debrief now waits until you cross the finish line yourself, instead of starting
+  as soon as the leader takes the flag while you are still on your last lap. Places gained or lost on
+  that last lap now count in the finishing position you hear.
+- Damage is called on track, as soon as iRacing says the car needs repairs. Before, the damage call
+  could only come once you were already stopped in your pit box. Light damage you can choose to repair
+  at the stop and damage that needs a mandatory repair get different calls. If race control shows you
+  the orange-disc repair flag, you hear that call alone, not both.
+- Resetting an offline practice without leaving the car now starts a fresh session for the engineer.
+  Before, calls it had already made, and their waiting times, carried over from the session you
+  reset.
+- The engineer no longer names a driver who has disconnected, for example calling that you are
+  lapping someone who already left the race.
+- A place gained or lost on your last lap, after the leader has already taken the flag, is now called.
+- PitCrew's window no longer freezes when you change a pit preset key on the Pit strategy screen.
+- When an update was installed at the same moment PitCrew replaced an older race engineer it had
+  found running, it could end up attached to the engineer it was replacing. The two now wait for
+  each other.
+- Switching between live telemetry and a replay no longer freezes the dash, the overlay and the
+  engineer for up to a second.
+- Kokoro now speaks from the folder you point it at in Settings. Before, the Voices screen said it
+  was installed while the engineer kept looking for it in the default folder, and the voice list,
+  voice downloads and the setup check used the default folder too.
+- Supertonic (beta) now uses two processor threads per model, like the other local voices, instead
+  of one per core, which leaves more of the processor to iRacing while it speaks.
+- Asking how much fuel you need to finish now gives the same number as the dash and as *"abastece
+  até o fim"*: it counts where you are on the lap and keeps the reserve in the tank, and it also
+  answers in timed races.
+- In timed races the engineer now warns you when the fuel will not reach the flag. That warning
+  used to come only in races with a lap count.
+- In multi-class races, a faster car coming up to lap you is called again after it has already
+  lapped you once. Cars pitting or leaving the pits near you are now found by where they are on the
+  road, whatever lap they are on.
+
 ### Removed
+
+- Removed six diagnostic-only commands (session recording, replay switching, and a debug speech test)
+  that had no caller since the Diagnostics screen came out. No visible change for drivers.
 
 ## [0.5.0] - 2026-10-16
 

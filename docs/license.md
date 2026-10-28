@@ -128,6 +128,7 @@ option.
 | tauri | 2.11.5 | Apache-2.0 OR MIT |
 | ort | 2.0.0-rc.12 | MIT OR Apache-2.0 |
 | espeak-rs | 0.2.0 | MIT |
+| espeak-ng and espeak-ng-data | 1.52.0.1 | GPL-3.0-or-later |
 | audiopus | 0.2.0 | ISC |
 | rodio | 0.21.1 | MIT OR Apache-2.0 |
 | tauri-plugin-global-shortcut | 2.3.2 | Apache-2.0 OR MIT |

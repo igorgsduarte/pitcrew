@@ -109,6 +109,20 @@ language; the examples below are in Portuguese regardless of what language your 
 | The car behind | *"quanto tempo pro carro de trás?"* | Who is behind in your class, and by how much |
 | How much is left | *"quantas voltas faltam?"* | Laps remaining, or minutes in a timed race |
 | Your last lap | *"quanto foi minha última volta?"* | Your last lap time |
+| The engine | *"como está o motor?"* | Water and oil temperature, and oil pressure |
+| The leader | *"quanto pro líder?"* | Who leads your class, and by how much time or how many laps |
+| Lap times around you | *"última volta do carro da frente"*, *"... do carro de trás"*, *"... do líder"* | That car's last lap time |
+| Your best lap | *"qual foi minha melhor volta?"* | Your best lap time this session |
+| Time left | *"quanto tempo falta?"* | Time remaining, or laps in a race run to a lap count |
+| Fuel to the end | *"quanto combustível pra terminar?"* | How much fuel you still need to finish, or that you have enough |
+| Laps since the stop | *"quantas voltas desde o box?"* | Laps on this stint, or that you have not stopped yet |
+| Tyres | *"como estão os pneus?"* | Tread left on each corner, as measured at your last stop |
+| Repairs | *"quanto tempo de reparo?"* | Required and optional repair time, or that there is nothing to fix |
+| Incidents | *"contador de incidentes"* | Your incident count, and how many are left before the limit |
+| iRating | *"qual o meu irating?"* | The iRating you joined the session with |
+| Licence | *"minha licença"* | Your licence class and safety rating |
+| Strength of field | *"força do grid"* | The strength of field of your class |
+| Temperatures | *"temperatura da pista"* | Track and air temperature |
 | Say that again | *"fala de novo"* | The last call, repeated |
 | Silence | *"cala a boca"* | The engineer stops speaking |
 | Speak again | *"volta a falar"* | It starts again |
@@ -136,7 +150,40 @@ quickest way to tell the two problems apart:
   one of the phrasings in the table above, or teach it yours: see *Teaching it how you ask* below.
 
 Some questions have an honest answer that is not a number. On the opening lap there is no fuel
-average yet, so *"combustível?"* gets *"ainda não tenho esse dado"* rather than an invented figure.
+average yet, so *"combustível?"* gets *"ainda não tenho esse dado"* rather than an invented figure. The
+tyres are the same: iRacing reports tread only while the car sits in its pit box, so before your
+first stop the engineer tells you they have not been measured yet, and after it the answer is the
+reading from that stop.
+
+## Changing the pit stop
+
+You can also set the next stop by voice. The engineer sends it to iRacing's black box, then tells you
+what the car shows.
+
+| Change | Say | What is set |
+| --- | --- | --- |
+| Add fuel | *"coloca vinte litros"* | That many litres to add |
+| Fuel to the end | *"abastece até o fim"* | Enough to finish if you stop at the end of this lap, with a small reserve |
+| All four tyres | *"troca os quatro pneus"* | All four corners |
+| Some tyres | *"só os dianteiros"*, *"só os traseiros"*, *"pneus da esquerda"*, *"pneus da direita"* | Those corners only |
+| No tyres | *"sem pneus"* | Every corner unticked |
+| Fast repair | *"reparo rápido"* | The fast repair box |
+| Tear-off | *"tear off"* | The windscreen tear-off |
+
+A few things work differently from a question:
+
+- **Each command changes only what it names.** Asking for fuel leaves your tyres, fast repair and
+  tear-off exactly as they were.
+- **What you hear back is what the car shows.** If iRacing caps the fuel to the space left in the
+  tank, you hear the capped amount. If the car never shows the change, the engineer tells you to
+  check the black box instead of pretending it worked.
+- **Your pit plan waits.** After you change fuel or tyres by voice, automatic arming from your pit
+  plan does not overwrite it. The plan takes over again after you make the stop, or when you press
+  the preset Clear button. Fast repair and the tear-off never stop the plan.
+- **It has to hear the whole command.** A question can be understood with a word missing; a command
+  cannot, and a command heard with *"não"*, *"sem"* or *"not"* where it does not belong is ignored.
+  *"Fuel to the end"* with no measured fuel usage yet, or with enough fuel already on board, sends
+  nothing and tells you why.
 
 ## Teaching it how you ask
 
