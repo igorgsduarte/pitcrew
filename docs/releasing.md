@@ -2,10 +2,23 @@
 
 A release is one zip on a GitHub release: `<id>-<version>.zip`. The app downloads only that file.
 
+## Channels
+
+Every plugin has two channels:
+
+| Channel | Version | GitHub release |
+| --- | --- | --- |
+| `beta` | `MAJOR.MINOR.PATCH-beta.N`, e.g. `1.1.0-beta.2` | a pre-release |
+| `stable` | `MAJOR.MINOR.PATCH`, e.g. `1.1.0` | a release |
+
+The registry entry of each release has `"channel": "beta"` or `"channel": "stable"`.
+
 ## 1. Set the version
 
-Change `version` in `plugin.json` (and in `Cargo.toml`). Use a new version for every release. The
-registry pins each version to one sha256, so a version can never change after it is published.
+Change `version` in `plugin.json`. Use a new version for every release. The registry pins each
+version to one sha256, so a version can never change after it is published.
+
+The plugins in this repository do not do this by hand: see [The release workflow](#the-release-workflow).
 
 ## 2. Build and pack
 
@@ -46,7 +59,42 @@ After the checks, the app validates `plugin.json` and installs the plugin **off*
 Do not delete or replace a published asset. The registry would refuse the new file, and drivers
 would see "This download does not match the registry. Nothing was installed."
 
-## Automate it
+## The release workflow
 
-[.github/workflows/ci.yml](../.github/workflows/ci.yml) in this repository builds, tests, packs and
-releases the Flags plugin when a tag `flags-v*` is pushed. Copy it for your plugin.
+The plugins in this folder release with **Plugins · Release**
+(`.github/workflows/plugins-release.yml` at the root of `igorgsduarte/pitcrew`). It runs only by
+hand: **Actions → Plugins · Release → Run workflow**, on `main`.
+
+| Input | Values | What it does |
+| --- | --- | --- |
+| `plugin` | a folder in `plugins/` | The plugin to release. Add a new plugin to the list in the workflow. |
+| `channel` | `beta`, `stable` | The channel. |
+| `bump` | `none`, `patch`, `minor`, `major` | `none` releases the version in `plugin.json`, or the next beta of it. A bump starts from the latest stable release. |
+
+Examples, for the Flags plugin with `plugin.json` at `1.0.0`:
+
+| Run | Release |
+| --- | --- |
+| beta, none (first time) | `1.0.0-beta.1` |
+| beta, none (again) | `1.0.0-beta.2` |
+| stable, none | `1.0.0` |
+| beta, minor | `1.1.0-beta.1` |
+| stable, patch | `1.0.1` |
+
+The workflow:
+
+1. Computes the version from the tags `<plugin>-v*` and `plugin.json`
+   ([tools/release/release.py](../tools/release/release.py)). It stops if the version exists.
+2. Moves `## [Unreleased]` of the plugin's `CHANGELOG.md` into the new version. It stops if that
+   section is empty, so add each change there before you release.
+3. Runs the tests, builds the `.wasm` and `pcplugin`, validates, packs and checks the zip.
+4. For Flags, builds the four PitFlag firmware images on Windows.
+5. Commits `plugin.json`, `CHANGELOG.md` and `registry/<id>.json` to `main`, and tags
+   `<plugin>-v<version>`.
+6. Makes the GitHub release "Plugin · <name> <version>" with the zip (and the firmware images). A
+   beta is a pre-release. No plugin release is ever marked latest: `/releases/latest` is the app's.
+
+If `main` moves while the workflow runs, it stops before the commit. Run it again.
+
+**Plugins · CI** (`plugins-ci.yml`) tests every push and pull request that touches `plugins/`. It
+never releases.

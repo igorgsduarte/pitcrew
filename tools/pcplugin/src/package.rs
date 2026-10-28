@@ -110,6 +110,7 @@ pub fn check(zip_bytes: &[u8]) -> Result<Value> {
 pub fn registry_release(pkg: &Package, built: &Built, tag: &str) -> Value {
     json!({
         "version": pkg.manifest.version,
+        "channel": manifest::channel(&pkg.manifest.version),
         "tag": tag,
         "asset": built.file_name,
         "sha256": built.sha256,

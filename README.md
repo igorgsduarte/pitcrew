@@ -1,4 +1,4 @@
-# pitcrew-plugins
+# PitCrew plugins
 
 Plugins add features to [PitCrew](https://pitcrew.nouss.dev), the voice race engineer. A plugin can
 drive a device on a serial port, show its own screen in the app sidebar and react to the race flag.
@@ -15,6 +15,12 @@ This repository holds:
 | [`crates/pitflag-wire/`](crates/pitflag-wire/) | The PitFlag serial protocol, shared by the plugin and the tests. |
 | [`schemas/`](schemas/) | JSON schemas for `plugin.json`, content packs and registry entries. |
 | [`registry/`](registry/) | One file per published plugin. The app's catalogue is built from it. |
+| [`tools/release/`](tools/release/) | The version, changelog and registry steps of the release workflow. |
+
+This folder is `plugins/` in [igorgsduarte/pitcrew](https://github.com/igorgsduarte/pitcrew). Its
+workflows are at the root of that repository: **Plugins · CI** tests every change, and
+**Plugins · Release** releases one plugin by hand, on the `beta` or `stable` channel. See
+[docs/releasing.md](docs/releasing.md#the-release-workflow).
 
 ## How a plugin works
 

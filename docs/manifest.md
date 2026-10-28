@@ -15,7 +15,7 @@ same rules as the app.
   "publisher": "PitCrew",
   "description": "Shows the race flags on an 8×8 LED matrix.",
   "license": "MIT",
-  "repository": "https://github.com/igorgsduarte/pitcrew-plugins",
+  "repository": "https://github.com/jsmith/pitcrew-pit-timer",
   "kind": "plugin",
   "api": "pitcrew:plugin@1",
   "entry": "flags.wasm",

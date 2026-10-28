@@ -1,17 +1,8 @@
 {
   "$schema": "../schemas/registry-entry.schema.json",
   "id": "pitcrew.flags",
-  "repo": "igorgsduarte/pitcrew-plugins",
-  "path": "plugins/flags",
+  "repo": "igorgsduarte/pitcrew",
+  "path": "plugins/plugins/flags",
   "tier": "official",
-  "releases": [
-    {
-      "version": "1.0.0",
-      "tag": "flags-v1.0.0",
-      "asset": "pitcrew.flags-1.0.0.zip",
-      "sha256": "90178d60c544d3edb122cfecd07792e8b9f23c43e1ea0d217ee88f83dac0a748",
-      "bytes": 111940,
-      "api": "pitcrew:plugin@1"
-    }
-  ]
+  "releases": []
 }

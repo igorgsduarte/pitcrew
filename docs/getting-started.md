@@ -14,8 +14,8 @@ This guide makes a plugin that shows the race flag on its own screen. It takes a
 3. Clone this repository and build the developer tool:
 
    ```sh
-   git clone https://github.com/igorgsduarte/pitcrew-plugins
-   cd pitcrew-plugins
+   git clone https://github.com/igorgsduarte/pitcrew
+   cd pitcrew/plugins
    cargo build --release -p pcplugin
    ```
 

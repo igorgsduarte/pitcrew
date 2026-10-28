@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/pack.schema.json",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/pack.schema.json",
   "title": "PitCrew content pack (pack.json)",
   "description": "The four fields every pack has. A content type adds its own fields; flags.animations adds animations and hasMapping. See docs/content-packs.md.",
   "type": "object",

@@ -105,9 +105,24 @@ pub fn dotted_id(s: &str) -> bool {
         && parts.iter().all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-'))
 }
 
-fn semver(s: &str) -> bool {
-    let parts: Vec<_> = s.split('.').collect();
-    parts.len() == 3 && parts.iter().all(|p| !p.is_empty() && p.len() <= 6 && p.chars().all(|c| c.is_ascii_digit()))
+fn number(p: &str) -> bool {
+    !p.is_empty() && p.len() <= 6 && p.chars().all(|c| c.is_ascii_digit())
+}
+
+/// `MAJOR.MINOR.PATCH` (stable channel) or `MAJOR.MINOR.PATCH-beta.N` (beta channel).
+pub fn semver(s: &str) -> bool {
+    let (core, pre) = match s.split_once('-') {
+        Some((core, pre)) => (core, Some(pre)),
+        None => (s, None),
+    };
+    let parts: Vec<_> = core.split('.').collect();
+    let core_ok = parts.len() == 3 && parts.iter().all(|p| number(p));
+    core_ok && pre.is_none_or(|p| p.strip_prefix("beta.").is_some_and(number))
+}
+
+/// The release channel a valid version belongs to.
+pub fn channel(version: &str) -> &'static str {
+    if version.contains("-beta.") { "beta" } else { "stable" }
 }
 
 fn setting_key(s: &str) -> bool {
@@ -136,7 +151,7 @@ pub fn check(m: &Manifest, dir: &Path) -> Vec<String> {
         p.push("name: 1 to 40 characters".into());
     }
     if !semver(&m.version) {
-        p.push(format!("version \"{}\": MAJOR.MINOR.PATCH, digits only", m.version));
+        p.push(format!("version \"{}\": MAJOR.MINOR.PATCH, or MAJOR.MINOR.PATCH-beta.N for the beta channel", m.version));
     }
     if m.publisher.trim().is_empty() {
         p.push("publisher: required".into());
@@ -379,7 +394,13 @@ mod tests {
         assert!(!dotted_id("Some.one"));
         assert!(!dotted_id("a..b"));
         assert!(semver("1.0.0"));
+        assert!(semver("1.2.0-beta.3"));
         assert!(!semver("1.0"));
         assert!(!semver("1.0.0-beta"));
+        assert!(!semver("1.0.0-beta."));
+        assert!(!semver("1.0.0-rc.1"));
+        assert!(!semver("1.0.0-beta.1.2"));
+        assert_eq!(channel("1.2.0-beta.3"), "beta");
+        assert_eq!(channel("1.2.0"), "stable");
     }
 }

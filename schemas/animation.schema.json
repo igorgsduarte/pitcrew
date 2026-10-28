@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/animation.schema.json",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/animation.schema.json",
   "title": "Flags animation (flags.animations)",
   "description": "One 8x8 animation. Each frame is 8 rows of 8 palette characters, top row first. See docs/content-packs.md.",
   "type": "object",

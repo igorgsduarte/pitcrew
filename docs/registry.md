@@ -15,6 +15,7 @@ Open a pull request that adds `registry/<id>.json`:
   "releases": [
     {
       "version": "1.0.0",
+      "channel": "stable",
       "tag": "v1.0.0",
       "asset": "jsmith.pit-timer-1.0.0.zip",
       "sha256": "…",
@@ -26,8 +27,12 @@ Open a pull request that adds `registry/<id>.json`:
 ```
 
 - `pcplugin pack` prints the `releases` entry for you.
+- `channel` is `beta` for a `-beta.N` version and `stable` otherwise. See
+  [releasing.md](releasing.md#channels).
 - Do not add `tier`. The reviewer sets it.
 - To publish an update, add a new entry at the top of `releases`. Never change an old entry.
+- The official plugins in this repository do not open a pull request: their release workflow adds
+  the entry.
 
 ## What happens after the pull request
 

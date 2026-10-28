@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/plugin.schema.json",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/plugin.schema.json",
   "title": "PitCrew plugin.json",
   "description": "The manifest of a PitCrew plugin or content package. See docs/manifest.md. pcplugin validate also checks the rules that a schema cannot express.",
   "type": "object",
@@ -10,7 +10,7 @@
     "$schema": { "type": "string" },
     "id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" },
     "name": { "type": "string", "minLength": 1, "maxLength": 40 },
-    "version": { "type": "string", "pattern": "^[0-9]{1,6}\\.[0-9]{1,6}\\.[0-9]{1,6}$" },
+    "version": { "type": "string", "pattern": "^[0-9]{1,6}\\.[0-9]{1,6}\\.[0-9]{1,6}(-beta\\.[0-9]{1,6})?$", "description": "MAJOR.MINOR.PATCH for the stable channel, MAJOR.MINOR.PATCH-beta.N for the beta channel." },
     "publisher": { "type": "string", "minLength": 1 },
     "description": { "type": "string", "maxLength": 300 },
     "license": { "type": "string", "minLength": 1 },

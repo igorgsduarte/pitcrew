@@ -7,7 +7,7 @@ default-members = ["crates/pitflag-wire", "tools/pcplugin"]
 [workspace.package]
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/igorgsduarte/pitcrew-plugins"
+repository = "https://github.com/igorgsduarte/pitcrew"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

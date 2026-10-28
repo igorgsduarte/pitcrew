@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/registry-entry.schema.json",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/registry-entry.schema.json",
   "title": "PitCrew registry entry (registry/<id>.json)",
   "description": "One published plugin and its releases, newest first. See docs/registry.md.",
   "type": "object",
@@ -14,13 +14,14 @@
     "tier": { "enum": ["official", "community", "content"], "description": "Set by the reviewer, never by the author." },
     "releases": {
       "type": "array",
-      "minItems": 1,
+      "description": "Newest first. Empty until the first release.",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["version", "tag", "asset", "sha256", "bytes", "api"],
+        "required": ["version", "channel", "tag", "asset", "sha256", "bytes", "api"],
         "properties": {
-          "version": { "type": "string", "pattern": "^[0-9]{1,6}\\.[0-9]{1,6}\\.[0-9]{1,6}$" },
+          "version": { "type": "string", "pattern": "^[0-9]{1,6}\\.[0-9]{1,6}\\.[0-9]{1,6}(-beta\\.[0-9]{1,6})?$" },
+          "channel": { "enum": ["beta", "stable"], "description": "beta for a -beta.N version, stable otherwise." },
           "tag": { "type": "string", "minLength": 1 },
           "asset": { "type": "string", "pattern": "\\.zip$" },
           "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },

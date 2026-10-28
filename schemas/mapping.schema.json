@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/mapping.schema.json",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/mapping.schema.json",
   "title": "Flags mapping (mapping.json)",
   "description": "Rules from flag to animation. The first rule that matches wins; an empty when matches everything. See docs/content-packs.md.",
   "type": "array",
