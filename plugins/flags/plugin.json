@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/plugin.schema.json",
+  "id": "pitcrew.flags",
+  "name": "Flags",
+  "version": "1.0.0",
+  "publisher": "PitCrew",
+  "description": "Shows the race flags on an 8×8 LED matrix (Arduino or ESP32 running the PitFlag firmware), with animations you can edit.",
+  "license": "MIT",
+  "repository": "https://github.com/igorgsduarte/pitcrew-plugins",
+  "kind": "plugin",
+  "api": "pitcrew:plugin@1",
+  "entry": "flags.wasm",
+  "permissions": ["topic:flag", "topic:session", "devices:serial", "content:write-own"],
+  "tickHz": 30,
+  "settings": [
+    { "key": "port", "type": "serialPort", "label": "Device port" },
+    { "key": "brightness", "type": "integer", "label": "Brightness", "min": 1, "max": 255, "default": 40 },
+    { "key": "animationPack", "type": "contentRef", "label": "Animations", "of": "flags.animations", "default": "pitcrew.flags.classic" },
+    { "key": "greenHoldS", "type": "number", "label": "Show green for (s)", "min": 0, "max": 30, "default": 3 }
+  ],
+  "actions": [{ "id": "test", "label": "Play every flag" }],
+  "nav": { "label": "Flags", "icon": "flag" },
+  "provides": ["flags.animations"],
+  "packs": ["content/classic"]
+}

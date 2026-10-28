@@ -1,0 +1,4 @@
+# LF everywhere: `pcplugin pack` hashes file bytes, so a CRLF checkout would change the sha256.
+* text=auto eol=lf
+*.png binary
+*.wasm binary

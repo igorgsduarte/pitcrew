@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/plugin.schema.json",
+  "id": "example.hello",
+  "name": "Hello",
+  "version": "0.1.0",
+  "publisher": "Your Name",
+  "description": "Shows the current flag on its own screen. Start your plugin from here.",
+  "license": "MIT",
+  "kind": "plugin",
+  "api": "pitcrew:plugin@1",
+  "entry": "hello.wasm",
+  "permissions": ["topic:flag"],
+  "tickHz": 1,
+  "settings": [
+    { "key": "greeting", "type": "string", "label": "Greeting", "default": "Box, box!" }
+  ],
+  "nav": { "label": "Hello", "icon": "hand" }
+}

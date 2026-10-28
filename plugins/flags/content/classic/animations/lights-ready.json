@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "lights-ready",
+  "palette": {
+    ".": "000000",
+    "R": "FF2A1F"
+  },
+  "fps": 1,
+  "loop": false,
+  "frames": [
+    ["...RR...", ".RRRRRR.", ".R....R.", "RR....RR", "RR....RR", ".R....R.", ".RRRRRR.", "...RR..."]
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "yellow-waving",
+  "palette": {
+    ".": "000000",
+    "Y": "FFD400"
+  },
+  "fps": 8,
+  "loop": true,
+  "frames": [
+    ["..YYYYYY", ".YYYYYY.", "YYYYYY..", "YYYYY..Y", "YYYY..YY", "YYY..YYY", "YY..YYYY", "Y..YYYYY"],
+    ["YYYYYY..", "YYYYY..Y", "YYYY..YY", "YYY..YYY", "YY..YYYY", "Y..YYYYY", "..YYYYYY", ".YYYYYY."],
+    ["YYYY..YY", "YYY..YYY", "YY..YYYY", "Y..YYYYY", "..YYYYYY", ".YYYYYY.", "YYYYYY..", "YYYYY..Y"],
+    ["YY..YYYY", "Y..YYYYY", "..YYYYYY", ".YYYYYY.", "YYYYYY..", "YYYYY..Y", "YYYY..YY", "YYY..YYY"]
+  ]
+}

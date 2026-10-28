@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "red",
+  "palette": {
+    ".": "000000",
+    "R": "FF2A1F"
+  },
+  "fps": 1,
+  "loop": true,
+  "frames": [
+    ["RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR"]
+  ]
+}

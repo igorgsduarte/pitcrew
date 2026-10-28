@@ -1,0 +1,316 @@
+// The contract between PitCrew (the host) and a plugin. See docs/api.md.
+//
+// Version rule: additions within @1 are allowed; removing or changing anything is @2.
+package pitcrew:plugin@1.0.0;
+
+/// Values the host hands to plugins.
+interface types {
+    /// The session flag, ranked by PitCrew: the highest-priority flag that is out.
+    enum flag {
+        disqualify,
+        black,
+        repair,
+        red,
+        checkered,
+        white,
+        yellow,
+        blue,
+        green,
+    }
+
+    /// Start lights, only where the sim publishes them.
+    enum start-light {
+        ready,
+        set,
+        go,
+    }
+
+    /// Flags shown to the player's own car.
+    enum driver-flag {
+        black,
+        repair,
+        disqualify,
+    }
+
+    /// Everything a flag display needs, already decided by PitCrew.
+    /// A field the sim does not publish is `none` or `false`, never guessed.
+    record flag-signal {
+        primary: option<flag>,
+        /// A waving (full-course) yellow. `false` with a yellow `primary` is a local yellow.
+        waving: bool,
+        /// The striped surface flag.
+        debris: bool,
+        one-lap-to-green: bool,
+        start: option<start-light>,
+        driver: list<driver-flag>,
+    }
+
+    record session-info {
+        /// "iracing", "assetto-corsa", "assetto-corsa-evo" or "replay".
+        sim: string,
+        connected: bool,
+        in-car: bool,
+        session-kind: option<string>,
+        track: option<string>,
+    }
+
+    enum log-level {
+        debug,
+        info,
+        warn,
+        error,
+    }
+
+    enum status-level {
+        ok,
+        idle,
+        warning,
+        error,
+    }
+}
+
+/// The declared UI. A plugin describes its screen; PitCrew draws it with its own components.
+/// WIT has no recursive types, so a screen is a flat list of nodes that name their parent.
+interface ui {
+    use types.{status-level};
+
+    enum tone {
+        normal,
+        muted,
+        warning,
+        error,
+    }
+
+    enum gap {
+        sm,
+        md,
+        lg,
+    }
+
+    enum button-variant {
+        primary,
+        secondary,
+        destructive,
+    }
+
+    record page-props {
+        title: string,
+        subtitle: option<string>,
+    }
+
+    record tabs-props {
+        /// The id of the selected `tab` child.
+        selected: string,
+    }
+
+    record card-props {
+        title: option<string>,
+        description: option<string>,
+    }
+
+    record grid-props {
+        /// 1 to 3. Collapses to one column on narrow windows.
+        columns: u8,
+        gap: gap,
+    }
+
+    record text-props {
+        text: string,
+        tone: tone,
+        mono: bool,
+    }
+
+    record badge-props {
+        text: string,
+        level: status-level,
+    }
+
+    record alert-props {
+        title: option<string>,
+        text: string,
+        level: status-level,
+    }
+
+    record table-props {
+        columns: list<string>,
+        /// At most 200 rows. Each row's first cell is its id when selected.
+        rows: list<list<string>>,
+        selectable: bool,
+    }
+
+    record progress-props {
+        /// 0.0 to 1.0.
+        value: f32,
+        label: option<string>,
+    }
+
+    record button-props {
+        label: string,
+        %variant: button-variant,
+        /// A name from the app's icon set (lucide), or none.
+        icon: option<string>,
+        disabled: bool,
+    }
+
+    record switch-props {
+        label: string,
+        checked: bool,
+        disabled: bool,
+    }
+
+    record slider-props {
+        label: string,
+        min: f64,
+        max: f64,
+        step: f64,
+        value: f64,
+    }
+
+    record select-option {
+        value: string,
+        label: string,
+    }
+
+    record select-props {
+        label: string,
+        options: list<select-option>,
+        value: string,
+    }
+
+    record input-props {
+        label: string,
+        value: string,
+        max-length: u32,
+    }
+
+    record pixel-grid-props {
+        /// 1 to 32.
+        width: u8,
+        /// 1 to 32.
+        height: u8,
+        /// Up to 16 colours as 0xRRGGBB. Index 0 is drawn as "off".
+        palette: list<u32>,
+        /// width × height palette indices, row-major.
+        pixels: list<u8>,
+        editable: bool,
+    }
+
+    variant node-kind {
+        page(page-props),
+        tabs(tabs-props),
+        /// A tab's label. Its children are the tab's content.
+        tab(string),
+        card(card-props),
+        grid(grid-props),
+        stack(gap),
+        separator,
+        text(text-props),
+        badge(badge-props),
+        alert(alert-props),
+        table(table-props),
+        progress(progress-props),
+        button(button-props),
+        %switch(switch-props),
+        slider(slider-props),
+        select(select-props),
+        input(input-props),
+        pixel-grid(pixel-grid-props),
+        /// The host draws these manifest settings (by key) and handles them itself.
+        settings-form(list<string>),
+    }
+
+    record ui-node {
+        /// Unique within the tree. Events name the node by this id.
+        id: string,
+        /// None only for the single `page` root.
+        parent: option<string>,
+        kind: node-kind,
+    }
+
+    record paint {
+        x: u8,
+        y: u8,
+        /// A palette index.
+        color: u8,
+    }
+
+    variant event-kind {
+        pressed,
+        toggled(bool),
+        changed-number(f64),
+        changed-text(string),
+        /// A tab, a table row or a select option.
+        selected(string),
+        painted(paint),
+    }
+
+    record ui-event {
+        node: string,
+        kind: event-kind,
+    }
+}
+
+/// Logging, status and UI refresh.
+interface host {
+    use types.{log-level, status-level};
+
+    log: func(level: log-level, text: string);
+    /// The status row shown on the plugin's sidebar item and catalogue entry.
+    set-status: func(level: status-level, text: string);
+    /// Ask the host to call `render` again. The host draws at most 5 times a second.
+    invalidate-ui: func();
+}
+
+/// Serial ports. Needs the `devices:serial` permission.
+interface serial {
+    resource port {
+        write: func(bytes: list<u8>) -> result<_, string>;
+        /// Never blocks: returns what is buffered, possibly nothing.
+        read: func(max: u32) -> result<list<u8>, string>;
+    }
+
+    /// Opens the port the driver picked in this plugin's `serialPort` setting named `setting-key`.
+    /// A plugin can never open a port by name.
+    open: func(setting-key: string, baud: u32) -> result<port, string>;
+}
+
+/// The plugin's settings, validated by the host against plugin.json.
+interface settings {
+    /// A JSON object of setting key to value.
+    get: func() -> string;
+}
+
+/// Content packs. Reading needs nothing; `write-own` needs `content:write-own`.
+interface content {
+    /// Installed packs (ids) of a content type this plugin `provides`, its own bundled packs first.
+    packs: func(of-type: string) -> list<string>;
+    read: func(pack: string, path: string) -> result<list<u8>, string>;
+    /// Writes under the plugin's own data folder. `path` is relative and may not leave it.
+    write-own: func(path: string, bytes: list<u8>) -> result<_, string>;
+}
+
+world plugin {
+    use types.{flag-signal, session-info};
+    use ui.{ui-node, ui-event};
+
+    import host;
+    import serial;
+    import settings;
+    import content;
+
+    /// Called once after loading. An error stops the plugin and is shown to the driver.
+    export init: func() -> result<_, string>;
+    /// The flag changed. Also called once right after `init` with the current value.
+    export on-flag: func(signal: flag-signal);
+    export on-session: func(session: session-info);
+    export settings-changed: func();
+    /// Called at the manifest's `tickHz`. `now-ms` is a monotonic clock.
+    export tick: func(now-ms: u64);
+    /// A manifest `actions` button was pressed.
+    export on-action: func(id: string);
+    /// The plugin's screen. Called only while it is open.
+    export render: func() -> list<ui-node>;
+    export on-ui-event: func(event: ui-event);
+    /// The plugin is being turned off or the engine is stopping. Leave the device dark.
+    export on-stop: func();
+}

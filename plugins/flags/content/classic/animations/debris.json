@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "debris",
+  "palette": {
+    ".": "000000",
+    "R": "FF2A1F",
+    "Y": "FFD400"
+  },
+  "fps": 4,
+  "loop": true,
+  "frames": [
+    ["YYRRYYRR", "YYRRYYRR", "YYRRYYRR", "YYRRYYRR", "YYRRYYRR", "YYRRYYRR", "YYRRYYRR", "YYRRYYRR"],
+    ["YRRYYRRY", "YRRYYRRY", "YRRYYRRY", "YRRYYRRY", "YRRYYRRY", "YRRYYRRY", "YRRYYRRY", "YRRYYRRY"],
+    ["RRYYRRYY", "RRYYRRYY", "RRYYRRYY", "RRYYRRYY", "RRYYRRYY", "RRYYRRYY", "RRYYRRYY", "RRYYRRYY"],
+    ["RYYRRYYR", "RYYRRYYR", "RYYRRYYR", "RYYRRYYR", "RYYRRYYR", "RYYRRYYR", "RYYRRYYR", "RYYRRYYR"]
+  ]
+}

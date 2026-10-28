@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew-plugins/main/schemas/pack.schema.json",
+  "title": "PitCrew content pack (pack.json)",
+  "description": "The four fields every pack has. A content type adds its own fields; flags.animations adds animations and hasMapping. See docs/content-packs.md.",
+  "type": "object",
+  "required": ["id", "name", "type", "version"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "type": { "type": "string", "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" },
+    "version": { "type": "string", "pattern": "^[0-9]{1,6}\\.[0-9]{1,6}\\.[0-9]{1,6}$" },
+    "animations": {
+      "description": "flags.animations: the animation names; each is animations/<name>.json.",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+    },
+    "hasMapping": { "description": "flags.animations: true when the pack ships mapping.json.", "type": "boolean" }
+  }
+}
