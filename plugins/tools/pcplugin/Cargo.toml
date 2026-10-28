@@ -1,0 +1,17 @@
+[package]
+name = "pcplugin"
+version = "0.1.0"
+description = "Validate, package and run PitCrew plugins on your own machine"
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow = "1"
+pitflag-wire = { path = "../../crates/pitflag-wire" }
+serde.workspace = true
+serde_json.workspace = true
+serialport = { version = "4.10", default-features = false }
+sha2 = "0.11"
+wasmtime = { version = "50", default-features = false, features = ["anyhow", "component-model", "cranelift", "runtime", "std", "addr2line", "demangle", "parallel-compilation"] }
+wasmtime-wasi = "50"
+zip = { version = "9", default-features = false, features = ["deflate"] }

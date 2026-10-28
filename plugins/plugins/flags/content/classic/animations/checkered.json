@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "checkered",
+  "palette": {
+    ".": "000000",
+    "W": "FFFFFF"
+  },
+  "fps": 3,
+  "loop": true,
+  "frames": [
+    ["..WW..WW", "..WW..WW", "WW..WW..", "WW..WW..", "..WW..WW", "..WW..WW", "WW..WW..", "WW..WW.."],
+    ["WW..WW..", "WW..WW..", "..WW..WW", "..WW..WW", "WW..WW..", "WW..WW..", "..WW..WW", "..WW..WW"]
+  ]
+}

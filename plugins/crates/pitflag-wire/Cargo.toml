@@ -1,0 +1,8 @@
+[package]
+name = "pitflag-wire"
+version = "2.0.0"
+description = "PitFlag wire v2: the serial framing between a PitCrew plugin and an LED matrix device"
+edition.workspace = true
+license.workspace = true
+
+[dependencies]

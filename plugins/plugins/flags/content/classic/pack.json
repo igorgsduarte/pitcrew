@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../../schemas/pack.schema.json",
+  "id": "pitcrew.flags.classic",
+  "name": "Classic",
+  "type": "flags.animations",
+  "version": "1.0.0",
+  "animations": [
+    "idle",
+    "standby",
+    "green-flash",
+    "yellow",
+    "yellow-waving",
+    "blue-flash",
+    "white",
+    "checkered",
+    "red",
+    "black",
+    "meatball",
+    "black-x",
+    "debris",
+    "lights-ready",
+    "lights-set"
+  ],
+  "hasMapping": true
+}

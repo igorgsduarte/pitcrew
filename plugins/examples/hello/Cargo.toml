@@ -1,0 +1,13 @@
+[package]
+name = "hello-plugin"
+version = "0.1.0"
+description = "The smallest useful PitCrew plugin: a sidebar screen that shows the flag"
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+serde_json.workspace = true
+wit-bindgen = "0.63"

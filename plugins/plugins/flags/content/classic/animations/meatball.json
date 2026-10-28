@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "meatball",
+  "palette": {
+    ".": "000000",
+    "O": "FF7A00"
+  },
+  "fps": 1,
+  "loop": true,
+  "frames": [
+    ["........", "..OOOO..", ".OOOOOO.", ".OOOOOO.", ".OOOOOO.", ".OOOOOO.", "..OOOO..", "........"]
+  ]
+}

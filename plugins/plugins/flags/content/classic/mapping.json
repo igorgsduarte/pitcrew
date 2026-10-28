@@ -1,0 +1,20 @@
+[
+  {"when": {"driver": "disqualify"}, "show": "black-x"},
+  {"when": {"driver": "black"}, "show": "black"},
+  {"when": {"driver": "repair"}, "show": "meatball"},
+  {"when": {"primary": "disqualify"}, "show": "black-x"},
+  {"when": {"primary": "black"}, "show": "black"},
+  {"when": {"primary": "repair"}, "show": "meatball"},
+  {"when": {"primary": "red"}, "show": "red"},
+  {"when": {"primary": "checkered"}, "show": "checkered"},
+  {"when": {"start": "ready"}, "show": "lights-ready"},
+  {"when": {"start": "set"}, "show": "lights-set"},
+  {"when": {"start": "go"}, "show": "green-flash", "holdS": "setting:greenHoldS", "then": "idle"},
+  {"when": {"primary": "yellow", "waving": true}, "show": "yellow-waving"},
+  {"when": {"primary": "yellow"}, "show": "yellow"},
+  {"when": {"debris": true}, "show": "debris"},
+  {"when": {"primary": "white"}, "show": "white"},
+  {"when": {"primary": "blue"}, "show": "blue-flash"},
+  {"when": {"primary": "green"}, "show": "green-flash", "holdS": "setting:greenHoldS", "then": "idle"},
+  {"when": {}, "show": "idle"}
+]

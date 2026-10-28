@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "white",
+  "palette": {
+    ".": "000000",
+    "W": "FFFFFF"
+  },
+  "fps": 3,
+  "loop": true,
+  "frames": [
+    ["WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW"],
+    ["WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW", "WWWWWWWW"],
+    ["........", "........", "........", "........", "........", "........", "........", "........"]
+  ]
+}

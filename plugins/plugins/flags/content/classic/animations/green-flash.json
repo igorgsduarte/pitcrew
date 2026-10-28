@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "green-flash",
+  "palette": {
+    ".": "000000",
+    "G": "19FF4A"
+  },
+  "fps": 4,
+  "loop": true,
+  "frames": [
+    ["GGGGGGGG", "GGGGGGGG", "GGGGGGGG", "GGGGGGGG", "GGGGGGGG", "GGGGGGGG", "GGGGGGGG", "GGGGGGGG"],
+    ["........", "........", "........", "........", "........", "........", "........", "........"]
+  ]
+}

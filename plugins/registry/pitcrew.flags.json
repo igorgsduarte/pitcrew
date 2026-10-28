@@ -1,0 +1,8 @@
+{
+  "$schema": "../schemas/registry-entry.schema.json",
+  "id": "pitcrew.flags",
+  "repo": "igorgsduarte/pitcrew",
+  "path": "plugins/plugins/flags",
+  "tier": "official",
+  "releases": []
+}

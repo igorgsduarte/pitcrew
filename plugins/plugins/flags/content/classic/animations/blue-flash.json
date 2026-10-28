@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "blue-flash",
+  "palette": {
+    ".": "000000",
+    "B": "1E6BFF",
+    "Y": "FFD400"
+  },
+  "fps": 3,
+  "loop": true,
+  "frames": [
+    ["YYBBBBBB", "BYYBBBBB", "BBYYBBBB", "BBBYYBBB", "BBBBYYBB", "BBBBBYYB", "BBBBBBYY", "BBBBBBBY"],
+    ["........", "........", "........", "........", "........", "........", "........", "........"]
+  ]
+}

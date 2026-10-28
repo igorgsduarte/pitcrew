@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "yellow",
+  "palette": {
+    ".": "000000",
+    "Y": "FFD400"
+  },
+  "fps": 1,
+  "loop": true,
+  "frames": [
+    ["YYYYYYYY", "YYYYYYYY", "YYYYYYYY", "YYYYYYYY", "YYYYYYYY", "YYYYYYYY", "YYYYYYYY", "YYYYYYYY"]
+  ]
+}

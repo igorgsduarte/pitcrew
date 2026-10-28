@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/igorgsduarte/pitcrew/main/plugins/schemas/mapping.schema.json",
+  "title": "Flags mapping (mapping.json)",
+  "description": "Rules from flag to animation. The first rule that matches wins; an empty when matches everything. See docs/content-packs.md.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["when", "show"],
+    "properties": {
+      "when": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "primary": { "enum": ["disqualify", "black", "repair", "red", "checkered", "white", "yellow", "blue", "green"] },
+          "waving": { "type": "boolean" },
+          "debris": { "type": "boolean" },
+          "oneLapToGreen": { "type": "boolean" },
+          "start": { "enum": ["ready", "set", "go"] },
+          "driver": { "enum": ["black", "repair", "disqualify"] }
+        }
+      },
+      "show": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "holdS": { "oneOf": [{ "type": "number", "minimum": 0 }, { "const": "setting:greenHoldS" }] },
+      "then": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+    }
+  }
+}

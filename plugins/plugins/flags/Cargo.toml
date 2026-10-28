@@ -1,0 +1,17 @@
+[package]
+name = "pitcrew-flags"
+version = "1.0.0"
+description = "Race flags on an 8×8 LED matrix — the official PitCrew Flags plugin"
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pitflag-wire = { path = "../../crates/pitflag-wire" }
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wit-bindgen = "0.63"
