@@ -167,7 +167,7 @@ mod tests {
         let a = build(&pkg, Some(&tmp)).unwrap();
         let b = build(&pkg, Some(&tmp)).unwrap();
         assert_eq!(a.sha256, b.sha256);
-        assert_eq!(a.file_name, "pitcrew.flags-1.0.0.zip");
+        assert_eq!(a.file_name, format!("pitcrew.flags-{}.zip", pkg.manifest.version));
         let inside = check(&a.bytes).unwrap();
         assert_eq!(inside["id"], "pitcrew.flags");
     }
