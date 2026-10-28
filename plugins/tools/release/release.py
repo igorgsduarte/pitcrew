@@ -123,7 +123,7 @@ def cut_changelog(changelog: str, version: str, date: str) -> tuple[str, str]:
     head, rest = changelog[: heading.start()], changelog[heading.end() :]
     after = re.split(r"(?m)^(?=## )", rest, maxsplit=1)
     tail = after[1] if len(after) > 1 else ""
-    return head + new_section + tail, notes + "\n"
+    return (head + new_section + tail).rstrip() + "\n", notes + "\n"
 
 
 def git_tags(prefix: str, cwd: Path) -> list[str]:

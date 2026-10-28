@@ -75,6 +75,11 @@ class Changelog(unittest.TestCase):
         self.assertTrue(out.startswith("# Changelog: Flags\n\nThe release workflow moves `## [Unreleased]` into"))
         self.assertEqual(out.count("- The matrix test."), 1)
 
+    def test_the_file_ends_with_one_newline(self):
+        only = "# C\n\n## [Unreleased]\n\n### Added\n- One.\n"
+        out, _ = cut_changelog(only, "1.0.0-beta.1", "2026-10-28")
+        self.assertTrue(out.endswith("- One.\n") and not out.endswith("\n\n"))
+
     def test_an_empty_unreleased_is_refused(self):
         with self.assertRaises(ReleaseError):
             cut_changelog("# C\n\n## [Unreleased]\n\n## [0.9.0] - x\n", "1.0.0", "2026-10-28")

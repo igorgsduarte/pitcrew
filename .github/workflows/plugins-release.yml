@@ -193,9 +193,10 @@ jobs:
 
       - name: Commit the version and tag it
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git apply --index "$RUNNER_TEMP/release/bump.patch"
-          git -c user.name="pitcrew-plugins[bot]" -c user.email="plugins@pitcrew.app" \
-            commit -q -m "plugins: ${NAME} ${VERSION}"
+          git commit -q -m "plugins: ${NAME} ${VERSION}"
           git tag -a "$TAG" -m "Plugin · ${NAME} ${VERSION}"
           git push origin HEAD:main "refs/tags/$TAG"
 
