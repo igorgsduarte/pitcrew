@@ -1,0 +1,78 @@
+# Tests the plugin monorepo in plugins/. It never releases: see plugins-release.yml.
+# This file is authored in igorgsduarte/pitcrew, not in pitcrew-dev (pitcrew-dev docs/adr/0115).
+
+name: Plugins · CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["plugins/**", ".github/workflows/plugins-*.yml"]
+  pull_request:
+    paths: ["plugins/**", ".github/workflows/plugins-*.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: plugins
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: plugins
+
+      - name: Test the release script
+        run: python3 -m unittest discover -s tools/release
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Build the plugins
+        run: cargo build --release --target wasm32-wasip2 -p pitcrew-flags -p hello-plugin
+
+      - name: Build pcplugin
+        run: cargo build --release -p pcplugin
+
+      - name: Validate every package
+        run: |
+          for dir in plugins/*/ examples/*/; do
+            target/release/pcplugin validate "$dir"
+          done
+
+      - name: Run Flags for 6 seconds
+        run: >
+          target/release/pcplugin run plugins/flags
+          --wasm target/wasm32-wasip2/release/pitcrew_flags.wasm
+          --plain --ui --seconds 6
+          --script "none:1,ready:1,set:1,go:1,yellow+waving:2"
+          --select tabs=device@3 --press matrix-test:start@4 --press matrix-test:next@5
+
+      - name: Run Hello for 3 seconds
+        run: >
+          target/release/pcplugin run examples/hello
+          --wasm target/wasm32-wasip2/release/hello_plugin.wasm
+          --ui --seconds 3 --press wave@1
+
+      - name: Pack Flags
+        run: |
+          target/release/pcplugin pack plugins/flags \
+            --wasm target/wasm32-wasip2/release/pitcrew_flags.wasm \
+            --out dist --tag "ci-${GITHUB_SHA::7}"
+          target/release/pcplugin check dist/pitcrew.flags-*.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pitcrew.flags-ci
+          path: plugins/dist/*.zip

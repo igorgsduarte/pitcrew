@@ -1,0 +1,218 @@
+# Releases one plugin of the monorepo in plugins/, by hand. See plugins/docs/releasing.md.
+# This file is authored in igorgsduarte/pitcrew, not in pitcrew-dev (pitcrew-dev docs/adr/0115).
+#
+# prepare   computes the version, cuts the changelog, tests, builds and packs the plugin
+# firmware  builds the PitFlag images (Flags only)
+# publish   commits the version to main, tags <plugin>-v<version> and makes the GitHub release
+
+name: Plugins · Release
+run-name: "Plugins · Release ${{ inputs.plugin }} (${{ inputs.channel }}, bump ${{ inputs.bump }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: The plugin folder in plugins/plugins/
+        type: choice
+        options: [flags]
+        required: true
+      channel:
+        description: beta makes X.Y.Z-beta.N, stable makes X.Y.Z
+        type: choice
+        options: [beta, stable]
+        default: beta
+      bump:
+        description: none releases the version in plugin.json (or the next beta of it)
+        type: choice
+        options: [none, patch, minor, major]
+        default: none
+
+concurrency:
+  group: plugins-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      name: ${{ steps.version.outputs.name }}
+      sha: ${{ steps.version.outputs.sha }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: plugins
+    env:
+      PLUGIN_DIR: plugins/${{ inputs.plugin }}
+    steps:
+      - name: Only from main
+        if: github.ref != 'refs/heads/main'
+        working-directory: .
+        run: |
+          echo "::error::Run this workflow on main, not ${GITHUB_REF}."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: version
+        name: Compute the version and cut the changelog
+        run: |
+          echo "OUT=$RUNNER_TEMP/release" >> "$GITHUB_ENV"
+          OUT="$RUNNER_TEMP/release"
+          python3 tools/release/release.py prepare "$PLUGIN_DIR" \
+            --channel "${{ inputs.channel }}" --bump "${{ inputs.bump }}" --out "$OUT" | tee -a "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: plugins
+
+      - name: Test
+        run: |
+          python3 -m unittest discover -s tools/release
+          cargo test --workspace
+
+      - name: Build
+        run: |
+          cargo build --release -p pcplugin
+          crate=$(sed -n 's/^name = "\(.*\)"/\1/p' "$PLUGIN_DIR/Cargo.toml" | head -1)
+          cargo build --release --target wasm32-wasip2 -p "$crate"
+          echo "WASM=target/wasm32-wasip2/release/${crate//-/_}.wasm" >> "$GITHUB_ENV"
+
+      - name: Validate, pack and check
+        run: |
+          target/release/pcplugin validate "$PLUGIN_DIR"
+          target/release/pcplugin pack "$PLUGIN_DIR" --wasm "$WASM" --out "$OUT" \
+            --tag "${{ steps.version.outputs.tag }}"
+          target/release/pcplugin check "$OUT"/*.zip
+
+      - name: Add the release to the registry
+        run: |
+          python3 tools/release/release.py register "$PLUGIN_DIR" \
+            --zip "$(ls "$OUT"/*.zip)" --tag "${{ steps.version.outputs.tag }}"
+          git -C "$GITHUB_WORKSPACE" diff --stat
+          git -C "$GITHUB_WORKSPACE" diff --binary > "$OUT/bump.patch"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-release
+          path: ${{ runner.temp }}/release/
+          if-no-files-found: error
+
+  firmware:
+    if: inputs.plugin == 'flags'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\arduino-cli
+          key: arduino-${{ hashFiles('plugins/plugins/flags/firmware/build.ps1') }}
+
+      - name: Set up arduino-cli
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: powershell
+        env:
+          PITFLAG_ARDUINO_HOME: ${{ runner.temp }}\arduino-cli
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File plugins\plugins\flags\firmware\build.ps1 -Setup
+
+      - name: Build the images
+        shell: powershell
+        env:
+          PITFLAG_ARDUINO_HOME: ${{ runner.temp }}\arduino-cli
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File plugins\plugins\flags\firmware\build.ps1
+
+      - name: Name the images with the firmware version
+        shell: powershell
+        run: |
+          $h = Get-Content plugins\plugins\flags\firmware\pitflag\config.h
+          $v = ('MAJOR', 'MINOR', 'PATCH' | ForEach-Object { ($h | Select-String "#define FIRMWARE_$_ (\d+)").Matches[0].Groups[1].Value }) -join '.'
+          $out = Join-Path $env:RUNNER_TEMP 'firmware'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Get-ChildItem plugins\plugins\flags\firmware\dist\pitflag-* | ForEach-Object {
+            Copy-Item $_.FullName (Join-Path $out ("pitflag-$v-" + $_.Name.Substring(8)))
+          }
+          Copy-Item plugins\plugins\flags\firmware\dist\size-report.txt (Join-Path $out "pitflag-$v-size-report.txt")
+          "PitFlag firmware $v" | Set-Content -Encoding Ascii (Join-Path $out 'firmware-version.txt')
+          Get-ChildItem $out | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: ${{ runner.temp }}\firmware\
+          if-no-files-found: error
+
+  publish:
+    needs: [prepare, firmware]
+    if: always() && needs.prepare.result == 'success' && (needs.firmware.result == 'success' || needs.firmware.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      NAME: ${{ needs.prepare.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Stop if main moved
+        run: |
+          if [ "$(git rev-parse HEAD)" != "${{ needs.prepare.outputs.sha }}" ]; then
+            echo "::error::main moved since this release started. Run the workflow again."
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugin-release
+          path: ${{ runner.temp }}/release
+
+      - if: needs.firmware.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: firmware
+          path: ${{ runner.temp }}/firmware
+
+      - name: Commit the version and tag it
+        run: |
+          git apply --index "$RUNNER_TEMP/release/bump.patch"
+          git -c user.name="pitcrew-plugins[bot]" -c user.email="plugins@pitcrew.app" \
+            commit -q -m "plugins: ${NAME} ${VERSION}"
+          git tag -a "$TAG" -m "Plugin · ${NAME} ${VERSION}"
+          git push origin HEAD:main "refs/tags/$TAG"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="$RUNNER_TEMP/release/notes.md"
+          assets=("$RUNNER_TEMP"/release/*.zip)
+          if [ -d "$RUNNER_TEMP/firmware" ]; then
+            printf '\n### Firmware\n\n%s for the ATmega328P, ATmega168, ATmega32U4 and ESP32. See plugins/plugins/flags/firmware/README.md.\n' \
+              "$(cat "$RUNNER_TEMP/firmware/firmware-version.txt")" >> "$notes"
+            for f in "$RUNNER_TEMP"/firmware/pitflag-*; do assets+=("$f"); done
+          fi
+          printf '\nThis is a plugin release. The PitCrew app is in the releases named "PitCrew v…".\n' >> "$notes"
+          prerelease=()
+          if [ "${{ inputs.channel }}" = "beta" ]; then prerelease=(--prerelease); fi
+          gh release create "$TAG" "${assets[@]}" "${prerelease[@]}" --latest=false \
+            --title "Plugin · ${NAME} ${VERSION}" --notes-file "$notes"
+          echo "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}" >> "$GITHUB_STEP_SUMMARY"
