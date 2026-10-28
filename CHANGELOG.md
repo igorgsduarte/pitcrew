@@ -19,6 +19,16 @@ dated one. See `docs/release-process.md`.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.8.6] - 2026-10-28
+
+### Added
+
 - **A briefing before you get in the car.** With a session loaded and you out of the car, the
   Companion shows the weekend's sessions and which one is running, the weather and track
   temperature, the grid from qualifying (or the field by iRating before there is one) around your
@@ -452,7 +462,6 @@ dated one. See `docs/release-process.md`.
   that had no caller since the Diagnostics screen came out. No visible change for drivers.
 
 ## [0.5.0] - 2026-10-16
-
 ### Added
 
 - **Your tyres at every pit stop, in the race debrief.** iRacing only measures the tyres while the car
