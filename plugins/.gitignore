@@ -3,3 +3,4 @@
 *.zip
 /plugins/flags/firmware/dist
 /plugins/flags/firmware/build
+__pycache__/
