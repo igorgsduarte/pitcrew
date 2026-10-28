@@ -6,6 +6,7 @@
 pub mod app;
 pub mod host;
 pub mod link;
+pub mod matrix_test;
 pub mod pack;
 pub mod player;
 pub mod signal;
@@ -208,7 +209,7 @@ mod wasm {
         }
 
         fn on_session(session: wt::SessionInfo) {
-            with_app(|app, _| app.on_session(session.connected));
+            with_app(|app, _| app.on_session(session.connected, session.in_car));
         }
 
         fn settings_changed() {

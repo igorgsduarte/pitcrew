@@ -6,6 +6,7 @@
   "version": "1.0.0",
   "animations": [
     "idle",
+    "standby",
     "green-flash",
     "yellow",
     "yellow-waving",

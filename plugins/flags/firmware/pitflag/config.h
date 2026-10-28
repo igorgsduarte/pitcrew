@@ -1,39 +1,52 @@
-// PitFlag firmware settings. Change these to match your build, then upload.
-// See docs/serial-devices.md and plugins/flags/firmware/README.md.
+// PitFlag firmware build constants.
+//
+// The matrix settings (type, pins, colour order, orientation, current cap) are not here. The Flags
+// plugin sends them in a CONFIG packet and the firmware keeps them in EEPROM. The values below are
+// the factory defaults, used until the first CONFIG arrives. See plugins/flags/firmware/README.md.
 
 #pragma once
 
-// ---- Which matrix ---------------------------------------------------------
-// PITFLAG_WS2812  : 8x8 WS2812B / NeoPixel panel, full colour (needs the FastLED library).
-// PITFLAG_MAX7219 : 8x8 single-colour module with a MAX7219 chip (no library needed).
-#define PITFLAG_WS2812 1
-#define PITFLAG_MAX7219 2
-#define PITFLAG_MATRIX PITFLAG_WS2812
-
-// ---- WS2812B --------------------------------------------------------------
-#define WS2812_DATA_PIN 6         // Uno/Nano: 6. ESP32: 13 is a safe choice.
-#define WS2812_COLOR_ORDER GRB
-// Most panels are wired in a zigzag: row 0 left to right, row 1 right to left, ...
-#define WS2812_SERPENTINE 1
-// Caps the current the panel may draw from USB. 64 LEDs at full white draw ~3.8 A.
-#define WS2812_MAX_MILLIAMPS 500
-
-// ---- MAX7219 --------------------------------------------------------------
-#define MAX7219_DIN_PIN 11
-#define MAX7219_CLK_PIN 13
-#define MAX7219_CS_PIN 10
-
-// ---- Orientation (both matrices) ------------------------------------------
-#define FLIP_X 0
-#define FLIP_Y 0
-// 0, 90, 180 or 270, clockwise, applied after the flips.
-#define ROTATE 0
+#define FIRMWARE_MAJOR 2
+#define FIRMWARE_MINOR 1
+#define FIRMWARE_PATCH 0
 
 // ---- Link -----------------------------------------------------------------
 #define PITFLAG_BAUD 115200
 // Dark after this long without a packet, so a crashed PC never leaves a stale flag up.
 #define HEARTBEAT_TIMEOUT_MS 1500
 
-#define FIRMWARE_MAJOR 1
-#define FIRMWARE_MINOR 0
-#define FIRMWARE_PATCH 0
+// ---- Boot animation -------------------------------------------------------
+// From power-on until the first packet, a dot runs around the border. It stops after this long
+// even if PitCrew never talks.
+#define BOOT_ANIMATION_MS 3000
+#define BOOT_FRAME_MS 50
+
+// ---- Chip -----------------------------------------------------------------
+// The number goes into HELLO. It must match pitflag_wire::Chip.
+#if defined(ARDUINO_ARCH_ESP32)
+#define PITFLAG_CHIP 4
+#elif defined(__AVR_ATmega32U4__)
+#define PITFLAG_CHIP 3
+#elif defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__)
+#define PITFLAG_CHIP 2
+#elif defined(__AVR_ATmega328P__)
+#define PITFLAG_CHIP 1
+#else
+#error "PitFlag supports the ATmega328P, ATmega168, ATmega32U4 and ESP32."
+#endif
+
+// ---- Factory defaults -----------------------------------------------------
+// A pin of 0xFF in CONFIG means "the default below".
+#if defined(ARDUINO_ARCH_ESP32)
+#define DEFAULT_WS2812_PIN 13
+#define DEFAULT_MAX7219_DIN_PIN 23
+#define DEFAULT_MAX7219_CLK_PIN 18
+#define DEFAULT_MAX7219_CS_PIN 5
+#else
+#define DEFAULT_WS2812_PIN 6
+#define DEFAULT_MAX7219_DIN_PIN 11
+#define DEFAULT_MAX7219_CLK_PIN 13
+#define DEFAULT_MAX7219_CS_PIN 10
+#endif
+#define DEFAULT_MAX_MILLIAMPS 500
+#define DEFAULT_BRIGHTNESS 40

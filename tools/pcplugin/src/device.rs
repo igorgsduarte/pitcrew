@@ -4,10 +4,22 @@ use std::time::Instant;
 
 use pitflag_wire as wire;
 
-pub const HELLO: wire::Hello = wire::Hello { wire: 1, firmware: [1, 0, 0], width: 8, height: 8, rgb: true, max_fps: 30 };
+/// What the fake device says about itself, for the config it uses now.
+pub fn hello(config: &wire::Config) -> wire::Hello {
+    wire::Hello {
+        wire: wire::WIRE_VERSION,
+        firmware: [2, 0, 0],
+        chip: wire::Chip::Atmega328p,
+        width: 8,
+        height: 8,
+        rgb: config.matrix == wire::Matrix::Ws2812,
+        max_fps: 30,
+        config_crc: config.crc(),
+    }
+}
 
 /// Behaves as the firmware in plugins/flags/firmware does: hello on boot and on request, pong,
-/// and dark after `HEARTBEAT_TIMEOUT_MS` without a packet.
+/// CONFIG answered with CONFIG_ACK, and dark after `HEARTBEAT_TIMEOUT_MS` without a packet.
 pub struct FakeDevice {
     decoder: wire::Decoder,
     outbox: Vec<u8>,
@@ -15,6 +27,7 @@ pub struct FakeDevice {
     frame: [u8; 64],
     brightness: u8,
     last_packet: Option<Instant>,
+    pub config: wire::Config,
     pub packets: u64,
     pub frames: u64,
     pub bytes: u64,
@@ -22,13 +35,15 @@ pub struct FakeDevice {
 
 impl FakeDevice {
     pub fn boot() -> FakeDevice {
+        let config = wire::Config::default();
         FakeDevice {
             decoder: wire::Decoder::new(),
-            outbox: HELLO.encode(),
+            outbox: hello(&config).encode(),
             palette: vec![0],
             frame: [0; 64],
             brightness: 255,
             last_packet: None,
+            config,
             packets: 0,
             frames: 0,
             bytes: 0,
@@ -41,7 +56,17 @@ impl FakeDevice {
             self.packets += 1;
             self.last_packet = Some(Instant::now());
             match p.kind {
-                wire::Kind::Hello if p.payload.is_empty() => self.outbox.extend(HELLO.encode()),
+                wire::Kind::Hello if p.payload.is_empty() => self.outbox.extend(hello(&self.config).encode()),
+                wire::Kind::Config => {
+                    let code = match wire::Config::decode(&p.payload) {
+                        Some(c) => {
+                            self.config = c;
+                            wire::AckCode::Ok
+                        }
+                        None => wire::AckCode::BadLayout,
+                    };
+                    self.outbox.extend(wire::ConfigAck { code, crc: self.config.crc() }.encode());
+                }
                 wire::Kind::Palette => {
                     self.palette = p.payload.chunks_exact(3).map(|c| (c[0] as u32) << 16 | (c[1] as u32) << 8 | c[2] as u32).collect();
                 }
@@ -114,10 +139,23 @@ mod tests {
     #[test]
     fn it_says_hello_on_boot_and_answers_pings() {
         let mut d = FakeDevice::boot();
-        let hello = wire::Decoder::new().push(&d.take(256));
-        assert_eq!(wire::Hello::decode(&hello[0].payload), Some(HELLO));
+        let packets = wire::Decoder::new().push(&d.take(256));
+        assert_eq!(wire::Hello::decode(&packets[0].payload), Some(hello(&wire::Config::default())));
         d.receive(&wire::ping(7));
         assert_eq!(wire::Decoder::new().push(&d.take(256)), vec![wire::Packet { kind: wire::Kind::Pong, payload: vec![7] }]);
+    }
+
+    #[test]
+    fn it_takes_a_config_and_says_so_in_the_next_hello() {
+        let mut d = FakeDevice::boot();
+        d.take(256);
+        let c = wire::Config { rotate: 2, ..wire::Config::default() };
+        d.receive(&c.encode());
+        let ack = wire::Decoder::new().push(&d.take(256));
+        assert_eq!(wire::ConfigAck::decode(&ack[0].payload), Some(wire::ConfigAck { code: wire::AckCode::Ok, crc: c.crc() }));
+        d.receive(&wire::hello_request());
+        let h = wire::Decoder::new().push(&d.take(256));
+        assert_eq!(wire::Hello::decode(&h[0].payload).unwrap().config_crc, c.crc());
     }
 
     #[test]

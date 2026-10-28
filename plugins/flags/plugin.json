@@ -6,7 +6,7 @@
   "publisher": "PitCrew",
   "description": "Shows the race flags on an 8×8 LED matrix (Arduino or ESP32 running the PitFlag firmware), with animations you can edit.",
   "license": "MIT",
-  "repository": "https://github.com/igorgsduarte/pitcrew-plugins",
+  "repository": "https://github.com/igorgsduarte/pitcrew",
   "kind": "plugin",
   "api": "pitcrew:plugin@1",
   "entry": "flags.wasm",
@@ -16,7 +16,31 @@
     { "key": "port", "type": "serialPort", "label": "Device port" },
     { "key": "brightness", "type": "integer", "label": "Brightness", "min": 1, "max": 255, "default": 40 },
     { "key": "animationPack", "type": "contentRef", "label": "Animations", "of": "flags.animations", "default": "pitcrew.flags.classic" },
-    { "key": "greenHoldS", "type": "number", "label": "Show green for (s)", "min": 0, "max": 30, "default": 3 }
+    { "key": "greenHoldS", "type": "number", "label": "Show green for (s)", "min": 0, "max": 30, "default": 3 },
+    { "key": "standby", "type": "boolean", "label": "Animate outside a race", "default": true },
+    { "key": "matrix", "type": "select", "label": "Matrix", "default": "ws2812", "options": [
+      { "value": "ws2812", "label": "WS2812B 8×8 (color)" },
+      { "value": "max7219", "label": "MAX7219 8×8 (one colour)" }
+    ] },
+    { "key": "dataPin", "type": "integer", "label": "Data pin (WS2812B) or DIN", "min": 2, "max": 33 },
+    { "key": "clockPin", "type": "integer", "label": "CLK pin (MAX7219)", "min": 2, "max": 33 },
+    { "key": "csPin", "type": "integer", "label": "CS pin (MAX7219)", "min": 2, "max": 33 },
+    { "key": "colorOrder", "type": "select", "label": "Color order", "default": "grb", "options": [
+      { "value": "grb", "label": "GRB (most panels)" },
+      { "value": "rgb", "label": "RGB" },
+      { "value": "brg", "label": "BRG" }
+    ] },
+    { "key": "colorCorrection", "type": "boolean", "label": "Correct LED colors", "default": true },
+    { "key": "serpentine", "type": "boolean", "label": "Zigzag wiring", "default": true },
+    { "key": "flipX", "type": "boolean", "label": "Mirror left and right", "default": false },
+    { "key": "flipY", "type": "boolean", "label": "Mirror top and bottom", "default": false },
+    { "key": "rotate", "type": "select", "label": "Rotate", "default": "0", "options": [
+      { "value": "0", "label": "0°" },
+      { "value": "90", "label": "90° clockwise" },
+      { "value": "180", "label": "180°" },
+      { "value": "270", "label": "270° clockwise" }
+    ] },
+    { "key": "maxMilliamps", "type": "integer", "label": "Current limit (mA)", "min": 100, "max": 3000, "default": 500 }
   ],
   "actions": [{ "id": "test", "label": "Play every flag" }],
   "nav": { "label": "Flags", "icon": "flag" },

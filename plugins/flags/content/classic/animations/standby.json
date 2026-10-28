@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../../../schemas/animation.schema.json",
+  "id": "standby",
+  "palette": {
+    ".": "000000",
+    "A": "02081A",
+    "B": "061840",
+    "C": "0F3C9A",
+    "D": "1E6BFF"
+  },
+  "fps": 8,
+  "loop": true,
+  "frames": [
+    ["ABCD....", "BCD....A", "CD....AB", "D....ABC", "....ABCD", "...ABCD.", "..ABCD..", ".ABCD..."],
+    [".ABCD...", "ABCD....", "BCD....A", "CD....AB", "D....ABC", "....ABCD", "...ABCD.", "..ABCD.."],
+    ["..ABCD..", ".ABCD...", "ABCD....", "BCD....A", "CD....AB", "D....ABC", "....ABCD", "...ABCD."],
+    ["...ABCD.", "..ABCD..", ".ABCD...", "ABCD....", "BCD....A", "CD....AB", "D....ABC", "....ABCD"],
+    ["....ABCD", "...ABCD.", "..ABCD..", ".ABCD...", "ABCD....", "BCD....A", "CD....AB", "D....ABC"],
+    ["D....ABC", "....ABCD", "...ABCD.", "..ABCD..", ".ABCD...", "ABCD....", "BCD....A", "CD....AB"],
+    ["CD....AB", "D....ABC", "....ABCD", "...ABCD.", "..ABCD..", ".ABCD...", "ABCD....", "BCD....A"],
+    ["BCD....A", "CD....AB", "D....ABC", "....ABCD", "...ABCD.", "..ABCD..", ".ABCD...", "ABCD...."]
+  ]
+}

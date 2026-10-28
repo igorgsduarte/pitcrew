@@ -24,13 +24,18 @@ match serial::open("port", 115_200) {
    `write` returns `err`, drop the port, set a warning status and try `open` again every 2 s.
 3. **Wait for the device.** An Arduino Uno or Nano resets when the port opens. Its bootloader takes
    about 1.6 s. Ask the device who it is, and send nothing else until it answers.
-4. **Send only what changed.** A frame that did not change is not sent again.
+4. **Send what changed, and refresh the rest.** A frame that did not change is not sent on each
+   tick. But send the whole state again about once a second: a lost packet must not leave the device
+   wrong until the next change.
 5. **Send a heartbeat.** Make the device go dark when the PC stops talking. Then a crash never leaves
    a stale flag on the matrix.
 6. **Turn the device off in `on-stop`.**
 7. **Use a checksum.** Serial lines drop and corrupt bytes.
+8. **Write one burst per tick, and let the device work between bursts.** A WS2812B redraw turns the
+   interrupts off for about 2 ms on an AVR, and the bytes that arrive then are lost. The PitFlag
+   firmware redraws only after the line is quiet for 2 ms.
 
-## PitFlag wire v1
+## PitFlag wire v2
 
 The Flags plugin uses PitFlag, a small protocol that follows these rules. You can use it for any
 matrix device. The reference code is [crates/pitflag-wire](../crates/pitflag-wire/src/lib.rs) and
@@ -44,24 +49,64 @@ and looks for the next `0xA5`.
 
 | Type | Name | Direction | Payload |
 | --- | --- | --- | --- |
-| `0x01` | HELLO | device → PC | `wire` (1), firmware major, minor, patch, width, height, rgb (0/1), max fps |
+| `0x01` | HELLO | device → PC | 14 bytes, see below |
 | `0x01` | HELLO | PC → device | empty: "say hello" |
-| `0x02` | PALETTE | PC → device | up to 16 colours, 3 bytes each (R, G, B). Index 0 is off. |
+| `0x02` | PALETTE | PC → device | up to 16 colours, 3 bytes each (R, G, B). Index 0 is always off. |
 | `0x03` | FRAME | PC → device | 32 bytes: 64 palette indices, 4 bits each, row-major, high nibble first |
 | `0x04` | BRIGHTNESS | PC → device | 1 byte, 0 to 255 |
 | `0x05` | CLEAR | PC → device | empty: all LEDs off |
 | `0x06` | PING | PC → device | 1 byte sequence number |
 | `0x07` | PONG | device → PC | the same byte |
+| `0x08` | CONFIG | PC → device | 10 bytes, see below |
+| `0x09` | CONFIG_ACK | device → PC | result code, CRC-8 of the config the device uses now |
+
+### HELLO (device → PC)
+
+| Byte | Field |
+| --- | --- |
+| 0–3 | the magic `P` `F` `L` `G`. A HELLO with this magic comes from PitFlag firmware. |
+| 4 | wire version: 2 |
+| 5–7 | firmware major, minor, patch |
+| 8 | chip: 1 ATmega328P, 2 ATmega168, 3 ATmega32U4, 4 ESP32 |
+| 9–10 | width, height |
+| 11 | 1 for an RGB matrix, 0 for one colour |
+| 12 | max frames per second |
+| 13 | CRC-8 of the config the device uses now |
+
+PitFlag 1.x firmware sends the 8-byte wire v1 HELLO (`1`, major, minor, patch, width, height, rgb,
+max fps), with no magic. The plugin reads its version and asks for the new firmware.
+
+### CONFIG (PC → device)
+
+The matrix settings. The device checks them, stores them in EEPROM and uses them at once.
+
+| Byte | Field |
+| --- | --- |
+| 0 | layout version: 1 |
+| 1 | matrix: 1 WS2812B, 2 MAX7219 |
+| 2 | data pin (WS2812B data in, or MAX7219 DIN) |
+| 3 | MAX7219 CLK pin |
+| 4 | MAX7219 CS pin |
+| 5 | colour order: 0 GRB, 1 RGB, 2 BRG |
+| 6 | bit 0 zigzag wiring, bit 1 mirror left and right, bit 2 mirror top and bottom |
+| 7 | rotation in quarter turns clockwise, 0 to 3, after the mirrors |
+| 8–9 | current limit in mA, big-endian |
+
+A pin of `0xFF` means the chip's default pin. CONFIG_ACK result codes: 0 taken, 1 bad length or
+layout, 2 bad matrix, 3 a pin the chip cannot use, 4 a value out of range. After a refusal the
+device keeps its old config.
 
 **Session:**
 
 1. The device sends HELLO when it starts.
 2. The PC opens the port and waits for HELLO. After 1.8 s with no HELLO, it sends an empty HELLO.
    After 3.5 s, it reports "No PitFlag device answered on this port".
-3. The PC checks `wire` = 1 and the size. It refuses other devices with a clear status.
-4. The PC sends BRIGHTNESS, PALETTE, then FRAME. Later it sends only what changed. A new PALETTE is
+3. The PC checks the magic, `wire` = 2 and the size. It refuses other devices with a clear status.
+4. If the config CRC in HELLO is not the CRC of the PC's settings, the PC sends CONFIG. With no
+   CONFIG_ACK after 1 s, it sends it again. After a refusal, it waits for the settings to change.
+5. The PC sends BRIGHTNESS, PALETTE, then FRAME. Later it sends only what changed. A new PALETTE is
    always followed by a FRAME.
-5. If 250 ms pass with nothing sent, the PC sends a PING.
-6. The device turns all LEDs off after 1500 ms without a packet.
+6. If 250 ms pass with nothing sent, the PC sends a PING.
+7. The device turns all LEDs off after 1500 ms without a packet.
 
 A full frame is 36 bytes. At 30 frames a second that is 1 080 B/s, about 9% of the link.

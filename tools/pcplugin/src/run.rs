@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 use anyhow::{Context, Result, anyhow, bail};
 use serde_json::{Map, Value};
 use wasmtime::component::{Component, HasSelf, Linker, Resource, ResourceTable};
-use wasmtime::{Config, Engine, Store, StoreLimits, StoreLimitsBuilder};
+use wasmtime::{Config, Engine, Store, StoreLimits, StoreLimitsBuilder, Trap, UpdateDeadline};
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 use crate::device::{self, FakeDevice};
@@ -83,6 +83,30 @@ struct State {
     device: FakeDevice,
     data: PathBuf,
     ui_dirty: bool,
+    /// The call that runs now: when it started, its budget, and the time spent in host imports.
+    /// Host time (a real serial port can take 15 ms to open) does not count against the budget.
+    call_started: Instant,
+    call_budget: Duration,
+    host_time: Duration,
+}
+
+impl State {
+    fn guest_time(&self) -> Duration {
+        self.call_started.elapsed().saturating_sub(self.host_time)
+    }
+
+    fn start_call(&mut self, budget_ms: u64) {
+        self.call_started = Instant::now();
+        self.call_budget = Duration::from_millis(budget_ms);
+        self.host_time = Duration::ZERO;
+    }
+
+    fn in_host<R>(&mut self, f: impl FnOnce(&mut State) -> R) -> R {
+        let t = Instant::now();
+        let r = f(self);
+        self.host_time += t.elapsed();
+        r
+    }
 }
 
 impl WasiView for State {
@@ -159,13 +183,14 @@ impl serial::Host for State {
         if !self.manifest.settings.iter().any(|s| s.key == setting_key && s.kind == "serialPort") {
             return Ok(Err(format!("\"{setting_key}\" is not a serialPort setting in plugin.json")));
         }
-        let handle = match self.settings.get(&setting_key).and_then(Value::as_str) {
+        let chosen = self.settings.get(&setting_key).and_then(Value::as_str).map(str::to_string);
+        let handle = match chosen.as_deref() {
             None => return Ok(Err("No port chosen. Pick one in the plugin's settings".into())),
             Some(FAKE_PORT) => {
                 self.device = FakeDevice::boot();
                 PortHandle::Fake
             }
-            Some(name) => match serialport::new(name, baud).timeout(Duration::from_millis(5)).open() {
+            Some(name) => match self.in_host(|_| serialport::new(name, baud).timeout(Duration::from_millis(5)).open()) {
                 Ok(p) => PortHandle::Real(p),
                 Err(e) => return Ok(Err(format!("Could not open {name}: {e}"))),
             },
@@ -176,30 +201,34 @@ impl serial::Host for State {
 
 impl serial::HostPort for State {
     fn write(&mut self, port: Resource<PortHandle>, bytes: Vec<u8>) -> wasmtime::Result<Result<(), String>> {
-        Ok(match self.table.get_mut(&port)? {
-            PortHandle::Fake => {
-                self.device.receive(&bytes);
-                Ok(())
-            }
-            PortHandle::Real(p) => p.write_all(&bytes).map_err(|e| e.to_string()),
+        self.in_host(|s| {
+            Ok(match s.table.get_mut(&port)? {
+                PortHandle::Fake => {
+                    s.device.receive(&bytes);
+                    Ok(())
+                }
+                PortHandle::Real(p) => p.write_all(&bytes).map_err(|e| e.to_string()),
+            })
         })
     }
 
     fn read(&mut self, port: Resource<PortHandle>, max: u32) -> wasmtime::Result<Result<Vec<u8>, String>> {
-        Ok(match self.table.get_mut(&port)? {
-            PortHandle::Fake => Ok(self.device.take(max as usize)),
-            PortHandle::Real(p) => {
-                let waiting = p.bytes_to_read().map_err(|e| e.to_string());
-                waiting.and_then(|n| {
-                    let mut buf = vec![0; (n as usize).min(max as usize)];
-                    p.read_exact(&mut buf).map(|_| buf).map_err(|e| e.to_string())
-                })
-            }
+        self.in_host(|s| {
+            Ok(match s.table.get_mut(&port)? {
+                PortHandle::Fake => Ok(s.device.take(max as usize)),
+                PortHandle::Real(p) => {
+                    let waiting = p.bytes_to_read().map_err(|e| e.to_string());
+                    waiting.and_then(|n| {
+                        let mut buf = vec![0; (n as usize).min(max as usize)];
+                        p.read_exact(&mut buf).map(|_| buf).map_err(|e| e.to_string())
+                    })
+                }
+            })
         })
     }
 
     fn drop(&mut self, port: Resource<PortHandle>) -> wasmtime::Result<()> {
-        self.table.delete(port)?;
+        self.in_host(|s| s.table.delete(port).map(|_| ()))?;
         Ok(())
     }
 }
@@ -427,10 +456,10 @@ struct Timing {
 }
 
 fn timed<R>(store: &mut Store<State>, timing: &mut Timing, what: &str, budget_ms: u64, f: impl FnOnce(&mut Store<State>) -> wasmtime::Result<R>) -> Result<R> {
-    store.set_epoch_deadline(budget_ms);
-    let started = Instant::now();
+    store.data_mut().start_call(budget_ms);
+    store.set_epoch_deadline(1);
     let r = f(store);
-    let took = started.elapsed();
+    let took = store.data().guest_time();
     timing.calls += 1;
     if budget_ms == CALL_BUDGET_MS && took > timing.slowest {
         timing.slowest = took;
@@ -491,9 +520,18 @@ pub fn run(pkg: &Package, opts: &Options) -> Result<()> {
         device: FakeDevice::boot(),
         data: data.clone(),
         ui_dirty: true,
+        call_started: Instant::now(),
+        call_budget: Duration::from_millis(INIT_BUDGET_MS),
+        host_time: Duration::ZERO,
     };
     let mut store = Store::new(&engine, state);
     store.limiter(|s| &mut s.limits);
+    // Checked at every epoch tick: stop the call only when its own time, without host imports, is
+    // over the budget.
+    store.epoch_deadline_callback(|ctx| {
+        let s = ctx.data();
+        if s.guest_time() > s.call_budget { Err(Trap::Interrupt.into()) } else { Ok(UpdateDeadline::Continue(1)) }
+    });
 
     let stop = Arc::new(AtomicBool::new(false));
     let ticker = {
@@ -510,7 +548,8 @@ pub fn run(pkg: &Package, opts: &Options) -> Result<()> {
     let mut timing = Timing::default();
     let result = (|| -> Result<()> {
         let plugin = {
-            store.set_epoch_deadline(INIT_BUDGET_MS);
+            store.data_mut().start_call(INIT_BUDGET_MS);
+            store.set_epoch_deadline(1);
             Plugin::instantiate(&mut store, &component, &linker).map_err(anyhow::Error::from).context("instantiating the component")?
         };
         timed(&mut store, &mut timing, "init", INIT_BUDGET_MS, |s| plugin.call_init(s))?.map_err(|e| anyhow!("init refused to start: {e}"))?;

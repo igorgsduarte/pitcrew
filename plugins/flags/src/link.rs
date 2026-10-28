@@ -10,6 +10,10 @@ pub const RETRY_MS: u64 = 2_000;
 /// An Uno resets when the port opens; its bootloader takes about 1.6 s.
 pub const ASK_HELLO_AFTER_MS: u64 = 1_800;
 pub const GIVE_UP_AFTER_MS: u64 = 3_500;
+/// A CONFIG with no CONFIG_ACK after this long is sent again.
+pub const CONFIG_RESEND_MS: u64 = 1_000;
+/// The brightness, the palette and the frame go again this often, even when nothing changed.
+pub const REFRESH_MS: u64 = 1_000;
 
 enum State {
     Closed { retry_at: u64 },
@@ -21,10 +25,17 @@ struct Open {
     port: Box<dyn Port>,
     hello: wire::Hello,
     last_sent: u64,
+    last_refresh: u64,
     seq: u8,
     palette: Option<Vec<u32>>,
     frame: Option<[u8; 64]>,
     brightness: Option<u8>,
+    /// The CRC of the config the device uses, from HELLO and then from each CONFIG_ACK.
+    config_crc: u8,
+    /// The CRC of the CONFIG waiting for its ACK, and when it was sent.
+    config_pending: Option<(u8, u64)>,
+    /// The CRC of a CONFIG the device refused. It is not sent again until the settings change.
+    config_refused: Option<u8>,
 }
 
 pub struct Link {
@@ -54,6 +65,21 @@ pub struct Want<'a> {
     pub colors: &'a [u32],
     pub frame: &'a [u8; 64],
     pub brightness: u8,
+    pub config: wire::Config,
+}
+
+fn connected_text(h: &wire::Hello) -> String {
+    let [a, b, c] = h.firmware;
+    format!("Connected · firmware {a}.{b}.{c} · {} · {}×{} {}", h.chip.label(), h.width, h.height, if h.rgb { "RGB" } else { "mono" })
+}
+
+fn refusal_text(code: wire::AckCode) -> &'static str {
+    match code {
+        wire::AckCode::BadPin => "a pin this board cannot use",
+        wire::AckCode::BadMatrix => "an unknown matrix type",
+        wire::AckCode::BadLayout => "a settings format it does not know",
+        _ => "a value out of range",
+    }
 }
 
 impl Link {
@@ -138,6 +164,10 @@ impl Link {
             if p.kind != wire::Kind::Hello {
                 continue;
             }
+            if let Some([a, b, c]) = wire::Hello::legacy_firmware(&p.payload) {
+                self.set_status(host, StatusLevel::Error, format!("This board runs PitFlag firmware {a}.{b}.{c}, which speaks wire v1. Upload the new firmware to it."));
+                return Some(State::Closed { retry_at: now + RETRY_MS * 5 });
+            }
             let Some(hello) = wire::Hello::decode(&p.payload) else { continue };
             if hello.wire != wire::WIRE_VERSION {
                 self.set_status(host, StatusLevel::Error, format!("The device speaks PitFlag wire v{}; this plugin speaks v{}. Update its firmware.", hello.wire, wire::WIRE_VERSION));
@@ -147,12 +177,23 @@ impl Link {
                 self.set_status(host, StatusLevel::Error, format!("The device is {}×{}; this plugin drives 8×8 matrices.", hello.width, hello.height));
                 return Some(State::Closed { retry_at: now + RETRY_MS * 5 });
             }
-            let [a, b, c] = hello.firmware;
-            self.set_status(host, StatusLevel::Ok, format!("Connected · firmware {a}.{b}.{c} · 8×8 {}", if hello.rgb { "RGB" } else { "mono" }));
+            self.set_status(host, StatusLevel::Ok, connected_text(&hello));
             host.log(LogLevel::Info, &format!("device said hello: {hello:?}"));
             let placeholder: Box<dyn Port> = Box::new(Gone);
             let port = std::mem::replace(port, placeholder);
-            return Some(State::Open(Box::new(Open { port, hello, last_sent: 0, seq: 0, palette: None, frame: None, brightness: None })));
+            return Some(State::Open(Box::new(Open {
+                port,
+                hello,
+                last_sent: 0,
+                last_refresh: now,
+                seq: 0,
+                palette: None,
+                frame: None,
+                brightness: None,
+                config_crc: hello.config_crc,
+                config_pending: None,
+                config_refused: None,
+            })));
         }
         let waited = now.saturating_sub(since);
         if !*asked && waited >= ASK_HELLO_AFTER_MS {
@@ -169,34 +210,63 @@ impl Link {
         None
     }
 
-    fn open(&mut self, _host: &mut dyn Host, now: u64, o: &mut Open, want: &Want) -> Result<(), String> {
-        o.port.read(256)?;
-        let send = |o: &mut Open, bytes: Vec<u8>, counter: &mut u64| -> Result<(), String> {
-            o.port.write(&bytes)?;
-            o.last_sent = now;
-            *counter += bytes.len() as u64;
-            Ok(())
-        };
-        let mut counter = 0;
+    fn open(&mut self, host: &mut dyn Host, now: u64, o: &mut Open, want: &Want) -> Result<(), String> {
+        let bytes = o.port.read(256)?;
+        for p in self.decoder.push(&bytes) {
+            if p.kind != wire::Kind::ConfigAck {
+                continue;
+            }
+            let Some(ack) = wire::ConfigAck::decode(&p.payload) else { continue };
+            let sent = o.config_pending.take().map(|(crc, _)| crc);
+            o.config_crc = ack.crc;
+            if ack.code == wire::AckCode::Ok {
+                o.hello.rgb = want.config.matrix == wire::Matrix::Ws2812;
+                o.hello.config_crc = ack.crc;
+                self.set_status(host, StatusLevel::Ok, connected_text(&o.hello));
+                host.log(LogLevel::Info, "the device took the matrix settings");
+            } else {
+                o.config_refused = sent;
+                self.set_status(host, StatusLevel::Warning, format!("The board refused the matrix settings: {}. Check the pins in Settings.", refusal_text(ack.code)));
+            }
+        }
+
+        // A packet can be lost on the line (see the firmware's QUIET_US), so the whole state goes
+        // again every REFRESH_MS.
+        if now.saturating_sub(o.last_refresh) >= REFRESH_MS {
+            o.last_refresh = now;
+            o.brightness = None;
+            o.palette = None;
+        }
+        // One write per tick: the device sees one burst, then a quiet line to draw in.
+        let mut out = Vec::new();
+        let want_crc = want.config.crc();
+        let waiting = o.config_pending.is_some_and(|(crc, at)| crc == want_crc && now.saturating_sub(at) < CONFIG_RESEND_MS);
+        if o.config_crc != want_crc && o.config_refused != Some(want_crc) && !waiting {
+            out.extend(want.config.encode());
+            o.config_pending = Some((want_crc, now));
+        }
         if o.brightness != Some(want.brightness) {
-            send(o, wire::brightness(want.brightness), &mut counter)?;
+            out.extend(wire::brightness(want.brightness));
             o.brightness = Some(want.brightness);
         }
         if o.palette.as_deref() != Some(want.colors) {
-            send(o, wire::palette(want.colors), &mut counter)?;
+            out.extend(wire::palette(want.colors));
             o.palette = Some(want.colors.to_vec());
             o.frame = None;
         }
         if o.frame.as_ref() != Some(want.frame) {
-            send(o, wire::frame(want.frame), &mut counter)?;
+            out.extend(wire::frame(want.frame));
             o.frame = Some(*want.frame);
         }
-        if now.saturating_sub(o.last_sent) >= wire::PING_EVERY_MS {
+        if out.is_empty() && now.saturating_sub(o.last_sent) >= wire::PING_EVERY_MS {
             o.seq = o.seq.wrapping_add(1);
-            let seq = o.seq;
-            send(o, wire::ping(seq), &mut counter)?;
+            out.extend(wire::ping(o.seq));
         }
-        self.bytes_this_second += counter;
+        if !out.is_empty() {
+            o.port.write(&out)?;
+            o.last_sent = now;
+            self.bytes_this_second += out.len() as u64;
+        }
         Ok(())
     }
 }
@@ -218,15 +288,43 @@ pub mod tests {
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    /// A PitFlag device in memory: says hello when asked or on open, records what it receives.
-    #[derive(Default)]
+    /// A PitFlag device in memory: says hello when asked or on open, takes CONFIG, records what it
+    /// receives.
     pub struct FakeDevice {
         pub present: bool,
         pub hello_on_open: bool,
         pub unplugged: bool,
+        /// Answer every CONFIG with this code instead of taking it.
+        pub refuse_config: Option<wire::AckCode>,
+        /// Say the 8-byte wire v1 HELLO of PitFlag 1.0.0.
+        pub legacy: bool,
+        pub config: wire::Config,
         pub outbox: Vec<u8>,
         pub received: Vec<wire::Packet>,
         decoder: wire::Decoder,
+    }
+
+    impl Default for FakeDevice {
+        fn default() -> Self {
+            FakeDevice {
+                present: false,
+                hello_on_open: false,
+                unplugged: false,
+                refuse_config: None,
+                legacy: false,
+                config: wire::Config::default(),
+                outbox: Vec::new(),
+                received: Vec::new(),
+                decoder: wire::Decoder::new(),
+            }
+        }
+    }
+
+    impl FakeDevice {
+        fn say_hello(&mut self) {
+            let h = if self.legacy { wire::packet(wire::Kind::Hello, &[1, 1, 0, 0, 8, 8, 1, 30]) } else { hello(self.config.crc()).encode() };
+            self.outbox.extend(h);
+        }
     }
 
     pub struct FakePort(pub Rc<RefCell<FakeDevice>>);
@@ -240,8 +338,19 @@ pub mod tests {
             let packets = d.decoder.push(bytes);
             for p in packets {
                 if p.kind == wire::Kind::Hello && p.payload.is_empty() {
-                    let h = hello().encode();
-                    d.outbox.extend(h);
+                    d.say_hello();
+                }
+                if p.kind == wire::Kind::Config {
+                    let code = match (d.refuse_config, wire::Config::decode(&p.payload)) {
+                        (Some(code), _) => code,
+                        (None, Some(c)) => {
+                            d.config = c;
+                            wire::AckCode::Ok
+                        }
+                        (None, None) => wire::AckCode::BadLayout,
+                    };
+                    let ack = wire::ConfigAck { code, crc: d.config.crc() }.encode();
+                    d.outbox.extend(ack);
                 }
                 d.received.push(p);
             }
@@ -256,8 +365,8 @@ pub mod tests {
         }
     }
 
-    pub fn hello() -> wire::Hello {
-        wire::Hello { wire: 1, firmware: [1, 0, 0], width: 8, height: 8, rgb: true, max_fps: 30 }
+    pub fn hello(config_crc: u8) -> wire::Hello {
+        wire::Hello { wire: 2, firmware: [2, 0, 0], chip: wire::Chip::Atmega168, width: 8, height: 8, rgb: true, max_fps: 30, config_crc }
     }
 
     #[derive(Default)]
@@ -281,8 +390,7 @@ pub mod tests {
                 return Err("No device on COM4".into());
             }
             if d.hello_on_open {
-                let h = hello().encode();
-                d.outbox.extend(h);
+                d.say_hello();
             }
             Ok(Box::new(FakePort(self.device.clone())))
         }
@@ -301,15 +409,24 @@ pub mod tests {
         }
     }
 
-    fn want<'a>(frame: &'a [u8; 64]) -> Want<'a> {
-        Want { colors: &[0x000000, 0xFFD400], frame, brightness: 40 }
+    fn want(frame: &[u8; 64]) -> Want<'_> {
+        Want { colors: &[0x000000, 0xFFD400], frame, brightness: 40, config: wire::Config::default() }
+    }
+
+    fn present_host() -> FakeHost {
+        let host = FakeHost::default();
+        host.device.borrow_mut().present = true;
+        host.device.borrow_mut().hello_on_open = true;
+        host
+    }
+
+    fn kinds(host: &FakeHost) -> Vec<wire::Kind> {
+        host.device.borrow().received.iter().map(|p| p.kind).collect()
     }
 
     #[test]
     fn it_opens_waits_for_hello_then_sends_brightness_palette_and_frame() {
-        let mut host = FakeHost::default();
-        host.device.borrow_mut().present = true;
-        host.device.borrow_mut().hello_on_open = true;
+        let mut host = present_host();
         let mut link = Link::default();
         let f = [1u8; 64];
         link.tick(&mut host, 0, &want(&f));
@@ -317,15 +434,16 @@ pub mod tests {
         link.tick(&mut host, 33, &want(&f));
         assert!(link.is_open());
         link.tick(&mut host, 66, &want(&f));
-        let kinds: Vec<_> = host.device.borrow().received.iter().map(|p| p.kind).collect();
-        assert_eq!(kinds, vec![wire::Kind::Brightness, wire::Kind::Palette, wire::Kind::Frame]);
-        assert_eq!(host.statuses.last().unwrap().0, StatusLevel::Ok);
+        assert_eq!(kinds(&host), vec![wire::Kind::Brightness, wire::Kind::Palette, wire::Kind::Frame]);
+        let (level, text) = host.statuses.last().unwrap();
+        assert_eq!(*level, StatusLevel::Ok);
+        assert_eq!(text, "Connected · firmware 2.0.0 · ATmega168 · 8×8 RGB");
     }
 
     #[test]
     fn a_board_that_stays_quiet_is_asked_for_hello() {
-        let mut host = FakeHost::default();
-        host.device.borrow_mut().present = true;
+        let mut host = present_host();
+        host.device.borrow_mut().hello_on_open = false;
         let mut link = Link::default();
         let f = [0u8; 64];
         link.tick(&mut host, 0, &want(&f));
@@ -336,9 +454,7 @@ pub mod tests {
 
     #[test]
     fn an_unchanged_frame_is_not_resent_but_the_heartbeat_is() {
-        let mut host = FakeHost::default();
-        host.device.borrow_mut().present = true;
-        host.device.borrow_mut().hello_on_open = true;
+        let mut host = present_host();
         let mut link = Link::default();
         let f = [1u8; 64];
         for t in (0..=1_000).step_by(33) {
@@ -352,10 +468,23 @@ pub mod tests {
     }
 
     #[test]
+    fn the_whole_state_goes_again_every_refresh_so_a_lost_packet_heals() {
+        let mut host = present_host();
+        let mut link = Link::default();
+        let f = [1u8; 64];
+        for t in (0..=2_200).step_by(33) {
+            link.tick(&mut host, t, &want(&f));
+        }
+        let d = host.device.borrow();
+        let count = |k: wire::Kind| d.received.iter().filter(|p| p.kind == k).count();
+        assert_eq!(count(wire::Kind::Frame), 3);
+        assert_eq!(count(wire::Kind::Palette), 3);
+        assert_eq!(count(wire::Kind::Brightness), 3);
+    }
+
+    #[test]
     fn unplugging_reports_it_and_retries_every_two_seconds() {
-        let mut host = FakeHost::default();
-        host.device.borrow_mut().present = true;
-        host.device.borrow_mut().hello_on_open = true;
+        let mut host = present_host();
         let mut link = Link::default();
         let f = [1u8; 64];
         link.tick(&mut host, 0, &want(&f));
@@ -374,16 +503,113 @@ pub mod tests {
 
     #[test]
     fn a_device_on_another_wire_version_is_refused() {
-        let mut host = FakeHost::default();
-        host.device.borrow_mut().present = true;
+        let mut host = present_host();
+        host.device.borrow_mut().hello_on_open = false;
         let mut link = Link::default();
         let f = [0u8; 64];
         link.tick(&mut host, 0, &want(&f));
-        let mut h = hello();
-        h.wire = 2;
+        let mut h = hello(0);
+        h.wire = 3;
         host.device.borrow_mut().outbox.extend(h.encode());
         link.tick(&mut host, 33, &want(&f));
         assert!(!link.is_open());
         assert_eq!(host.statuses.last().unwrap().0, StatusLevel::Error);
+    }
+
+    #[test]
+    fn a_pitflag_1_board_is_told_to_get_the_new_firmware() {
+        let mut host = present_host();
+        host.device.borrow_mut().legacy = true;
+        let mut link = Link::default();
+        let f = [0u8; 64];
+        link.tick(&mut host, 0, &want(&f));
+        link.tick(&mut host, 33, &want(&f));
+        assert!(!link.is_open());
+        let (level, text) = host.statuses.last().unwrap();
+        assert_eq!(*level, StatusLevel::Error);
+        assert!(text.contains("firmware 1.0.0"), "{text}");
+    }
+
+    #[test]
+    fn a_hello_without_the_magic_is_ignored() {
+        let mut host = present_host();
+        host.device.borrow_mut().hello_on_open = false;
+        let mut link = Link::default();
+        let f = [0u8; 64];
+        link.tick(&mut host, 0, &want(&f));
+        let mut payload = hello(0).encode()[3..17].to_vec();
+        payload[..4].copy_from_slice(b"XXXX");
+        host.device.borrow_mut().outbox.extend(wire::packet(wire::Kind::Hello, &payload));
+        link.tick(&mut host, 33, &want(&f));
+        assert!(!link.is_open());
+        link.tick(&mut host, GIVE_UP_AFTER_MS, &want(&f));
+        assert_eq!(host.statuses.last().unwrap().0, StatusLevel::Warning);
+    }
+
+    #[test]
+    fn matching_settings_send_no_config() {
+        let mut host = present_host();
+        let mut link = Link::default();
+        let f = [1u8; 64];
+        for t in (0..=500).step_by(33) {
+            link.tick(&mut host, t, &want(&f));
+        }
+        assert!(!kinds(&host).contains(&wire::Kind::Config));
+    }
+
+    #[test]
+    fn changed_settings_send_one_config_and_the_device_keeps_them() {
+        let mut host = present_host();
+        let mut link = Link::default();
+        let f = [1u8; 64];
+        let config = wire::Config { rotate: 1, data_pin: 5, ..wire::Config::default() };
+        for t in (0..=1_500).step_by(33) {
+            link.tick(&mut host, t, &Want { config, ..want(&f) });
+        }
+        assert_eq!(kinds(&host).iter().filter(|k| **k == wire::Kind::Config).count(), 1);
+        assert_eq!(kinds(&host)[0], wire::Kind::Config, "CONFIG goes before the first frame");
+        assert_eq!(host.device.borrow().config, config);
+        assert_eq!(link.hello().unwrap().config_crc, config.crc());
+        assert_eq!(host.statuses.last().unwrap().0, StatusLevel::Ok);
+    }
+
+    #[test]
+    fn a_refused_config_is_reported_and_not_sent_again_until_it_changes() {
+        let mut host = present_host();
+        host.device.borrow_mut().refuse_config = Some(wire::AckCode::BadPin);
+        let mut link = Link::default();
+        let f = [1u8; 64];
+        let mut config = wire::Config { data_pin: 1, ..wire::Config::default() };
+        for t in (0..=3_000).step_by(33) {
+            link.tick(&mut host, t, &Want { config, ..want(&f) });
+        }
+        assert_eq!(kinds(&host).iter().filter(|k| **k == wire::Kind::Config).count(), 1);
+        let (level, text) = host.statuses.last().unwrap();
+        assert_eq!(*level, StatusLevel::Warning);
+        assert!(text.contains("a pin this board cannot use"), "{text}");
+        assert!(link.is_open(), "the flags keep going with the old settings");
+
+        host.device.borrow_mut().refuse_config = None;
+        config.data_pin = 7;
+        link.tick(&mut host, 3_033, &Want { config, ..want(&f) });
+        link.tick(&mut host, 3_066, &Want { config, ..want(&f) });
+        assert_eq!(kinds(&host).iter().filter(|k| **k == wire::Kind::Config).count(), 2);
+        assert_eq!(host.device.borrow().config, config);
+    }
+
+    #[test]
+    fn a_lost_config_ack_is_sent_again_after_a_second() {
+        let mut host = present_host();
+        let mut link = Link::default();
+        let f = [1u8; 64];
+        let config = wire::Config { flip_x: true, ..wire::Config::default() };
+        link.tick(&mut host, 0, &Want { config, ..want(&f) });
+        link.tick(&mut host, 33, &Want { config, ..want(&f) });
+        // The ACK is lost on the line.
+        link.tick(&mut host, 66, &Want { config, ..want(&f) });
+        host.device.borrow_mut().outbox.clear();
+        link.tick(&mut host, 99, &Want { config, ..want(&f) });
+        link.tick(&mut host, 66 + CONFIG_RESEND_MS, &Want { config, ..want(&f) });
+        assert_eq!(kinds(&host).iter().filter(|k| **k == wire::Kind::Config).count(), 2);
     }
 }

@@ -10,7 +10,18 @@ flag displays.
 - **Screen:** a **Flags** item in the sidebar, with three tabs:
   - **Live:** what the matrix shows now, the flag, and test buttons that work with no sim.
   - **Animations:** the pack's animations and an editor. **Save to My pack** keeps your changes.
-  - **Device:** the connection, the firmware, the serial link use and the settings.
+  - **Device:** the connection, the firmware, the serial link use, the settings and the matrix test.
+
+## Test the matrix
+
+On the **Device** tab, click **Start the test**. The matrix shows six fixed screens, one at a time:
+red, green, blue, white, an orientation screen and a brightness row. Each screen says what you must
+see and which setting to change if you do not. Change the **Matrix** settings while a screen shows:
+the board applies them at once. **Next** goes on, **Stop** gives the matrix back to the flag. A
+screen left alone for 2 minutes stops by itself.
+
+Without PitCrew: `pcplugin run plugins/flags --wasm … --port COM4 --press matrix-test:start@1
+--press matrix-test:next@7 …`.
 
 ## Set up
 
@@ -29,6 +40,11 @@ flag displays.
 | Brightness | 40 | 1 to 255. Keep it low on USB power. |
 | Animations | Classic | The content pack to use. |
 | Show green for (s) | 3 | How long the green flash stays after the start or a restart. |
+| Animate outside a race | on | With no sim, or out of the car, play the pack's `standby` animation. Off: the matrix stays dark. |
+| Color order | GRB | The order the panel reads red, green and blue. Use the matrix test to find it. |
+| Correct LED colors | on | Lowers green and blue a little, so the LEDs look like the screen (yellow is not lime). |
+| Zigzag wiring | on | On when every second row runs back. The orientation screen of the matrix test shows it. |
+| Mirror, Rotate | off, 0° | Turn the image without a new upload. |
 
 ## Which animation for which flag
 
@@ -49,7 +65,7 @@ The first rule that matches wins ([content/classic/mapping.json](content/classic
 | Blue | `blue-flash` |
 | Green | `green-flash` for "Show green for", then `idle` |
 | No flag | `idle` (all off) |
-| No sim connected | all off |
+| No sim connected, or not in the car | `standby` (or all off, with "Animate outside a race" off) |
 
 ## Make your own animations
 

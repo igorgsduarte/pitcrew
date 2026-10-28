@@ -1,3 +1,5 @@
 /target
 /dist
 *.zip
+/plugins/flags/firmware/dist
+/plugins/flags/firmware/build

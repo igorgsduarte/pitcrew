@@ -7,13 +7,18 @@ use crate::signal::Signal;
 
 /// Not an animation name, so it falls back to the blank animation.
 pub const OFF: &str = "off";
+/// The pack's animation for outside a race.
+pub const STANDBY: &str = "standby";
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Source {
     /// The 1-based rule in mapping.json.
     Rule(usize),
     Test,
-    NoSim,
+    /// No sim, or the driver is not in the car: the standby screen, or off.
+    OutOfRace,
+    /// In the car, but no rule of mapping.json matches.
+    NoRule,
 }
 
 impl Source {
@@ -21,7 +26,8 @@ impl Source {
         match self {
             Source::Rule(n) => format!("rule {n} of mapping.json"),
             Source::Test => "test".into(),
-            Source::NoSim => "no sim: matrix cleared".into(),
+            Source::OutOfRace => "outside a race".into(),
+            Source::NoRule => "no rule matches".into(),
         }
     }
 }
@@ -61,10 +67,16 @@ impl Player {
         self.test = Some(Test { name: first, custom: None, until: now + each_ms });
     }
 
-    /// Plays an animation that is not in the pack (the editor's working copy).
-    pub fn play_custom(&mut self, anim: Animation, now: u64, ms: u64) {
+    /// Plays an animation that is not in the pack (the editor's working copy, a matrix test screen).
+    pub fn play_custom(&mut self, anim: Animation, name: String, now: u64, ms: u64) {
         self.queue.clear();
-        self.test = Some(Test { name: format!("{} (editing)", anim.id), custom: Some(anim), until: now + ms });
+        self.test = Some(Test { name, custom: Some(anim), until: now + ms });
+    }
+
+    /// Ends the test now and hands the matrix back to the flag.
+    pub fn stop(&mut self) {
+        self.queue.clear();
+        self.test = None;
     }
 
     pub fn testing(&self) -> bool {
@@ -78,6 +90,7 @@ impl Player {
         pack: &'a Pack,
         green_hold_s: f64,
         blank: &'a Animation,
+        outside: &str,
     ) -> Choice<'a> {
         if self.test.as_ref().is_some_and(|t| now >= t.until) {
             self.test = self.queue.pop_front().map(|name| Test { name, custom: None, until: now + self.each_ms });
@@ -88,7 +101,7 @@ impl Player {
             self.by_rule(now, sig, pack, green_hold_s)
         } else {
             self.rule_key = None;
-            (OFF.to_string(), Source::NoSim, false)
+            (outside.to_string(), Source::OutOfRace, false)
         };
         let fresh = !matches!(&self.showing, Some((n, c, _)) if *n == name && *c == custom);
         if fresh {
@@ -105,7 +118,7 @@ impl Player {
     fn by_rule(&mut self, now: u64, sig: &Signal, pack: &Pack, green_hold_s: f64) -> (String, Source, bool) {
         let Some((i, rule)) = pack.mapping.iter().enumerate().find(|(_, r)| r.when.matches(sig)) else {
             self.rule_key = None;
-            return ("idle".into(), Source::NoSim, false);
+            return ("idle".into(), Source::NoRule, false);
         };
         let key = if rule.hold.is_some() { format!("hold:{}", rule.show) } else { format!("rule:{i}") };
         if self.rule_key.as_deref() != Some(&key) {
@@ -135,7 +148,7 @@ mod tests {
 
     fn pick(p: &mut Player, now: u64, s: Option<&Signal>, pack: &Pack) -> (String, Source) {
         let blank = Animation::blank();
-        let c = p.choose(now, s, pack, 3.0, &blank);
+        let c = p.choose(now, s, pack, 3.0, &blank, STANDBY);
         (c.name, c.source)
     }
 
@@ -184,10 +197,14 @@ mod tests {
     }
 
     #[test]
-    fn no_sim_clears_the_matrix_whatever_the_pack_says() {
+    fn outside_a_race_it_shows_what_the_caller_names() {
         let pack = classic();
+        let blank = Animation::blank();
         let mut p = Player::default();
-        assert_eq!(pick(&mut p, 0, None, &pack), (OFF.into(), Source::NoSim));
+        assert_eq!(pick(&mut p, 0, None, &pack), (STANDBY.into(), Source::OutOfRace));
+        assert_eq!(p.choose(10, None, &pack, 3.0, &blank, STANDBY).anim.id, STANDBY);
+        let off = p.choose(20, None, &pack, 3.0, &blank, OFF);
+        assert_eq!((off.name.as_str(), off.anim.id.as_str()), (OFF, "idle"));
     }
 
     #[test]
@@ -202,14 +219,25 @@ mod tests {
     }
 
     #[test]
+    fn stop_ends_a_test_at_once() {
+        let pack = classic();
+        let mut p = Player::default();
+        let s = sig(Some(Flag::Blue));
+        p.play_custom(Animation::blank(), "screen".into(), 0, 60_000);
+        assert_eq!(pick(&mut p, 10, Some(&s), &pack), ("screen".into(), Source::Test));
+        p.stop();
+        assert_eq!(pick(&mut p, 20, Some(&s), &pack).0, "blue-flash");
+    }
+
+    #[test]
     fn an_animation_restarts_only_when_it_changes() {
         let pack = classic();
         let mut p = Player::default();
         let blank = Animation::blank();
         let s = sig(Some(Flag::Blue));
-        assert_eq!(p.choose(100, Some(&s), &pack, 3.0, &blank).started, 100);
-        assert_eq!(p.choose(900, Some(&s), &pack, 3.0, &blank).started, 100);
+        assert_eq!(p.choose(100, Some(&s), &pack, 3.0, &blank, OFF).started, 100);
+        assert_eq!(p.choose(900, Some(&s), &pack, 3.0, &blank, OFF).started, 100);
         let w = sig(Some(Flag::White));
-        assert_eq!(p.choose(1_000, Some(&w), &pack, 3.0, &blank).started, 1_000);
+        assert_eq!(p.choose(1_000, Some(&w), &pack, 3.0, &blank, OFF).started, 1_000);
     }
 }
