@@ -4,6 +4,8 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2026-10-28
+
 ### Added
 - The flag on an 8×8 matrix over PitFlag wire v2, for every sim PitCrew reads.
 - Matrix settings (type, pins, color order, zigzag, mirror, rotate, current limit). The board keeps

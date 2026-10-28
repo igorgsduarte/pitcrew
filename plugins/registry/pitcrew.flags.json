@@ -4,5 +4,15 @@
   "repo": "igorgsduarte/pitcrew",
   "path": "plugins/plugins/flags",
   "tier": "official",
-  "releases": []
+  "releases": [
+    {
+      "version": "1.0.0-beta.1",
+      "channel": "beta",
+      "tag": "flags-v1.0.0-beta.1",
+      "asset": "pitcrew.flags-1.0.0-beta.1.zip",
+      "sha256": "4e6e6c190bece8514372b188bdb81e7164680c1a2608d5dfa346c8013f0e6655",
+      "bytes": 120225,
+      "api": "pitcrew:plugin@1"
+    }
+  ]
 }
