@@ -112,7 +112,13 @@ impl Link {
         self.state = State::Closed { retry_at: u64::MAX };
     }
 
-    fn set_status(&mut self, host: &mut dyn Host, level: StatusLevel, text: String) {
+    /// Drops the port and leaves it closed until `reopen`, so PitCrew can use it for a firmware job.
+    pub fn suspend(&mut self) {
+        self.state = State::Closed { retry_at: u64::MAX };
+        self.decoder = wire::Decoder::new();
+    }
+
+    pub fn set_status(&mut self, host: &mut dyn Host, level: StatusLevel, text: String) {
         if self.status.as_ref() != Some(&(level, text.clone())) {
             host.set_status(level, &text);
             host.invalidate_ui();
@@ -287,6 +293,7 @@ pub mod tests {
     use super::*;
     use std::cell::RefCell;
     use std::rc::Rc;
+    use crate::host::{BoardInfo, Firmware, FirmwareJob};
 
     /// A PitFlag device in memory: says hello when asked or on open, takes CONFIG, records what it
     /// receives.
@@ -298,6 +305,7 @@ pub mod tests {
         pub refuse_config: Option<wire::AckCode>,
         /// Say the 8-byte wire v1 HELLO of PitFlag 1.0.0.
         pub legacy: bool,
+        pub chip: wire::Chip,
         pub config: wire::Config,
         pub outbox: Vec<u8>,
         pub received: Vec<wire::Packet>,
@@ -312,6 +320,7 @@ pub mod tests {
                 unplugged: false,
                 refuse_config: None,
                 legacy: false,
+                chip: wire::Chip::Atmega168,
                 config: wire::Config::default(),
                 outbox: Vec::new(),
                 received: Vec::new(),
@@ -322,7 +331,11 @@ pub mod tests {
 
     impl FakeDevice {
         fn say_hello(&mut self) {
-            let h = if self.legacy { wire::packet(wire::Kind::Hello, &[1, 1, 0, 0, 8, 8, 1, 30]) } else { hello(self.config.crc()).encode() };
+            let h = if self.legacy {
+                wire::packet(wire::Kind::Hello, &[1, 1, 0, 0, 8, 8, 1, 30])
+            } else {
+                wire::Hello { chip: self.chip, ..hello(self.config.crc()) }.encode()
+            };
             self.outbox.extend(h);
         }
     }
@@ -375,6 +388,40 @@ pub mod tests {
         pub statuses: Vec<(StatusLevel, String)>,
         pub settings: String,
         pub written: Vec<(String, Vec<u8>)>,
+        /// Firmware calls in order: ("upload", chip, image bytes) or ("probe", "", 0).
+        pub fw_calls: Vec<(String, String, usize)>,
+        /// The job `firmware_job` reports.
+        pub fw_job: Option<FirmwareJob>,
+        /// Makes `firmware_upload` and `firmware_probe` refuse with this text.
+        pub fw_refuse: Option<String>,
+    }
+
+    impl Firmware for FakeHost {
+        fn firmware_describe(&mut self, key: &str) -> Result<BoardInfo, String> {
+            assert_eq!(key, PORT_SETTING);
+            Ok(BoardInfo { transport: "usb-jtag".into(), chip: None, usb_name: "Fake USB".into(), detail: String::new() })
+        }
+        fn firmware_probe(&mut self, key: &str) -> Result<(), String> {
+            assert_eq!(key, PORT_SETTING);
+            if let Some(e) = &self.fw_refuse {
+                return Err(e.clone());
+            }
+            self.fw_calls.push(("probe".into(), String::new(), 0));
+            self.fw_job = Some(FirmwareJob { upload: false, running: true, ..FirmwareJob::default() });
+            Ok(())
+        }
+        fn firmware_upload(&mut self, key: &str, chip: &str, image: &[u8]) -> Result<(), String> {
+            assert_eq!(key, PORT_SETTING);
+            if let Some(e) = &self.fw_refuse {
+                return Err(e.clone());
+            }
+            self.fw_calls.push(("upload".into(), chip.into(), image.len()));
+            self.fw_job = Some(FirmwareJob { upload: true, running: true, ..FirmwareJob::default() });
+            Ok(())
+        }
+        fn firmware_job(&mut self) -> Option<FirmwareJob> {
+            self.fw_job.clone()
+        }
     }
 
     impl Host for FakeHost {

@@ -19,7 +19,7 @@ it. The WIT file is the reference.
 
 PitCrew calls them one at a time, on one thread. You do not need locks.
 
-**Budget.** If a call runs longer than its budget, PitCrew stops it. Then it restarts the plugin after
+**Budget.** The budget counts the CPU time your call uses, not the time spent waiting in PitCrew's imports or while Windows runs other programs. If a call uses more than its budget, PitCrew stops it. Then it restarts the plugin after
 1 s, 5 s and 30 s. After 3 failures in 10 minutes, it turns the plugin off and shows a red dot on its
 sidebar item. Do slow work in small parts across `tick` calls.
 
@@ -49,7 +49,26 @@ A `port` has:
 When the device is unplugged, `write` or `read` returns `err`. Drop the port, set a warning status
 and try `open` again later. See [serial-devices.md](serial-devices.md).
 
-### `content`
+### `firmware` (needs `devices:firmware`) — since 1.1.0
+
+PitCrew recognises boards and writes firmware, so a plugin never speaks a bootloader protocol. It
+works on the port the driver picked in a `serialPort` setting.
+
+| Function | Use |
+| --- | --- |
+| `chips() -> list<string>` | The chip ids PitCrew can write: `esp32c3`, `esp32`, `atmega328p`, `atmega168`, `atmega32u4`. |
+| `describe(setting-key) -> result<board, string>` | What the port's USB ids say. Instant; the board is not touched. |
+| `start-probe(setting-key) -> result<_, string>` | Asks the board's bootloader which chip it is. Takes up to a few seconds. |
+| `start-upload(setting-key, chip, image) -> result<_, string>` | Writes `image` and checks it. An ESP image is a merged `.bin` for flash address 0; an AVR image is the Intel HEX text. At most 8 MiB. |
+| `job() -> option<job-status>` | The plugin's last probe or upload: `running`, `progress` (0 to 1), `text`, `error`, and for a probe the `board`. |
+
+A probe or an upload runs in the background. **PitCrew takes the port for the length of the job**:
+your open `port` returns `err` until it ends, and `serial::open` refuses the port. Drop your port when
+you start a job, call `job()` on each `tick`, and open the port again when `running` is false.
+
+PitCrew restarts the board into its bootloader itself (DTR and RTS, or the 1200-baud touch of a
+Leonardo). The driver presses no button.
+
 
 | Function | Permission | Use |
 | --- | --- | --- |

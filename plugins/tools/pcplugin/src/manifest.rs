@@ -8,7 +8,7 @@ use serde::Deserialize;
 use serde_json::Value;
 
 pub const API: &str = "pitcrew:plugin@1";
-pub const PERMISSIONS: [&str; 4] = ["topic:flag", "topic:session", "devices:serial", "content:write-own"];
+pub const PERMISSIONS: [&str; 5] = ["topic:flag", "topic:session", "devices:serial", "devices:firmware", "content:write-own"];
 pub const SETTING_TYPES: [&str; 7] = ["serialPort", "integer", "number", "boolean", "string", "select", "contentRef"];
 pub const EXTENSIONS: [&str; 5] = ["wasm", "json", "md", "png", "txt"];
 pub const MAX_ENTRIES: usize = 500;

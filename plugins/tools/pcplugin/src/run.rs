@@ -25,7 +25,7 @@ wasmtime::component::bindgen!({
     imports: { default: trappable },
 });
 
-use pitcrew::plugin::{content, host, serial, settings, types as t, ui};
+use pitcrew::plugin::{content, firmware, host, serial, settings, types as t, ui};
 
 pub const CALL_BUDGET_MS: u64 = 5;
 pub const INIT_BUDGET_MS: u64 = 250;
@@ -88,6 +88,8 @@ struct State {
     call_started: Instant,
     call_budget: Duration,
     host_time: Duration,
+    /// The last firmware job. pcplugin writes no firmware: on the fake port a job ends at once.
+    firmware_job: Option<firmware::JobStatus>,
 }
 
 impl State {
@@ -230,6 +232,71 @@ impl serial::HostPort for State {
     fn drop(&mut self, port: Resource<PortHandle>) -> wasmtime::Result<()> {
         self.in_host(|s| s.table.delete(port).map(|_| ()))?;
         Ok(())
+    }
+}
+
+const CHIPS: [&str; 5] = ["esp32c3", "esp32", "atmega328p", "atmega168", "atmega32u4"];
+
+impl State {
+    /// The port a firmware call names, if the plugin may use it and it is the fake one.
+    fn firmware_port(&self, setting_key: &str) -> Result<(), String> {
+        if !self.has("devices:firmware") {
+            return Err("This plugin does not have the devices:firmware permission".into());
+        }
+        if !self.manifest.settings.iter().any(|s| s.key == setting_key && s.kind == "serialPort") {
+            return Err(format!("\"{setting_key}\" is not a serialPort setting in plugin.json"));
+        }
+        match self.settings.get(setting_key).and_then(Value::as_str) {
+            None => Err("No port chosen. Pick one in the plugin's settings".into()),
+            Some(FAKE_PORT) => Ok(()),
+            Some(name) => Err(format!("pcplugin does not write firmware to {name}. Upload from PitCrew, or use the fake port")),
+        }
+    }
+
+    fn fake_job(&mut self, upload: bool, text: &str) {
+        self.firmware_job = Some(firmware::JobStatus {
+            kind: if upload { "upload" } else { "probe" }.into(),
+            running: false,
+            progress: 1.0,
+            text: text.into(),
+            error: None,
+            board: (!upload).then(fake_board),
+        });
+    }
+}
+
+fn fake_board() -> firmware::Board {
+    firmware::Board {
+        transport: "unknown".into(),
+        chip: None,
+        usb_name: "pcplugin fake device".into(),
+        detail: "The fake port has no chip.".into(),
+    }
+}
+
+impl firmware::Host for State {
+    fn chips(&mut self) -> wasmtime::Result<Vec<String>> {
+        Ok(CHIPS.iter().map(|c| c.to_string()).collect())
+    }
+
+    fn describe(&mut self, setting_key: String) -> wasmtime::Result<Result<firmware::Board, String>> {
+        Ok(self.firmware_port(&setting_key).map(|()| fake_board()))
+    }
+
+    fn start_probe(&mut self, setting_key: String) -> wasmtime::Result<Result<(), String>> {
+        Ok(self.firmware_port(&setting_key).map(|()| self.fake_job(false, "Done")))
+    }
+
+    fn start_upload(&mut self, setting_key: String, chip: String, image: Vec<u8>) -> wasmtime::Result<Result<(), String>> {
+        if !CHIPS.contains(&chip.as_str()) {
+            return Ok(Err(format!("PitCrew does not write firmware for \"{chip}\"")));
+        }
+        println!("        firmware: {} bytes for {chip} (not written: pcplugin)", image.len());
+        Ok(self.firmware_port(&setting_key).map(|()| self.fake_job(true, "Done")))
+    }
+
+    fn job(&mut self) -> wasmtime::Result<Option<firmware::JobStatus>> {
+        Ok(self.firmware_job.clone())
     }
 }
 
@@ -523,6 +590,7 @@ pub fn run(pkg: &Package, opts: &Options) -> Result<()> {
         call_started: Instant::now(),
         call_budget: Duration::from_millis(INIT_BUDGET_MS),
         host_time: Duration::ZERO,
+        firmware_job: None,
     };
     let mut store = Store::new(&engine, state);
     store.limiter(|s| &mut s.limits);

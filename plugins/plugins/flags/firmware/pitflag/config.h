@@ -7,7 +7,7 @@
 #pragma once
 
 #define FIRMWARE_MAJOR 2
-#define FIRMWARE_MINOR 1
+#define FIRMWARE_MINOR 2
 #define FIRMWARE_PATCH 0
 
 // ---- Link -----------------------------------------------------------------
@@ -23,7 +23,12 @@
 
 // ---- Chip -----------------------------------------------------------------
 // The number goes into HELLO. It must match pitflag_wire::Chip.
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+#define PITFLAG_CHIP 5
+#if !ARDUINO_USB_CDC_ON_BOOT
+#error "Build the ESP32-C3 image with USB CDC On Boot enabled: the link is the chip's own USB port."
+#endif
+#elif defined(CONFIG_IDF_TARGET_ESP32)
 #define PITFLAG_CHIP 4
 #elif defined(__AVR_ATmega32U4__)
 #define PITFLAG_CHIP 3
@@ -32,12 +37,17 @@
 #elif defined(__AVR_ATmega328P__)
 #define PITFLAG_CHIP 1
 #else
-#error "PitFlag supports the ATmega328P, ATmega168, ATmega32U4 and ESP32."
+#error "PitFlag supports the ATmega328P, ATmega168, ATmega32U4, ESP32 and ESP32-C3."
 #endif
 
 // ---- Factory defaults -----------------------------------------------------
 // A pin of 0xFF in CONFIG means "the default below".
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+#define DEFAULT_WS2812_PIN 6
+#define DEFAULT_MAX7219_DIN_PIN 7
+#define DEFAULT_MAX7219_CLK_PIN 6
+#define DEFAULT_MAX7219_CS_PIN 10
+#elif defined(ARDUINO_ARCH_ESP32)
 #define DEFAULT_WS2812_PIN 13
 #define DEFAULT_MAX7219_DIN_PIN 23
 #define DEFAULT_MAX7219_CLK_PIN 18

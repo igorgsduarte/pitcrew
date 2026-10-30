@@ -1,7 +1,7 @@
 // The contract between PitCrew (the host) and a plugin. See docs/api.md.
 //
 // Version rule: additions within @1 are allowed; removing or changing anything is @2.
-package pitcrew:plugin@1.0.0;
+package pitcrew:plugin@1.1.0;
 
 /// Values the host hands to plugins.
 interface types {
@@ -274,6 +274,49 @@ interface serial {
     open: func(setting-key: string, baud: u32) -> result<port, string>;
 }
 
+/// Board detection and firmware upload, done by PitCrew in its own process. Needs the
+/// `devices:firmware` permission. The port is the one the driver picked in a `serialPort` setting.
+/// While a job runs, PitCrew holds that port: the plugin's open port stops working and cannot be
+/// opened again until the job ends.
+interface firmware {
+    record board {
+        /// "usb-jtag", "native-usb", "bridge" or "unknown".
+        transport: string,
+        /// A chip id from `chips`, when known.
+        chip: option<string>,
+        /// What the port's USB ids say, for the screen.
+        usb-name: string,
+        /// How the chip was recognised, or why it was not.
+        detail: string,
+    }
+
+    record job-status {
+        /// "probe" or "upload".
+        kind: string,
+        running: bool,
+        /// 0.0 to 1.0.
+        progress: f32,
+        /// What is happening, for the screen.
+        text: string,
+        /// Why the job failed, for the driver.
+        error: option<string>,
+        /// What a finished probe found.
+        board: option<board>,
+    }
+
+    /// The chip ids PitCrew can write: "esp32c3", "esp32", "atmega328p", "atmega168", "atmega32u4".
+    chips: func() -> list<string>;
+    /// What the port's USB ids say. Instant, and touches neither the port nor the board.
+    describe: func(setting-key: string) -> result<board, string>;
+    /// Starts recognising the board by asking its bootloader. This restarts the board.
+    start-probe: func(setting-key: string) -> result<_, string>;
+    /// Starts writing `image` to the board, checking it and restarting the board. An ESP image is a
+    /// merged `.bin` for flash address 0; an AVR image is Intel HEX. At most 8 MiB.
+    start-upload: func(setting-key: string, chip: string, image: list<u8>) -> result<_, string>;
+    /// This plugin's latest job. Never blocks.
+    job: func() -> option<job-status>;
+}
+
 /// The plugin's settings, validated by the host against plugin.json.
 interface settings {
     /// A JSON object of setting key to value.
@@ -295,6 +338,7 @@ world plugin {
 
     import host;
     import serial;
+    import firmware;
     import settings;
     import content;
 

@@ -4,6 +4,7 @@
 //! runs it natively against a fake device.
 
 pub mod app;
+pub mod firmware;
 pub mod host;
 pub mod link;
 pub mod matrix_test;
@@ -25,7 +26,7 @@ mod wasm {
 
     use pitcrew::plugin::types as wt;
     use pitcrew::plugin::ui as wu;
-    use pitcrew::plugin::{content, host, serial, settings};
+    use pitcrew::plugin::{content, firmware, host, serial, settings};
 
     thread_local! {
         static APP: RefCell<Option<App>> = const { RefCell::new(None) };
@@ -41,6 +42,32 @@ mod wasm {
         }
         fn read(&mut self, max: u32) -> Result<Vec<u8>, String> {
             self.0.read(max)
+        }
+    }
+
+    fn board_info(b: firmware::Board) -> h::BoardInfo {
+        h::BoardInfo { transport: b.transport, chip: b.chip, usb_name: b.usb_name, detail: b.detail }
+    }
+
+    impl h::Firmware for WitHost {
+        fn firmware_describe(&mut self, setting_key: &str) -> Result<h::BoardInfo, String> {
+            firmware::describe(setting_key).map(board_info)
+        }
+        fn firmware_probe(&mut self, setting_key: &str) -> Result<(), String> {
+            firmware::start_probe(setting_key)
+        }
+        fn firmware_upload(&mut self, setting_key: &str, chip: &str, image: &[u8]) -> Result<(), String> {
+            firmware::start_upload(setting_key, chip, image)
+        }
+        fn firmware_job(&mut self) -> Option<h::FirmwareJob> {
+            firmware::job().map(|j| h::FirmwareJob {
+                upload: j.kind == "upload",
+                running: j.running,
+                progress: j.progress,
+                text: j.text,
+                error: j.error,
+                board: j.board.map(board_info),
+            })
         }
     }
 

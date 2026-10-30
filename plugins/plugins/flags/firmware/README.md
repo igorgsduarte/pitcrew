@@ -8,15 +8,16 @@ magic `PFLG`, so the plugin knows the board runs this firmware.
 
 | Part | Notes |
 | --- | --- |
-| A board | Arduino Uno, Nano, or an ESP32 dev board. |
+| A board | Arduino Uno, Nano, an ESP32 dev board, or an ESP32-C3 board with USB on the chip. |
 | A matrix | An 8×8 WS2812B panel (colour), or an 8×8 MAX7219 module (one colour). |
 | For WS2812B | A 330 Ω resistor in the data line, and a 1000 µF capacitor across 5 V and GND. |
 | A USB cable | With data lines, not a charge-only cable. |
 
 ## Wiring
 
-**WS2812B:** data in → pin 6 (Uno/Nano) or GPIO 13 (ESP32), through the resistor. 5 V and GND to the
-board. At brightness 40 the panel draws less than 500 mA. The firmware caps the current at
+**WS2812B:** data in → pin 6 (Uno/Nano), GPIO 13 (ESP32) or GPIO 4 (ESP32-C3), through the
+resistor. 5 V and GND to the board. The ESP32-C3 drives the data line at 3.3 V. Most panels take it;
+if yours flickers, add a 74AHCT125 level shifter. At brightness 40 the panel draws less than 500 mA. The firmware caps the current at
 `WS2812_MAX_MILLIAMPS`.
 
 **MAX7219:** DIN → 11, CLK → 13, CS → 10, VCC → 5 V, GND → GND.
@@ -33,6 +34,9 @@ EEPROM. You never edit the sketch to change them.
 | `pitflag-atmega168.hex` | Nano ATmega168 | same | Experimental |
 | `pitflag-atmega32u4.hex` | Pro Micro, Leonardo | same | Experimental |
 | `pitflag-esp32.bin` | ESP32 dev board (classic ESP32) | WS2812B 13 · MAX7219 DIN 23, CLK 18, CS 5 | Experimental |
+| `pitflag-esp32c3.bin` | ESP32-C3 boards with USB on the chip (SuperMini, DevKitM-1) | WS2812B 4 · MAX7219 DIN 7, CLK 6, CS 10 | Experimental |
+
+On the ESP32-C3, GPIO 11 to 19 are refused: the flash and the USB port use them.
 
 "Tested" means it ran on real hardware. Report an "Experimental" board that works, with the board and
 the matrix you used.
@@ -51,12 +55,30 @@ than 90% of the flash or 75% of the RAM (the NeoPixel buffer included). The ATme
 one: 16 KB of flash and 1 KB of RAM.
 
 The ESP32 image is a merged binary for address `0x0`, padded to 4 MB. It compresses to a small file.
+The ESP32-C3 image is a merged binary for address `0x0` with the padding cut off, because the
+plugin carries it. The ESP32-C3 build has **USB CDC On Boot** on: the link is the chip's own USB
+port.
 
 ## Upload
 
-PitCrew uploads the image for you (planned, GOT-672). Until then, use the Arduino IDE or
-`arduino-cli upload` with the image for your chip, or open `pitflag/pitflag.ino` and install the
-**Adafruit NeoPixel** library.
+**From PitCrew, for every board.**
+
+1. In **Flags → Device**, pick the board's port in **Settings**.
+2. In **Firmware**, set **Board** to your board. **Detect board** asks the board which chip it is.
+3. Click **Upload PitFlag**. PitCrew restarts the board into its bootloader, writes the image, checks
+   it and restarts the board.
+
+If an upload cannot reach the bootloader: on an ESP board hold **BOOT** while you plug the cable in;
+on a Leonardo or Micro press reset twice quickly. Then upload again.
+
+**Without PitCrew**, with arduino-cli or the Arduino IDE:
+
+```powershell
+arduino-cli upload -p COM4 --fqbn arduino:avr:nano:cpu=atmega328 --input-file dist\pitflag-atmega328p.hex
+```
+
+You can also open `pitflag/pitflag.ino` in the Arduino IDE and install the **Adafruit NeoPixel**
+library.
 
 ## Check it
 

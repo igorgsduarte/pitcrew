@@ -5,8 +5,8 @@ flag displays.
 
 - **Sims:** every sim PitCrew reads (iRacing, Assetto Corsa, Assetto Corsa EVO). PitCrew decides
   the flag; the plugin only shows it.
-- **Hardware:** an Arduino Uno or Nano, or an ESP32, with an 8×8 WS2812B panel (colour) or a MAX7219
-  module (one colour), running the PitFlag firmware in [`firmware/`](firmware/).
+- **Hardware:** an Arduino Uno or Nano, an ESP32 or an ESP32-C3, with an 8×8 WS2812B panel (colour)
+  or a MAX7219 module (one colour), running the PitFlag firmware in [`firmware/`](firmware/).
 - **Screen:** a **Flags** item in the sidebar, with three tabs:
   - **Live:** what the matrix shows now, the flag, and test buttons that work with no sim.
   - **Animations:** the pack's animations and an editor. **Save to My pack** keeps your changes.
@@ -22,6 +22,22 @@ screen left alone for 2 minutes stops by itself.
 
 Without PitCrew: `pcplugin run plugins/flags --wasm … --port COM4 --press matrix-test:start@1
 --press matrix-test:next@7 …`.
+
+## Upload the firmware
+
+On the **Device** tab, the **Firmware** card shows the firmware in the plugin and the firmware on
+the board. Set **Board** to the board you have.
+
+Not sure which board it is? Click **Detect board**: PitCrew asks the board and says which one to
+pick. Then click **Upload PitFlag**. PitCrew restarts the board into its bootloader, writes the image
+the plugin carries, checks it and restarts the board. This works for every board in the list, with
+no button to hold and no Arduino IDE (needs PitCrew with plugin API 1.1).
+
+The matrix settings go to the board at run time. You never compile the firmware for your setup.
+
+`pcplugin run` writes no firmware: on the fake port an upload ends at once, and a real port is
+refused. To write a board without the app, use `pitcrew-engine firmware upload --port COM5 --chip
+esp32c3 --image firmware/dist/pitflag-esp32c3.bin`.
 
 ## Set up
 
@@ -45,6 +61,7 @@ Without PitCrew: `pcplugin run plugins/flags --wasm … --port COM4 --press matr
 | Correct LED colors | on | Lowers green and blue a little, so the LEDs look like the screen (yellow is not lime). |
 | Zigzag wiring | on | On when every second row runs back. The orientation screen of the matrix test shows it. |
 | Mirror, Rotate | off, 0° | Turn the image without a new upload. |
+| Board | Arduino Nano or Uno (ATmega328P) | The board the firmware upload is for. |
 
 ## Which animation for which flag
 

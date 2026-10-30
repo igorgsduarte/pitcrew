@@ -22,6 +22,13 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
 - The Classic pack: 15 animations and the flag mapping.
 - The Flags screen with the Live, Animations and Device tabs.
 - The animation editor, which saves to My pack.
-- The PitFlag 2.1.0 firmware for WS2812B and MAX7219 matrices: one prebuilt image each for the
-  ATmega328P, ATmega168, ATmega32U4 and ESP32. It shows a boot animation until PitCrew talks, and
-  redraws only when the serial line is quiet.
+- The PitFlag 2.2.0 firmware for WS2812B and MAX7219 matrices: one prebuilt image each for the
+  ATmega328P, ATmega168, ATmega32U4, ESP32 and ESP32-C3. It shows a boot animation until PitCrew
+  talks, and redraws only when the serial line is quiet.
+- ESP32-C3 boards, on the chip's own USB port. The default data pin is GPIO 4.
+- Firmware upload from the Device tab for every board: ESP32-C3, ESP32, Arduino Uno and Nano
+  (ATmega328P and ATmega168) and Leonardo or Micro (ATmega32U4). Pick the board and press **Upload**.
+  PitCrew restarts the board into its bootloader, writes the firmware the plugin carries and checks
+  it. No button to hold, no Arduino IDE.
+- **Detect board** on the Device tab asks the board which chip it is, and says which Board to pick.
+  The card also names the port's USB adapter.

@@ -27,8 +27,21 @@ $Targets = @(
     @{ Image = 'atmega328p'; Fqbn = 'arduino:avr:nano:cpu=atmega328'; Ext = 'hex'; Heap = 194 },
     @{ Image = 'atmega168';  Fqbn = 'arduino:avr:nano:cpu=atmega168'; Ext = 'hex'; Heap = 194 },
     @{ Image = 'atmega32u4'; Fqbn = 'arduino:avr:leonardo';           Ext = 'hex'; Heap = 194 },
-    @{ Image = 'esp32';      Fqbn = 'esp32:esp32:esp32';              Ext = 'bin'; Heap = 192 }
+    # Trim: the plugin carries these images and PitCrew writes them, so the 0xFF padding is cut off.
+    @{ Image = 'esp32';      Fqbn = 'esp32:esp32:esp32';              Ext = 'bin'; Heap = 192; Trim = $true },
+    @{ Image = 'esp32c3';    Fqbn = 'esp32:esp32:esp32c3:CDCOnBoot=cdc'; Ext = 'bin'; Heap = 192; Trim = $true }
 )
+
+# Cuts the trailing 0xFF bytes of a merged ESP32 image, keeping whole 4 KB flash sectors.
+function Save-Trimmed([string]$src, [string]$dst) {
+    $b = [IO.File]::ReadAllBytes($src)
+    $end = $b.Length
+    while ($end -gt 0 -and $b[$end - 1] -eq 0xFF) { $end-- }
+    $end = [math]::Min($b.Length, [math]::Ceiling($end / 4096) * 4096)
+    $out = New-Object byte[] $end
+    [Array]::Copy($b, $out, $end)
+    [IO.File]::WriteAllBytes($dst, $out)
+}
 
 $Home_ = if ($env:PITFLAG_ARDUINO_HOME) { $env:PITFLAG_ARDUINO_HOME } else { 'D:\tools\arduino-cli' }
 $Cli = Join-Path $Home_ 'arduino-cli.exe'
@@ -111,7 +124,8 @@ foreach ($t in $Targets) {
         $failed += "$($t.Image): $src was not produced"
         continue
     }
-    Copy-Item -Force $src (Join-Path $Dist "pitflag-$($t.Image).$($t.Ext)")
+    $dst = Join-Path $Dist "pitflag-$($t.Image).$($t.Ext)"
+    if ($t.Trim) { Save-Trimmed $src $dst } else { Copy-Item -Force $src $dst }
 }
 
 $report | Set-Content -Encoding Ascii (Join-Path $Dist 'size-report.txt')

@@ -10,6 +10,10 @@
 
 #include "config.h"
 
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+#include "soc/rtc_cntl_reg.h"
+#endif
+
 enum : uint8_t {
   T_HELLO = 0x01,
   T_PALETTE = 0x02,
@@ -20,7 +24,11 @@ enum : uint8_t {
   T_PONG = 0x07,
   T_CONFIG = 0x08,
   T_CONFIG_ACK = 0x09,
+  T_BOOTLOADER = 0x0A,
 };
+
+// BOOTLOADER payload. Anything else is ignored, so line noise never restarts the board.
+const uint8_t BOOTLOADER_MAGIC[4] = {'B', 'O', 'O', 'T'};
 
 enum : uint8_t { ACK_OK = 0, ACK_BAD_LAYOUT = 1, ACK_BAD_MATRIX = 2, ACK_BAD_PIN = 3, ACK_BAD_VALUE = 4 };
 enum : uint8_t { M_WS2812 = 1, M_MAX7219 = 2 };
@@ -81,7 +89,12 @@ uint8_t crcOf(const uint8_t *p, uint8_t len) {
 // ----------------------------------------------------------------- pins --
 
 bool pinOk(uint8_t p) {
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+  if (p > 21) return false;                               // no such GPIO
+  if (p >= 11 && p <= 17) return false;                   // the SPI flash
+  if (p == 18 || p == 19) return false;                   // USB D- and D+, the link
+  return true;
+#elif defined(ARDUINO_ARCH_ESP32)
   if (p > 33) return false;                               // 34-39 are input only
   if (p == 1 || p == 3) return false;                     // UART0, the USB link
   if (p >= 6 && p <= 11) return false;                    // the SPI flash
@@ -309,6 +322,18 @@ void applyConfig(const uint8_t *p, uint8_t len) {
   sendPacket(T_CONFIG_ACK, ack, sizeof ack);
 }
 
+// Restarts into the ROM download mode, so the plugin can write new firmware over the same port.
+// Only the ESP32-C3 can: an Arduino is reset into its bootloader when the port opens.
+void enterBootloader(const uint8_t *p, uint8_t len) {
+  if (len != sizeof BOOTLOADER_MAGIC || memcmp(p, BOOTLOADER_MAGIC, len) != 0) return;
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+  matrixEnd();
+  Serial.flush();
+  REG_WRITE(RTC_CNTL_OPTION1_REG, RTC_CNTL_FORCE_DOWNLOAD_BOOT);
+  esp_restart();
+#endif
+}
+
 // ----------------------------------------------------------------- boot --
 
 // Border position n (0-27, clockwise from the top-left corner) as a pixel index.
@@ -380,6 +405,9 @@ void handle(uint8_t type, const uint8_t *p, uint8_t len) {
     case T_CONFIG:
       applyConfig(p, len);
       break;
+    case T_BOOTLOADER:
+      enterBootloader(p, len);
+      break;
   }
 }
 
@@ -425,6 +453,10 @@ void feed(uint8_t b) {
 
 void setup() {
   Serial.begin(PITFLAG_BAUD);
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+  // With no PC on the USB port, a write would wait for one. Drop the bytes instead.
+  Serial.setTxTimeoutMs(0);
+#endif
   memset(palette, 0, sizeof palette);
   memset(frame, 0, sizeof frame);
   loadConfig();

@@ -4,13 +4,13 @@
   "name": "Flags",
   "version": "1.0.0-beta.1",
   "publisher": "PitCrew",
-  "description": "Shows the race flags on an 8×8 LED matrix (Arduino or ESP32 running the PitFlag firmware), with animations you can edit.",
+  "description": "Shows the race flags on an 8×8 LED matrix (Arduino, ESP32 or ESP32-C3 running the PitFlag firmware), with animations you can edit.",
   "license": "MIT",
   "repository": "https://github.com/igorgsduarte/pitcrew",
   "kind": "plugin",
   "api": "pitcrew:plugin@1",
   "entry": "flags.wasm",
-  "permissions": ["topic:flag", "topic:session", "devices:serial", "content:write-own"],
+  "permissions": ["topic:flag", "topic:session", "devices:serial", "devices:firmware", "content:write-own"],
   "tickHz": 30,
   "settings": [
     { "key": "port", "type": "serialPort", "label": "Device port" },
@@ -40,7 +40,14 @@
       { "value": "180", "label": "180°" },
       { "value": "270", "label": "270° clockwise" }
     ] },
-    { "key": "maxMilliamps", "type": "integer", "label": "Current limit (mA)", "min": 100, "max": 3000, "default": 500 }
+    { "key": "maxMilliamps", "type": "integer", "label": "Current limit (mA)", "min": 100, "max": 3000, "default": 500 },
+    { "key": "board", "type": "select", "label": "Board", "default": "atmega328p", "options": [
+      { "value": "esp32c3", "label": "ESP32-C3 (USB on the chip)" },
+      { "value": "atmega328p", "label": "Arduino Nano or Uno (ATmega328P)" },
+      { "value": "atmega168", "label": "Arduino Nano (ATmega168)" },
+      { "value": "atmega32u4", "label": "Pro Micro or Leonardo (ATmega32U4)" },
+      { "value": "esp32", "label": "ESP32 dev board (classic ESP32)" }
+    ] }
   ],
   "actions": [{ "id": "test", "label": "Play every flag" }],
   "nav": { "label": "Flags", "icon": "flag" },

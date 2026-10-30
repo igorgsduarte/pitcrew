@@ -28,7 +28,13 @@ pub enum Kind {
     Config = 0x08,
     /// Device → host: the answer to `Config`.
     ConfigAck = 0x09,
+    /// Host → device: restart into the chip's ROM download mode, so new firmware can be written.
+    /// The payload is `BOOTLOADER_MAGIC`. Only the ESP32-C3 acts on it.
+    Bootloader = 0x0A,
 }
+
+/// The payload of `Kind::Bootloader`. A device ignores the packet with any other payload.
+pub const BOOTLOADER_MAGIC: [u8; 4] = *b"BOOT";
 
 impl Kind {
     pub fn from_u8(v: u8) -> Option<Kind> {
@@ -42,6 +48,7 @@ impl Kind {
             0x07 => Kind::Pong,
             0x08 => Kind::Config,
             0x09 => Kind::ConfigAck,
+            0x0A => Kind::Bootloader,
             _ => return None,
         })
     }
@@ -113,6 +120,10 @@ pub fn hello_request() -> Vec<u8> {
     packet(Kind::Hello, &[])
 }
 
+pub fn bootloader() -> Vec<u8> {
+    packet(Kind::Bootloader, &BOOTLOADER_MAGIC)
+}
+
 /// The chip a firmware image was built for. Each chip has one image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Chip {
@@ -120,6 +131,7 @@ pub enum Chip {
     Atmega168,
     Atmega32u4,
     Esp32,
+    Esp32c3,
     Other(u8),
 }
 
@@ -130,6 +142,7 @@ impl Chip {
             2 => Chip::Atmega168,
             3 => Chip::Atmega32u4,
             4 => Chip::Esp32,
+            5 => Chip::Esp32c3,
             n => Chip::Other(n),
         }
     }
@@ -140,6 +153,7 @@ impl Chip {
             Chip::Atmega168 => 2,
             Chip::Atmega32u4 => 3,
             Chip::Esp32 => 4,
+            Chip::Esp32c3 => 5,
             Chip::Other(n) => n,
         }
     }
@@ -151,6 +165,7 @@ impl Chip {
             Chip::Atmega168 => "ATmega168".into(),
             Chip::Atmega32u4 => "ATmega32U4".into(),
             Chip::Esp32 => "ESP32".into(),
+            Chip::Esp32c3 => "ESP32-C3".into(),
             Chip::Other(n) => format!("chip {n}"),
         }
     }
@@ -561,6 +576,20 @@ mod tests {
         let p = Decoder::new().push(&a.encode());
         assert_eq!(p[0].kind, Kind::ConfigAck);
         assert_eq!(ConfigAck::decode(&p[0].payload), Some(a));
+    }
+
+    #[test]
+    fn the_bootloader_packet_carries_the_magic() {
+        let p = Decoder::new().push(&bootloader());
+        assert_eq!(p, vec![Packet { kind: Kind::Bootloader, payload: b"BOOT".to_vec() }]);
+    }
+
+    #[test]
+    fn every_known_chip_round_trips_through_its_number() {
+        for chip in [Chip::Atmega328p, Chip::Atmega168, Chip::Atmega32u4, Chip::Esp32, Chip::Esp32c3] {
+            assert_eq!(Chip::from_u8(chip.as_u8()), chip);
+        }
+        assert_eq!(Chip::Esp32c3.as_u8(), 5, "the firmware's PITFLAG_CHIP for the ESP32-C3");
     }
 
     #[test]

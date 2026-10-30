@@ -8,6 +8,7 @@ turn the plugin on. The app writes those sentences, not you, so they always mean
 | `topic:flag` | "Sees the race flags." | `on-flag` calls. |
 | `topic:session` | "Knows when a sim is running." | `on-session` calls with the sim, the track and the session kind. |
 | `devices:serial` | "Uses the USB serial port you choose." | `serial::open`, only for a port the driver picked in a `serialPort` setting. |
+| `devices:firmware` | "Writes firmware to the device you choose." | The `firmware` interface: board detection and firmware upload, only on a port the driver picked in a `serialPort` setting. |
 | `content:write-own` | "Saves files in its own folder." | `content::write-own`, inside the plugin's data folder, at most 1 MiB a file. |
 
 What no permission allows:

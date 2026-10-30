@@ -1,6 +1,9 @@
 /target
 /dist
 *.zip
-/plugins/flags/firmware/dist
+# The Flags plugin carries these images in its .wasm (include_bytes!), so a clean checkout needs them.
+/plugins/flags/firmware/dist/*
+!/plugins/flags/firmware/dist/pitflag-*.bin
+!/plugins/flags/firmware/dist/pitflag-*.hex
 /plugins/flags/firmware/build
 __pycache__/

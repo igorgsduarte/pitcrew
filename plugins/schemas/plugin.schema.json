@@ -22,7 +22,7 @@
     "permissions": {
       "type": "array",
       "uniqueItems": true,
-      "items": { "enum": ["topic:flag", "topic:session", "devices:serial", "content:write-own"] }
+      "items": { "enum": ["topic:flag", "topic:session", "devices:serial", "devices:firmware", "content:write-own"] }
     },
     "tickHz": { "type": "integer", "minimum": 1, "maximum": 60 },
     "settings": { "type": "array", "items": { "$ref": "#/$defs/setting" } },

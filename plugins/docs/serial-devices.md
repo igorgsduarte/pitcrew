@@ -22,8 +22,9 @@ match serial::open("port", 115_200) {
 1. **Never block.** `read` returns what is waiting now. Read a little on each `tick`.
 2. **Expect the device to go away.** A cable comes out in the middle of a race. When `read` or
    `write` returns `err`, drop the port, set a warning status and try `open` again every 2 s.
-3. **Wait for the device.** An Arduino Uno or Nano resets when the port opens. Its bootloader takes
-   about 1.6 s. Ask the device who it is, and send nothing else until it answers.
+3. **Wait for the device.** An Arduino Uno or Nano resets when its DTR line changes, for example
+   when another app opened the port. Its bootloader takes about 1.6 s. Ask the device who it is, and
+   send nothing else until it answers.
 4. **Send what changed, and refresh the rest.** A frame that did not change is not sent on each
    tick. But send the whole state again about once a second: a lost packet must not leave the device
    wrong until the next change.
@@ -34,6 +35,22 @@ match serial::open("port", 115_200) {
 8. **Write one burst per tick, and let the device work between bursts.** A WS2812B redraw turns the
    interrupts off for about 2 ms on an AVR, and the bytes that arrive then are lost. The PitFlag
    firmware redraws only after the line is quiet for 2 ms.
+
+## Write firmware to the device
+
+Do not write a bootloader client in your plugin. Ask for `devices:firmware`, carry your images, and
+call `firmware::start-upload`. PitCrew resets the board into its bootloader, writes the image, checks
+it and restarts the board. See the `firmware` section of [api.md](api.md).
+
+```rust
+static IMAGE: &[u8] = include_bytes!("../firmware/dist/my-esp32c3.bin");
+
+firmware::start_upload("port", "esp32c3", IMAGE)?;   // PitCrew has the port now
+// on each tick:
+if let Some(job) = firmware::job() {
+    if !job.running { /* show job.error or success, then open the port again */ }
+}
+```
 
 ## PitFlag wire v2
 
@@ -59,6 +76,7 @@ and looks for the next `0xA5`.
 | `0x07` | PONG | device → PC | the same byte |
 | `0x08` | CONFIG | PC → device | 10 bytes, see below |
 | `0x09` | CONFIG_ACK | device → PC | result code, CRC-8 of the config the device uses now |
+| `0x0A` | BOOTLOADER | PC → device | `B` `O` `O` `T`: restart into the ROM download mode. Only the ESP32-C3 acts on it. The Flags plugin no longer sends it: PitCrew resets the board itself. |
 
 ### HELLO (device → PC)
 
@@ -67,7 +85,7 @@ and looks for the next `0xA5`.
 | 0–3 | the magic `P` `F` `L` `G`. A HELLO with this magic comes from PitFlag firmware. |
 | 4 | wire version: 2 |
 | 5–7 | firmware major, minor, patch |
-| 8 | chip: 1 ATmega328P, 2 ATmega168, 3 ATmega32U4, 4 ESP32 |
+| 8 | chip: 1 ATmega328P, 2 ATmega168, 3 ATmega32U4, 4 ESP32, 5 ESP32-C3 |
 | 9–10 | width, height |
 | 11 | 1 for an RGB matrix, 0 for one colour |
 | 12 | max frames per second |
@@ -110,3 +128,26 @@ device keeps its old config.
 7. The device turns all LEDs off after 1500 ms without a packet.
 
 A full frame is 36 bytes. At 30 frames a second that is 1 080 B/s, about 9% of the link.
+
+## Firmware upload
+
+The Flags plugin writes PitFlag to an ESP32-C3 itself, over the same `serialPort` setting. It
+carries the merged image from `plugins/flags/firmware/dist/pitflag-esp32c3.bin` in its `.wasm`.
+The code is [esp_rom.rs](../plugins/flags/src/esp_rom.rs) and [firmware.rs](../plugins/flags/src/firmware.rs).
+
+1. If the board runs PitFlag, the plugin sends BOOTLOADER. The firmware sets
+   `RTC_CNTL_FORCE_DOWNLOAD_BOOT` and restarts. A new board goes into the download mode when the
+   driver holds BOOT while plugging the cable in.
+2. The plugin opens the port again every 500 ms until the ROM answers a SYNC. It gives up after 12 s.
+3. It speaks the esptool serial protocol to the ROM loader, with no RAM stub:
+   - It checks the chip id at `0x40001000`. It refuses a classic ESP32 and any other chip.
+   - It holds the RTC and super watchdogs, as esptool does over USB.
+   - It sends SPI_ATTACH and SPI_SET_PARAMS (4 MB), then FLASH_BEGIN.
+   - It writes 1 KB FLASH_DATA blocks, one command at a time.
+4. It compares SPI_FLASH_MD5 with the image's MD5.
+5. It clears the forced download mode and resets the chip with the RTC watchdog.
+6. The link opens the port again and waits for HELLO.
+
+The host opens a port with DTR and RTS off and has no call to change them. So the plugin cannot
+reset an Arduino into its bootloader, or an ESP32 behind a USB-serial bridge. The screen tells the
+driver to upload those images with the Arduino IDE.

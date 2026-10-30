@@ -5,8 +5,9 @@ use std::collections::BTreeSet;
 use pitflag_wire as wire;
 use serde::Deserialize;
 
-use crate::host::{Host, LogLevel, StatusLevel};
-use crate::link::{Link, Want};
+use crate::firmware::{self, Board};
+use crate::host::{BoardInfo, FirmwareJob, Host, LogLevel, StatusLevel};
+use crate::link::{Link, Want, PORT_SETTING};
 use crate::matrix_test;
 use crate::pack::{Animation, BUILTIN_PACK, CONTENT_TYPE, Pack, PackFile};
 use crate::player::{OFF, Player, STANDBY, Source};
@@ -85,6 +86,13 @@ pub struct Settings {
     pub rotate: String,
     #[serde(default = "default_max_milliamps")]
     pub max_milliamps: u16,
+    /// The board the firmware upload is for. See `firmware::Board::id`.
+    #[serde(default = "default_board")]
+    pub board: String,
+}
+
+fn default_board() -> String {
+    Board::Atmega328p.id().into()
 }
 
 fn default_brightness() -> u8 {
@@ -167,6 +175,13 @@ pub struct App {
     /// The matrix test step on screen, if the test runs.
     matrix_test: Option<usize>,
     saved: BTreeSet<String>,
+    /// PitCrew holds the port while it detects the board or writes it; the link waits.
+    fw_running: bool,
+    /// The job as PitCrew last reported it.
+    fw_job: Option<FirmwareJob>,
+    fw_result: Option<(StatusLevel, String)>,
+    /// What the port's USB ids say.
+    port_info: Option<BoardInfo>,
     now: u64,
     last_invalidate: u64,
 }
@@ -175,6 +190,7 @@ impl App {
     pub fn init(host: &mut dyn Host) -> Result<App, String> {
         let settings = Settings::parse(&host.settings_json());
         let pack = load_pack(host, &settings.animation_pack)?;
+        let port_info = describe(host, &settings);
         host.log(LogLevel::Info, &format!("using pack {} ({} animations)", pack.id, pack.animations.len()));
         Ok(App {
             settings,
@@ -193,6 +209,10 @@ impl App {
             editor: None,
             matrix_test: None,
             saved: BTreeSet::new(),
+            fw_running: false,
+            fw_job: None,
+            fw_result: None,
+            port_info,
             now: 0,
             last_invalidate: 0,
         })
@@ -215,10 +235,13 @@ impl App {
                 Err(e) => host.log(LogLevel::Warn, &e),
             }
         }
-        if next.port != self.settings.port {
-            self.link.reopen(host, self.now);
-        }
+        let port_changed = next.port != self.settings.port;
         self.settings = next;
+        if port_changed {
+            self.link.reopen(host, self.now);
+            self.port_info = describe(host, &self.settings);
+            self.fw_result = None;
+        }
         host.invalidate_ui();
     }
 
@@ -232,7 +255,11 @@ impl App {
         let (name, source) = (choice.name, choice.source);
         let correct = self.settings.color_correction && self.settings.matrix != "max7219";
         let sent: Vec<u32> = if correct { colors.iter().map(|&c| led_color(c)).collect() } else { colors.clone() };
-        self.link.tick(host, now, &Want { colors: &sent, frame: &frame, brightness: self.settings.brightness, config: self.settings.config() });
+        if self.fw_running {
+            self.poll_job(host, now);
+        } else {
+            self.link.tick(host, now, &Want { colors: &sent, frame: &frame, brightness: self.settings.brightness, config: self.settings.config() });
+        }
         // The test screen timed out, or another test took its place.
         if self.matrix_test.is_some() && !(source == Source::Test && name.starts_with(matrix_test::NAME_PREFIX)) {
             self.matrix_test = None;
@@ -256,7 +283,107 @@ impl App {
     }
 
     pub fn shutdown(&mut self) {
+        self.fw_running = false;
         self.link.close();
+    }
+
+    fn start_upload(&mut self, host: &mut dyn Host) {
+        let board = Board::from_id(&self.settings.board);
+        if self.settings.port.is_none() || self.fw_running || self.board_mismatch(board) {
+            return;
+        }
+        self.link.suspend();
+        match host.firmware_upload(PORT_SETTING, board.id(), board.image()) {
+            Ok(()) => {
+                self.start_job(host);
+                let v = firmware::version_text(firmware::VERSION);
+                host.log(LogLevel::Info, &format!("PitCrew is uploading PitFlag {v} to the {}", board.chip().label()));
+                self.link.set_status(host, StatusLevel::Idle, "Uploading the firmware…".into());
+            }
+            Err(e) => self.end_job(host, StatusLevel::Error, format!("The upload did not start. {e}")),
+        }
+    }
+
+    fn start_probe(&mut self, host: &mut dyn Host) {
+        if self.settings.port.is_none() || self.fw_running {
+            return;
+        }
+        self.link.suspend();
+        match host.firmware_probe(PORT_SETTING) {
+            Ok(()) => {
+                self.start_job(host);
+                self.link.set_status(host, StatusLevel::Idle, "Looking at the board…".into());
+            }
+            Err(e) => self.end_job(host, StatusLevel::Error, format!("The board could not be checked. {e}")),
+        }
+    }
+
+    fn start_job(&mut self, host: &mut dyn Host) {
+        self.fw_running = true;
+        self.fw_job = None;
+        self.fw_result = None;
+        host.invalidate_ui();
+    }
+
+    fn end_job(&mut self, host: &mut dyn Host, level: StatusLevel, text: String) {
+        self.fw_running = false;
+        host.log(if level == StatusLevel::Error { LogLevel::Error } else { LogLevel::Info }, &text);
+        self.fw_result = Some((level, text));
+        self.link.reopen(host, self.now);
+        host.invalidate_ui();
+    }
+
+    /// Reads PitCrew's job. Cheap: the host keeps the latest state ready.
+    fn poll_job(&mut self, host: &mut dyn Host, now: u64) {
+        let Some(job) = host.firmware_job() else {
+            self.end_job(host, StatusLevel::Error, "PitCrew lost track of the firmware job.".into());
+            return;
+        };
+        let changed = self.fw_job.as_ref() != Some(&job);
+        self.fw_job = Some(job.clone());
+        if job.running {
+            if changed && now.saturating_sub(self.last_invalidate) >= UI_EVERY_MS {
+                self.last_invalidate = now;
+                host.invalidate_ui();
+            }
+            return;
+        }
+        let (level, text) = match (&job.error, job.upload) {
+            (Some(e), true) => (StatusLevel::Error, format!("The upload failed. {e}")),
+            (Some(e), false) => (StatusLevel::Error, format!("The board could not be checked. {e}")),
+            (None, true) => {
+                let v = firmware::version_text(firmware::VERSION);
+                (StatusLevel::Ok, format!("PitFlag {v} is on the board. It restarts and connects again."))
+            }
+            (None, false) => self.probe_result(job.board.as_ref()),
+        };
+        self.end_job(host, level, text);
+    }
+
+    fn probe_result(&self, found: Option<&BoardInfo>) -> (StatusLevel, String) {
+        let picked = Board::from_id(&self.settings.board);
+        match found.and_then(|b| b.chip.as_deref()).map(|c| (c, firmware::board_for_chip(c))) {
+            Some((_, Some(b))) if b == picked => {
+                (StatusLevel::Ok, format!("This board is an {}, the board picked in Board.", b.chip().label()))
+            }
+            Some((_, Some(b))) => (
+                StatusLevel::Warning,
+                format!("This board is an {}. Pick it in Board before you upload.", b.chip().label()),
+            ),
+            Some((chip, None)) => (StatusLevel::Warning, format!("This board is an {chip}, which PitFlag does not run on.")),
+            None => (
+                StatusLevel::Warning,
+                format!(
+                    "PitCrew could not tell which chip this is. {}",
+                    found.map(|b| b.detail.as_str()).unwrap_or_default()
+                ),
+            ),
+        }
+    }
+
+    /// The connected board says it is another chip than the one picked.
+    fn board_mismatch(&self, board: Board) -> bool {
+        self.link.hello().is_some_and(|h| h.chip != board.chip())
     }
 
     fn play_all(&mut self) {
@@ -375,7 +502,70 @@ impl App {
             description: Some("Sent to the board and kept there. Leave a pin empty for the board's default.".into()),
         });
         t.add("matrix-settings", Some(&card), Kind::SettingsForm(MATRIX_SETTINGS.iter().map(|s| s.to_string()).collect()));
+        self.render_firmware(t, &grid);
         self.render_matrix_test(t, &grid);
+    }
+
+    fn render_firmware(&self, t: &mut Tree, grid: &str) {
+        let board = Board::from_id(&self.settings.board);
+        let ours = firmware::version_text(firmware::VERSION);
+        let card = t.add("firmware-card", Some(grid), Kind::Card {
+            title: Some("Firmware".into()),
+            description: Some("This plugin carries a ready firmware image for each board. The matrix settings go to the board at run time, so nothing is compiled for your setup.".into()),
+        });
+        t.add("firmware-settings", Some(&card), Kind::SettingsForm(vec!["board".into()]));
+        t.text("firmware-ours", &card, format!("In this plugin: PitFlag {ours} · {}", board.image_name()), Tone::Muted, true);
+        if let Some(info) = &self.port_info {
+            t.text("firmware-port", &card, format!("Port: {}", info.usb_name), Tone::Muted, true);
+        }
+        let theirs = match self.link.hello() {
+            Some(h) => format!("On the board: PitFlag {} · {}", firmware::version_text(h.firmware), h.chip.label()),
+            None if self.fw_running => "On the board: busy".into(),
+            None => "On the board: not connected".into(),
+        };
+        t.text("firmware-theirs", &card, theirs, Tone::Muted, true);
+        if let Some(h) = self.link.hello() {
+            if h.chip != board.chip() {
+                t.add("firmware-mismatch", Some(&card), Kind::Alert {
+                    title: None,
+                    text: format!("The board says it is an {}. Pick that board before you upload.", h.chip.label()),
+                    level: StatusLevel::Warning,
+                });
+            } else if h.firmware < firmware::VERSION {
+                t.text("firmware-newer", &card, format!("PitFlag {ours} is newer than the firmware on the board."), Tone::Warning, false);
+            }
+        }
+
+        if self.fw_running {
+            let (value, label) = match &self.fw_job {
+                Some(j) => (j.progress, j.text.clone()),
+                None => (0.0, "Starting…".into()),
+            };
+            t.add("firmware-progress", Some(&card), Kind::Progress { value, label: Some(label) });
+            t.text("firmware-keep", &card, "Keep the board plugged in until this ends.", Tone::Muted, false);
+            return;
+        }
+        t.text("firmware-hint", &card, board.hint(), Tone::Normal, false);
+        let no_port = self.settings.port.is_none();
+        if no_port {
+            t.text("firmware-no-port", &card, "Pick the device port in Settings first.", Tone::Muted, false);
+        }
+        let row = t.add("firmware-actions", Some(&card), Kind::Stack(Gap::Sm));
+        t.add("firmware:upload", Some(&row), Kind::Button {
+            label: format!("Upload PitFlag {ours}"),
+            variant: Variant::Primary,
+            icon: Some("zap".into()),
+            disabled: no_port || self.board_mismatch(board),
+        });
+        t.add("firmware:probe", Some(&row), Kind::Button {
+            label: "Detect board".into(),
+            variant: Variant::Secondary,
+            icon: Some("cpu".into()),
+            disabled: no_port,
+        });
+        if let Some((level, text)) = &self.fw_result {
+            t.add("firmware-result", Some(&card), Kind::Alert { title: None, text: text.clone(), level: *level });
+        }
     }
 
     fn render_matrix_test(&self, t: &mut Tree, grid: &str) {
@@ -469,6 +659,8 @@ impl App {
             },
             ("matrix-test:stop", Event::Pressed) => self.stop_matrix_test(),
             ("editor-save", Event::Pressed) => self.save(host),
+            ("firmware:upload", Event::Pressed) => self.start_upload(host),
+            ("firmware:probe", Event::Pressed) => self.start_probe(host),
             _ => {}
         }
         host.invalidate_ui();
@@ -522,6 +714,12 @@ fn load_pack(host: &mut dyn Host, id: &str) -> Result<Pack, String> {
             Ok(base)
         }
     }
+}
+
+/// What PitCrew says about the picked port, without touching it.
+fn describe(host: &mut dyn Host, settings: &Settings) -> Option<BoardInfo> {
+    settings.port.as_ref()?;
+    host.firmware_describe(PORT_SETTING).ok()
 }
 
 #[cfg(test)]
@@ -703,6 +901,117 @@ mod tests {
         app.settings_changed(&mut host);
         app.tick(&mut host, 99);
         assert_eq!(&last_palette(&host)[3..6], &[0xFF, 0xD4, 0x00]);
+    }
+
+    fn on_device_tab(board: &str, chip: wire::Chip) -> (App, FakeHost) {
+        let (mut app, mut host) = running();
+        host.device.borrow_mut().chip = chip;
+        host.settings = format!(r#"{{"port":"COM4","board":"{board}"}}"#);
+        app.settings_changed(&mut host);
+        app.tick(&mut host, 0);
+        app.tick(&mut host, 33);
+        assert!(app.link.is_open());
+        app.on_ui_event(&mut host, "tabs", Event::Selected("device".into()));
+        (app, host)
+    }
+
+    fn upload_button(app: &App) -> Option<Kind> {
+        let nodes = app.render();
+        crate::ui::validate(&nodes).unwrap();
+        nodes.into_iter().find(|n| n.id == "firmware:upload").map(|n| n.kind)
+    }
+
+    fn finish_job(host: &mut FakeHost, error: Option<&str>, chip: Option<&str>) {
+        let job = host.fw_job.as_mut().expect("a job");
+        job.running = false;
+        job.progress = 1.0;
+        job.error = error.map(String::from);
+        if !job.upload {
+            job.board = Some(BoardInfo { chip: chip.map(String::from), detail: "asked".into(), ..BoardInfo::default() });
+        }
+    }
+
+    #[test]
+    fn upload_hands_the_boards_image_to_pitcrew_and_takes_the_port_back_after() {
+        for (board, chip) in [("esp32c3", wire::Chip::Esp32c3), ("atmega328p", wire::Chip::Atmega328p), ("atmega32u4", wire::Chip::Atmega32u4)] {
+            let (mut app, mut host) = on_device_tab(board, chip);
+            assert!(matches!(upload_button(&app), Some(Kind::Button { disabled: false, .. })), "{board}");
+            app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
+            let b = Board::from_id(board);
+            assert_eq!(host.fw_calls, vec![("upload".to_string(), board.to_string(), b.image().len())]);
+            assert!(!app.link.is_open(), "the port is PitCrew's while it uploads");
+            host.fw_job.as_mut().unwrap().progress = 0.5;
+            host.fw_job.as_mut().unwrap().text = "Writing the firmware: 50%".into();
+            app.tick(&mut host, 66);
+            let nodes = app.render();
+            crate::ui::validate(&nodes).unwrap();
+            assert!(nodes.iter().any(|n| n.id == "firmware-progress"));
+            assert!(!app.link.is_open(), "the link waits while the job runs");
+
+            finish_job(&mut host, None, None);
+            app.tick(&mut host, 99);
+            assert_eq!(app.fw_result.as_ref().map(|r| r.0), Some(StatusLevel::Ok), "{board}");
+            app.tick(&mut host, 132);
+            app.tick(&mut host, 165);
+            assert!(app.link.is_open(), "the link takes the port again");
+        }
+    }
+
+    #[test]
+    fn a_failed_upload_shows_pitcrews_reason() {
+        let (mut app, mut host) = on_device_tab("esp32c3", wire::Chip::Esp32c3);
+        app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
+        finish_job(&mut host, Some("The board did not enter its download mode."), None);
+        app.tick(&mut host, 66);
+        let (level, text) = app.fw_result.clone().unwrap();
+        assert_eq!(level, StatusLevel::Error);
+        assert!(text.contains("did not enter its download mode"), "{text}");
+        crate::ui::validate(&app.render()).unwrap();
+    }
+
+    #[test]
+    fn a_refused_start_reopens_the_link_at_once() {
+        let (mut app, mut host) = on_device_tab("esp32c3", wire::Chip::Esp32c3);
+        host.fw_refuse = Some("COM4 is in use by the plugin other".into());
+        app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
+        assert!(!app.fw_running);
+        assert!(app.fw_result.as_ref().unwrap().1.contains("in use"));
+        app.tick(&mut host, 66);
+        app.tick(&mut host, 99);
+        assert!(app.link.is_open());
+    }
+
+    #[test]
+    fn upload_is_refused_when_the_board_says_it_is_another_chip() {
+        let (mut app, mut host) = on_device_tab("esp32c3", wire::Chip::Atmega328p);
+        assert!(matches!(upload_button(&app), Some(Kind::Button { disabled: true, .. })));
+        assert!(app.render().iter().any(|n| n.id == "firmware-mismatch"));
+        app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
+        assert!(host.fw_calls.is_empty());
+        assert!(app.link.is_open());
+    }
+
+    #[test]
+    fn detect_board_reports_the_chip_pitcrew_found() {
+        let (mut app, mut host) = on_device_tab("atmega328p", wire::Chip::Atmega328p);
+        app.on_ui_event(&mut host, "firmware:probe", Event::Pressed);
+        assert_eq!(host.fw_calls[0].0, "probe");
+        finish_job(&mut host, None, Some("esp32c3"));
+        app.tick(&mut host, 66);
+        let (level, text) = app.fw_result.clone().unwrap();
+        assert_eq!(level, StatusLevel::Warning);
+        assert!(text.contains("ESP32-C3") && text.contains("Pick it in Board"), "{text}");
+
+        app.on_ui_event(&mut host, "firmware:probe", Event::Pressed);
+        finish_job(&mut host, None, Some("atmega328p"));
+        app.tick(&mut host, 99);
+        assert_eq!(app.fw_result.as_ref().map(|r| r.0), Some(StatusLevel::Ok));
+    }
+
+    #[test]
+    fn the_port_card_names_what_the_usb_ids_say() {
+        let (app, _host) = on_device_tab("atmega328p", wire::Chip::Atmega328p);
+        assert!(app.render().iter().any(|n| matches!(&n.kind, Kind::Text { text, .. } if text == "Port: Fake USB")));
     }
 
     #[test]
