@@ -18,6 +18,16 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.9.0] - 2026-10-31
+
+### Added
 - **The engine can run plugins.** A plugin adds something PitCrew does not do itself, such as a
   flag display on an LED matrix. It runs apart from the engineer: a plugin that crashes, hangs or
   uses too much memory is stopped and started again, and after three failures in ten minutes it stays
@@ -125,10 +135,7 @@ dated one. See `docs/release-process.md`.
   panel, the window closed for the installer and did not come back. It now reopens when the install
   is done.
 
-### Removed
-
 ## [0.8.6] - 2026-10-28
-
 ### Added
 
 - **A briefing before you get in the car.** With a session loaded and you out of the car, the
