@@ -7,9 +7,9 @@ use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::Value;
 
-pub const API: &str = "pitcrew:plugin@1";
+pub const API: &str = "pitcrew:plugin@2";
 pub const PERMISSIONS: [&str; 5] = ["topic:flag", "topic:session", "devices:serial", "devices:firmware", "content:write-own"];
-pub const SETTING_TYPES: [&str; 7] = ["serialPort", "integer", "number", "boolean", "string", "select", "contentRef"];
+pub const SETTING_TYPES: [&str; 8] = ["serialPort", "integer", "pin", "number", "boolean", "string", "select", "contentRef"];
 pub const EXTENSIONS: [&str; 5] = ["wasm", "json", "md", "png", "txt"];
 pub const MAX_ENTRIES: usize = 500;
 pub const MAX_BYTES: u64 = 64 * 1024 * 1024;
@@ -69,6 +69,18 @@ pub struct Setting {
     pub options: Vec<SelectOption>,
     #[serde(default)]
     pub of: Option<String>,
+    /// One line under the label.
+    #[serde(default)]
+    pub description: Option<String>,
+    /// Shown after a number, such as "mA" or "s".
+    #[serde(default)]
+    pub unit: Option<String>,
+    /// The increment of a slider or number field.
+    #[serde(default)]
+    pub step: Option<f64>,
+    /// How the window draws the setting: "slider", "percent" or "segmented".
+    #[serde(default)]
+    pub display: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -227,14 +239,14 @@ pub fn check(m: &Manifest, dir: &Path) -> Vec<String> {
             "serialPort" if !m.permissions.iter().any(|x| x == "devices:serial") => {
                 p.push(format!("settings \"{k}\": a serialPort setting needs the devices:serial permission"));
             }
-            "integer" | "number" => {
+            "integer" | "number" | "pin" => {
                 let (lo, hi) = (s.min.unwrap_or(f64::MIN), s.max.unwrap_or(f64::MAX));
                 if lo > hi {
                     p.push(format!("settings \"{k}\": min is above max"));
                 }
                 match s.default.as_ref().map(Value::as_f64) {
                     Some(Some(d)) if d < lo || d > hi => p.push(format!("settings \"{k}\": default is outside min..max")),
-                    Some(Some(d)) if s.kind == "integer" && d.fract() != 0.0 => p.push(format!("settings \"{k}\": default is not an integer")),
+                    Some(Some(d)) if s.kind != "number" && d.fract() != 0.0 => p.push(format!("settings \"{k}\": default is not an integer")),
                     Some(None) => p.push(format!("settings \"{k}\": default is not a number")),
                     _ => {}
                 }
@@ -257,6 +269,10 @@ pub fn check(m: &Manifest, dir: &Path) -> Vec<String> {
             }
             _ => {}
         }
+        if s.kind == "pin" && (s.min.is_some_and(|x| x < 0.0) || s.max.is_some_and(|x| x > 63.0)) {
+            p.push(format!("settings \"{k}\": a pin is 0 to 63"));
+        }
+        p.extend(presentation_problems(s));
     }
     let mut ids = HashSet::new();
     for a in &m.actions {
@@ -283,6 +299,41 @@ pub fn check(m: &Manifest, dir: &Path) -> Vec<String> {
     let content_types: Vec<&str> = m.provides.iter().map(String::as_str).chain(m.extends.as_deref()).collect();
     for rel in &m.packs {
         p.extend(check_pack(dir, rel, &content_types));
+    }
+    p
+}
+
+/// The ways a window may draw a setting.
+pub const DISPLAYS: [&str; 3] = ["slider", "percent", "segmented"];
+
+/// Problems with the fields that only change how a setting is drawn.
+pub fn presentation_problems(s: &Setting) -> Vec<String> {
+    let k = &s.key;
+    let numeric = matches!(s.kind.as_str(), "integer" | "number" | "pin");
+    let mut p = Vec::new();
+    if let Some(d) = &s.description {
+        if d.trim().is_empty() || d.chars().count() > 160 {
+            p.push(format!("settings \"{k}\": description is 1 to 160 characters"));
+        }
+    }
+    if let Some(u) = &s.unit {
+        if !numeric || u.trim().is_empty() || u.chars().count() > 8 {
+            p.push(format!("settings \"{k}\": unit is 1 to 8 characters, on a number setting"));
+        }
+    }
+    if let Some(step) = s.step {
+        let whole = s.kind != "number";
+        if !numeric || !step.is_finite() || step <= 0.0 || (whole && step.fract() != 0.0) {
+            p.push(format!("settings \"{k}\": step is above zero, whole for an integer, on a number setting"));
+        }
+    }
+    match s.display.as_deref() {
+        None => {}
+        Some("slider" | "percent") if numeric && s.kind != "pin" && s.min.is_some() && s.max.is_some() => {}
+        Some("segmented") if s.kind == "select" && (2..=4).contains(&s.options.len()) => {}
+        Some("slider" | "percent") => p.push(format!("settings \"{k}\": a slider needs an integer or number with min and max")),
+        Some("segmented") => p.push(format!("settings \"{k}\": segmented needs a select with 2 to 4 options")),
+        Some(d) => p.push(format!("settings \"{k}\": unknown display \"{d}\" (known: {})", DISPLAYS.join(", "))),
     }
     p
 }

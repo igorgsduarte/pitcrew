@@ -7,7 +7,7 @@ This repository holds:
 
 | Folder | What it is |
 | --- | --- |
-| [`wit/`](wit/) | The plugin API, `pitcrew:plugin@1`, as a WIT world. |
+| [`wit/`](wit/) | The plugin API, `pitcrew:plugin@2`, as a WIT world. |
 | [`docs/`](docs/) | The guide for plugin authors. Start with [getting-started.md](docs/getting-started.md). |
 | [`tools/pcplugin/`](tools/pcplugin/) | The developer tool: validate, package and run a plugin on your PC. |
 | [`examples/hello/`](examples/hello/) | The smallest useful plugin. Copy it to start. |
@@ -46,7 +46,7 @@ Read [docs/getting-started.md](docs/getting-started.md) for the full walk-throug
 
 ## Status
 
-The API is `pitcrew:plugin@1`, version 1.0.0. The PitCrew app does not load plugins yet. Until it
+The API is `pitcrew:plugin@2`, version 2.0.0. The PitCrew app does not load plugins yet. Until it
 does, `pcplugin run` is the host: it applies the same imports, permission checks and limits.
 
 ## Licence

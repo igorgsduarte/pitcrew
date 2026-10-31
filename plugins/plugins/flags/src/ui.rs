@@ -62,6 +62,8 @@ pub enum Event {
     Text(String),
     Selected(String),
     Painted { x: u8, y: u8, color: u8 },
+    Filled(u8),
+    Palette(Vec<u32>),
 }
 
 #[derive(Debug, Default)]

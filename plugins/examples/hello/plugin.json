@@ -7,7 +7,7 @@
   "description": "Shows the current flag on its own screen. Start your plugin from here.",
   "license": "MIT",
   "kind": "plugin",
-  "api": "pitcrew:plugin@1",
+  "api": "pitcrew:plugin@2",
   "entry": "hello.wasm",
   "permissions": ["topic:flag"],
   "tickHz": 1,

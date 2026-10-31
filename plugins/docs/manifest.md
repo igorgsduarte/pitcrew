@@ -17,7 +17,7 @@ same rules as the app.
   "license": "MIT",
   "repository": "https://github.com/jsmith/pitcrew-pit-timer",
   "kind": "plugin",
-  "api": "pitcrew:plugin@1",
+  "api": "pitcrew:plugin@2",
   "entry": "flags.wasm",
   "permissions": ["topic:flag", "topic:session", "devices:serial", "content:write-own"],
   "tickHz": 30,
@@ -44,7 +44,7 @@ same rules as the app.
 | `license` | no | An SPDX id, e.g. `MIT`. |
 | `repository` | no | `https://github.com/<owner>/<repo>`: the repository with the releases. |
 | `kind` | yes | `plugin` (has code) or `content` (data only). |
-| `api` | plugin | `pitcrew:plugin@1`. |
+| `api` | plugin | `pitcrew:plugin@2`. |
 | `entry` | plugin | The `.wasm` file name, at the package root. |
 | `extends` | content | The content type the package adds to, e.g. `flags.animations`. |
 | `permissions` | no | See [permissions.md](permissions.md). Ask only for what you use. |
@@ -64,14 +64,29 @@ port.
 | `type` | Value | Extra fields |
 | --- | --- | --- |
 | `serialPort` | A port the driver picks, e.g. `COM4`. Needs `devices:serial`. | |
-| `integer` | A whole number | `min`, `max`, `default` |
-| `number` | A number | `min`, `max`, `default` |
+| `integer` | A whole number | `min`, `max`, `default`, `step`, `unit`, `display` |
+| `pin` | A GPIO number from 0 to 63, or empty for the board's default pin | `min`, `max`, `default` |
+| `number` | A number | `min`, `max`, `default`, `step`, `unit`, `display` |
 | `boolean` | `true` or `false` | `default` |
 | `string` | Text | `default` |
-| `select` | One of the options | `options: [{ "value", "label" }]`, `default` |
+| `select` | One of the options | `options: [{ "value", "label" }]`, `default`, `display` |
 | `contentRef` | The id of a content pack | `of`: the content type; `default` |
 
 Each setting has a `key` (camelCase, at most 32 characters) and a `label` (at most 40 characters).
+
+Optional fields change only how the window draws a setting:
+
+| Field | On | Effect |
+| --- | --- | --- |
+| `description` | any | One line under the label, at most 160 characters |
+| `unit` | `integer`, `number`, `pin` | Shown after the value, such as `"mA"` or `"s"`, at most 8 characters |
+| `step` | `integer`, `number`, `pin` | The increment of a slider; whole for an integer |
+| `display: "slider"` | `integer`, `number` with `min` and `max` | A slider with the value beside it |
+| `display: "percent"` | `integer`, `number` with `min` and `max` | A slider read as a share of `max`: 255 of 255 is 100%. The saved value stays the raw number |
+| `display: "segmented"` | `select` with 2 to 4 options | A row of buttons instead of a list |
+
+A driver can empty a number or pin field to remove the saved value. The setting then falls back to
+its `default`, or is absent when it has none.
 
 Read the values with `settings::get()`. It returns a JSON object of key to value. When the driver
 changes a value, PitCrew calls `settings-changed`.

@@ -10,6 +10,7 @@ pub mod link;
 pub mod matrix_test;
 pub mod pack;
 pub mod player;
+pub mod setup;
 pub mod signal;
 pub mod ui;
 
@@ -101,6 +102,9 @@ mod wasm {
         }
         fn content_write_own(&mut self, path: &str, bytes: &[u8]) -> Result<(), String> {
             content::write_own(path, bytes)
+        }
+        fn content_read_own(&mut self, path: &str) -> Result<Vec<u8>, String> {
+            content::read_own(path)
         }
     }
 
@@ -219,6 +223,8 @@ mod wasm {
             wu::EventKind::ChangedText(t) => u::Event::Text(t),
             wu::EventKind::Selected(id) => u::Event::Selected(id),
             wu::EventKind::Painted(p) => u::Event::Painted { x: p.x, y: p.y, color: p.color },
+            wu::EventKind::Filled(c) => u::Event::Filled(c),
+            wu::EventKind::PaletteChanged(colors) => u::Event::Palette(colors),
         }
     }
 

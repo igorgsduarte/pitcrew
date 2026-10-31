@@ -71,11 +71,68 @@ impl Board {
         }
     }
 
+    /// About how long PitCrew takes to write this board, in seconds.
+    pub fn upload_seconds(self) -> u32 {
+        match self {
+            Board::Esp32c3 => 30,
+            Board::Esp32 => 40,
+            Board::Atmega32u4 => 20,
+            Board::Atmega328p | Board::Atmega168 => 15,
+        }
+    }
+
     /// What the driver does before pressing Upload.
     pub fn hint(self) -> &'static str {
         match self {
             Board::Atmega32u4 => "PitCrew restarts the board into its bootloader, which shows up as another port for a few seconds. If the upload cannot find it, press the board's reset button twice quickly and upload again.",
             _ => "PitCrew restarts the board into its bootloader and writes the firmware. Keep the board plugged in until the upload ends.",
+        }
+    }
+}
+
+/// The pins PitFlag uses when a pin setting is empty. They must match `firmware/pitflag/config.h`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Pins {
+    pub ws2812: u8,
+    pub din: u8,
+    pub clk: u8,
+    pub cs: u8,
+}
+
+impl Board {
+    pub fn default_pins(self) -> Pins {
+        match self {
+            Board::Esp32c3 => Pins { ws2812: 6, din: 7, clk: 6, cs: 10 },
+            Board::Esp32 => Pins { ws2812: 13, din: 23, clk: 18, cs: 5 },
+            _ => Pins { ws2812: 6, din: 11, clk: 13, cs: 10 },
+        }
+    }
+
+    /// Why `pin` cannot drive the matrix on this board, or `None` when it can.
+    pub fn pin_problem(self, pin: u8) -> Option<&'static str> {
+        match self {
+            Board::Esp32c3 => match pin {
+                12..=17 => Some("is wired to the flash chip"),
+                18 | 19 => Some("carries the USB link"),
+                22.. => Some("does not exist on the ESP32-C3"),
+                _ => None,
+            },
+            Board::Esp32 => match pin {
+                1 | 3 => Some("carries the serial link to PitCrew"),
+                6..=11 => Some("is wired to the flash chip"),
+                20 | 24 | 28..=31 | 40.. => Some("does not exist on the ESP32"),
+                34..=39 => Some("is an input only"),
+                _ => None,
+            },
+            Board::Atmega328p | Board::Atmega168 => match pin {
+                0 | 1 => Some("carries the serial link to PitCrew"),
+                20.. => Some("does not exist on this board (A5 is pin 19)"),
+                _ => None,
+            },
+            Board::Atmega32u4 => match pin {
+                24.. => Some("does not exist on this board (A5 is pin 23)"),
+                _ => None,
+            },
         }
     }
 }

@@ -306,6 +306,8 @@ pub mod tests {
         /// Say the 8-byte wire v1 HELLO of PitFlag 1.0.0.
         pub legacy: bool,
         pub chip: wire::Chip,
+        /// The firmware version the HELLO names.
+        pub firmware: [u8; 3],
         pub config: wire::Config,
         pub outbox: Vec<u8>,
         pub received: Vec<wire::Packet>,
@@ -321,6 +323,7 @@ pub mod tests {
                 refuse_config: None,
                 legacy: false,
                 chip: wire::Chip::Atmega168,
+                firmware: [2, 0, 0],
                 config: wire::Config::default(),
                 outbox: Vec::new(),
                 received: Vec::new(),
@@ -334,7 +337,7 @@ pub mod tests {
             let h = if self.legacy {
                 wire::packet(wire::Kind::Hello, &[1, 1, 0, 0, 8, 8, 1, 30])
             } else {
-                wire::Hello { chip: self.chip, ..hello(self.config.crc()) }.encode()
+                wire::Hello { chip: self.chip, firmware: self.firmware, ..hello(self.config.crc()) }.encode()
             };
             self.outbox.extend(h);
         }
@@ -388,6 +391,9 @@ pub mod tests {
         pub statuses: Vec<(StatusLevel, String)>,
         pub settings: String,
         pub written: Vec<(String, Vec<u8>)>,
+        /// Files already in the data folder when the plugin starts.
+        pub seeded: Vec<(String, Vec<u8>)>,
+        pub invalidated: usize,
         /// Firmware calls in order: ("upload", chip, image bytes) or ("probe", "", 0).
         pub fw_calls: Vec<(String, String, usize)>,
         /// The job `firmware_job` reports.
@@ -429,7 +435,9 @@ pub mod tests {
         fn set_status(&mut self, level: StatusLevel, text: &str) {
             self.statuses.push((level, text.to_string()));
         }
-        fn invalidate_ui(&mut self) {}
+        fn invalidate_ui(&mut self) {
+            self.invalidated += 1;
+        }
         fn open_port(&mut self, key: &str, _: u32) -> Result<Box<dyn Port>, String> {
             assert_eq!(key, PORT_SETTING);
             let mut d = self.device.borrow_mut();
@@ -453,6 +461,15 @@ pub mod tests {
         fn content_write_own(&mut self, path: &str, bytes: &[u8]) -> Result<(), String> {
             self.written.push((path.into(), bytes.to_vec()));
             Ok(())
+        }
+        fn content_read_own(&mut self, path: &str) -> Result<Vec<u8>, String> {
+            self.written
+                .iter()
+                .rev()
+                .chain(self.seeded.iter())
+                .find(|(p, _)| p == path)
+                .map(|(_, b)| b.clone())
+                .ok_or_else(|| format!("{path}: not found"))
         }
     }
 

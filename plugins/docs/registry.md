@@ -20,7 +20,7 @@ Open a pull request that adds `registry/<id>.json`:
       "asset": "jsmith.pit-timer-1.0.0.zip",
       "sha256": "…",
       "bytes": 412000,
-      "api": "pitcrew:plugin@1"
+      "api": "pitcrew:plugin@2"
     }
   ]
 }

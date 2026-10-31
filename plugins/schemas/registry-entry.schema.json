@@ -26,7 +26,7 @@
           "asset": { "type": "string", "pattern": "\\.zip$" },
           "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
           "bytes": { "type": "integer", "minimum": 1 },
-          "api": { "const": "pitcrew:plugin@1" }
+          "api": { "const": "pitcrew:plugin@2" }
         }
       }
     }

@@ -51,14 +51,27 @@ writes it to `plugin.log`. `pcplugin run --ui` applies the same checks.
 | `slider` | A slider | `label`, `min`, `max`, `step`, `value` | `changed-number(f64)` |
 | `select` | A drop-down | `label`, `options`, `value` | `selected(value)` |
 | `input` | A text field | `label`, `value`, `max-length` | `changed-text(string)` |
-| `pixel-grid` | A grid of LEDs | `width`, `height` (1 to 32), `palette` (≤ 16 colours, index 0 is off), `pixels`, `editable` | `painted(x, y, color)` |
+| `pixel-grid` | A grid of LEDs | `width`, `height` (1 to 32), `palette` (≤ 16 colours, index 0 is off), `pixels`, `editable` | `painted(x, y, color)`, `filled(color)`, `palette-changed(colors)` |
 | `settings-form` | The manifest's settings form | the setting keys to show | handled by PitCrew |
 
-**The primary button.** PitCrew draws your `primary` variant in its neutral style. The brand
-colour is for the app's own actions only.
+**The primary button.** On the page, PitCrew draws `primary` in its accent colour, the way it draws
+its own screens' main action. Inside a card it draws a quieter tinted button. Use one page-level
+`primary` per screen: the button that moves the driver on.
 
 **Colours.** You choose colours only in a `pixel-grid` palette, because those are data (an LED's
 colour). Everything else uses the app's theme.
+
+**The pixel editor.** An editable `pixel-grid` comes with PitCrew's palette under it: the driver picks
+a colour, then clicks or drags across cells to paint with it, right-clicks to turn a cell off, fills
+or clears the grid, and changes or adds a colour. You get:
+
+- `painted(x, y, color)` for each cell, once per cell in a drag. `color` 0 is off.
+- `filled(color)` when the driver fills the grid with a colour, or clears it (`0`).
+- `palette-changed(colors)` with the whole new palette when a colour changes or one is added. It is
+  never shorter than yours, holds at most 16 colours, and index 0 is left as it was.
+
+The cells change on screen at once and stay that way until your next tree, so send one back: a tree
+that does not take the change puts the grid back.
 
 ## Events and state
 
@@ -83,10 +96,15 @@ For tabs, keep the selected tab in your state:
 
 ## Example
 
-The Live tab of the Flags plugin:
+The Flags plugin after its setup:
 
 ```
 page "Flags"
+  card "Device"
+    badge ok "Connected · firmware 2.2.0 · ATmega328P · 8×8 RGB"
+    grid 2 columns
+      button "Test the matrix"
+      button "Set up again"
   tabs (selected: live)
     tab "Live"
       grid 2 columns
@@ -95,12 +113,13 @@ page "Flags"
           text "showing yellow-waving"
         card "Now"
           table
-      card "Test without a sim"
-        stack
-          button "lights-ready"  …
+      card "Play a flag"
+        grid 3 columns
+          button "Start lights: ready"  …
         button "Play every flag"
     tab "Animations"
-    tab "Device"
 ```
+
+Before its setup, the same page holds only the setup card, so the tabs are not there.
 
 Print your own tree with `pcplugin run <dir> --ui`.

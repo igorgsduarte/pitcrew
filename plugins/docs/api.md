@@ -1,4 +1,4 @@
-# The plugin API: `pitcrew:plugin@1`
+# The plugin API: `pitcrew:plugin@2`
 
 The API is the WIT world in [wit/pitcrew-plugin.wit](../wit/pitcrew-plugin.wit). This page explains
 it. The WIT file is the reference.
@@ -75,6 +75,7 @@ Leonardo). The driver presses no button.
 | `packs(of-type) -> list<string>` | none | The installed pack ids of a type you `provide`. Your bundled packs come first. |
 | `read(pack, path) -> result<list<u8>, string>` | none | A file from a pack, e.g. `animations/red.json`. |
 | `write-own(path, bytes) -> result<_, string>` | `content:write-own` | Writes into your plugin's data folder. At most 1 MiB a file. A pack written to `packs/<name>/` appears in `packs`. |
+| `read-own(path) -> result<list<u8>, string>` | none | Reads a file you wrote with `write-own`. Since API 1.2.0. |
 
 Paths are relative, with `/`. A path with `..`, a drive or a backslash is refused.
 
@@ -118,8 +119,12 @@ Plugins never speak. Voice is PitCrew's own.
 
 ## Versions
 
-`@1` changes only by addition: new functions, new node kinds, new fields in new records. A plugin
-built for `pitcrew:plugin@1.0.0` runs on every later `@1`. A removal or a change is `@2`.
+`@2` changes only by addition: new functions, new node kinds, new fields in new records. A plugin
+built for `pitcrew:plugin@2.0.0` runs on every later `@2`. A removal or a change is `@3`.
+
+`@2` added two events for an editable pixel grid, `filled` and `palette-changed`. A new case in an
+event is a change for a plugin built before it, so `@1` plugins must be rebuilt against `@2`: change
+`api` in `plugin.json` to `pitcrew:plugin@2` and build again. PitCrew does not load `@1` plugins.
 
 ## Other languages
 

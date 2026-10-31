@@ -16,7 +16,7 @@
     "license": { "type": "string", "minLength": 1 },
     "repository": { "type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+/?$" },
     "kind": { "enum": ["plugin", "content"] },
-    "api": { "const": "pitcrew:plugin@1" },
+    "api": { "const": "pitcrew:plugin@2" },
     "entry": { "type": "string", "pattern": "^[^/\\\\]+\\.wasm$" },
     "extends": { "type": "string", "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" },
     "permissions": {
@@ -70,7 +70,7 @@
       "required": ["key", "type", "label"],
       "properties": {
         "key": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]{0,31}$" },
-        "type": { "enum": ["serialPort", "integer", "number", "boolean", "string", "select", "contentRef"] },
+        "type": { "enum": ["serialPort", "integer", "pin", "number", "boolean", "string", "select", "contentRef"] },
         "label": { "type": "string", "minLength": 1, "maxLength": 40 },
         "default": {},
         "min": { "type": "number" },
@@ -84,7 +84,11 @@
             "properties": { "value": { "type": "string", "minLength": 1 }, "label": { "type": "string", "minLength": 1 } }
           }
         },
-        "of": { "type": "string", "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" }
+        "of": { "type": "string", "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "unit": { "type": "string", "minLength": 1, "maxLength": 8 },
+        "step": { "type": "number", "exclusiveMinimum": 0 },
+        "display": { "enum": ["slider", "percent", "segmented"] }
       }
     }
   }

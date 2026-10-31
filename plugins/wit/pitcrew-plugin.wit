@@ -1,7 +1,7 @@
 // The contract between PitCrew (the host) and a plugin. See docs/api.md.
 //
-// Version rule: additions within @1 are allowed; removing or changing anything is @2.
-package pitcrew:plugin@1.1.0;
+// Version rule: additions within a major are allowed; removing or changing anything is the next major.
+package pitcrew:plugin@2.0.0;
 
 /// Values the host hands to plugins.
 interface types {
@@ -242,6 +242,11 @@ interface ui {
         /// A tab, a table row or a select option.
         selected(string),
         painted(paint),
+        /// An editable pixel grid: every cell set to this palette index. 0 clears the grid.
+        filled(u8),
+        /// An editable pixel grid: its whole new palette, 0xRRGGBB each. Index 0 stays off; the
+        /// list is never shorter than before and holds at most 16 colors.
+        palette-changed(list<u32>),
     }
 
     record ui-event {
@@ -330,6 +335,8 @@ interface content {
     read: func(pack: string, path: string) -> result<list<u8>, string>;
     /// Writes under the plugin's own data folder. `path` is relative and may not leave it.
     write-own: func(path: string, bytes: list<u8>) -> result<_, string>;
+    /// Reads a file written with `write-own`. `path` is relative and may not leave the data folder.
+    read-own: func(path: string) -> result<list<u8>, string>;
 }
 
 world plugin {

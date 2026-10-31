@@ -336,6 +336,13 @@ impl content::Host for State {
         println!("        wrote {} ({} bytes)", full.display(), bytes.len());
         Ok(written.map_err(|e| e.to_string()))
     }
+
+    fn read_own(&mut self, path: String) -> wasmtime::Result<Result<Vec<u8>, String>> {
+        let Some(rel) = safe_rel(&path) else {
+            return Ok(Err(format!("\"{path}\" is not a relative path inside the plugin's data folder")));
+        };
+        Ok(std::fs::read(self.data.join(rel)).map_err(|e| format!("{path}: {e}")))
+    }
 }
 
 /// One stretch of the scripted session.

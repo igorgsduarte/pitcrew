@@ -30,6 +30,7 @@ pub trait Host: Firmware {
     fn content_packs(&mut self, of_type: &str) -> Vec<String>;
     fn content_read(&mut self, pack: &str, path: &str) -> Result<Vec<u8>, String>;
     fn content_write_own(&mut self, path: &str, bytes: &[u8]) -> Result<(), String>;
+    fn content_read_own(&mut self, path: &str) -> Result<Vec<u8>, String>;
 }
 
 /// What PitCrew says about the board on the device port.

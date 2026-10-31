@@ -84,14 +84,15 @@ library.
 
 1. Power the board. A blue dot runs around the border: the board is booting. It stops at the first
    packet from PitCrew, or after 3 s.
-2. In PitCrew, open **Flags → Device** and choose the board's port.
-3. The badge must say **Connected · firmware 2.1.0 · ATmega328P · 8×8 RGB** (with your chip, or
-   **mono**).
-4. On **Device**, click **Start the test** and follow the screens. See
+2. In PitCrew, open **Flags**. The setup opens. Choose the board's port and follow the four steps.
+3. After the setup, the Device card must say **Connected · firmware 2.2.0 · ATmega328P · 8×8 RGB**
+   (with your chip, or **mono**).
+4. To test again, click **Test the matrix** on the Device card. See
    [the plugin README](../README.md#test-the-matrix).
 
-If the image is mirrored or turned, change **Zigzag wiring**, **Mirror** or **Rotate** in the
-**Matrix** settings. The board takes the change at once. No new upload is needed.
+If the image is turned, change **Rotate** in the Test step. If it zigzags or is mirrored, change
+**Zigzag wiring** or **Mirror** under **Manage**. The board takes the change at once. No new upload
+is needed.
 
 Without PitCrew: `pcplugin run plugins/flags --wasm … --port COM4 --flag yellow+waving`.
 

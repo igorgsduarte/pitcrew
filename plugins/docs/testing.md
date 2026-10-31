@@ -44,7 +44,7 @@ pcplugin run <plugin-dir> --wasm <file.wasm> [options]
 | `--set brightness=80` | Change a setting. The value is JSON, or text. |
 | `--action test@2` | Press a manifest action at 2 s. |
 | `--press wave@2` | Click a button on your screen at 2 s. |
-| `--select tabs=device@3` | Pick a tab, a table row or an option at 3 s. |
+| `--select tabs=animations@3` | Pick a tab, a table row or an option at 3 s. |
 | `--ui` | Print your last screen as an outline. |
 | `--plain` | Draw the matrix with `.` and `#`, for logs. |
 | `--data <dir>` | Your plugin's data folder. The default is a temp folder. |

@@ -1,6 +1,6 @@
 //! The matrix test: fixed screens that show if the color order, the wiring and the brightness are
-//! right. The user steps through them on the Device tab and changes the Matrix settings while a
-//! screen shows; the board applies each change at once.
+//! right. The user steps through them in the setup's Test step and changes the matrix settings
+//! while a screen shows; the board applies each change at once.
 
 use crate::pack::Animation;
 
@@ -26,7 +26,7 @@ pub const STEPS: [Step; 6] = [
     Step {
         id: "orientation",
         expect: "Top row red, left column green, the top-left LED white, the bottom-right LED blue.",
-        fix: "If the green column zigzags, change Zigzag wiring. Use Rotate and the Mirror switches to put the white LED top left.",
+        fix: "If the white LED is in another corner, change Rotate until it is top left. If the image zigzags or is mirrored, change Zigzag wiring or Mirror.",
     },
     Step {
         id: "brightness",
@@ -34,6 +34,23 @@ pub const STEPS: [Step; 6] = [
         fix: "Change Brightness to set how bright the flags are.",
     },
 ];
+
+/// The steps to show for the matrix. A one-color matrix cannot show the color screens.
+pub fn steps(one_color: bool) -> Vec<usize> {
+    (0..STEPS.len()).filter(|&i| !one_color || matches!(STEPS[i].id, "white" | "orientation")).collect()
+}
+
+/// The settings that fix what step `id` checks.
+pub fn fix_keys(id: &str, one_color: bool) -> &'static [&'static str] {
+    match id {
+        "red" | "green" | "blue" => &["colorOrder", "colorCorrection"],
+        "white" if !one_color => &["maxMilliamps"],
+        "orientation" if one_color => &["rotate", "flipX", "flipY"],
+        "orientation" => &["rotate", "serpentine", "flipX", "flipY"],
+        "brightness" => &["brightness"],
+        _ => &[],
+    }
+}
 
 /// Every screen's name starts with this.
 pub const NAME_PREFIX: &str = "matrix test: ";
@@ -78,6 +95,13 @@ pub fn screen(i: usize) -> Animation {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_one_color_matrix_skips_the_color_screens() {
+        assert_eq!(steps(false), (0..STEPS.len()).collect::<Vec<_>>());
+        let mono: Vec<&str> = steps(true).into_iter().map(|i| STEPS[i].id).collect();
+        assert_eq!(mono, vec!["white", "orientation"]);
+    }
 
     #[test]
     fn every_step_has_a_screen_with_a_valid_palette() {
