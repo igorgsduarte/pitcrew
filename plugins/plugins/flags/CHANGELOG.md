@@ -4,6 +4,8 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-31
+
 ### Changed
 - The Live tab leads with the matrix. Beside it are what the sim shows, what the matrix plays and
   the flag player. The Device card stays under it, whether the board is fine, missing or needs an
@@ -98,6 +100,8 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
   it. No button to hold, no Arduino IDE.
 - **Detect board** in the setup asks the board which chip it is, and says which Board to pick.
   The step also names the port's USB adapter.
+
+Includes 1.0.0-beta.1.
 
 ## [1.0.0-beta.1] - 2026-10-28
 

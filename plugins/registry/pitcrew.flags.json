@@ -6,6 +6,15 @@
   "tier": "official",
   "releases": [
     {
+      "version": "1.0.0",
+      "channel": "stable",
+      "tag": "flags-v1.0.0",
+      "asset": "pitcrew.flags-1.0.0.zip",
+      "sha256": "3e081e5acb6efd149e725edcb349f0162a9dbc95f1894b6f39a1ba57a475e4bb",
+      "bytes": 562154,
+      "api": "pitcrew:plugin@2"
+    },
+    {
       "version": "1.0.0-beta.1",
       "channel": "beta",
       "tag": "flags-v1.0.0-beta.1",

@@ -2,7 +2,7 @@
   "$schema": "../../schemas/plugin.schema.json",
   "id": "pitcrew.flags",
   "name": "Flags",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "publisher": "PitCrew",
   "description": "Shows the race flags on an 8×8 LED matrix (Arduino, ESP32 or ESP32-C3 running the PitFlag firmware), with animations you can edit.",
   "license": "MIT",
