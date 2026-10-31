@@ -2,6 +2,11 @@
 
 The release workflow moves `## [Unreleased]` into the new version's section. Add each change there.
 
+### Changed
+- The Live tab leads with the matrix, with what iRacing shows beside it. The Device card moves below
+  it while the board is fine, and comes back above the tabs when the board is missing or needs an
+  update. The animation editor groups its controls: painting, frames and speed, then save.
+
 ## [Unreleased]
 
 ## [1.0.0-beta.1] - 2026-10-28

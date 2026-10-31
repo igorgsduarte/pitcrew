@@ -631,22 +631,37 @@ impl App {
         match self.setup {
             Some(step) => self.render_setup(&mut t, &page, step),
             None => {
-                self.render_device_bar(&mut t, &page);
+                let attention = self.device_needs_attention();
+                if attention {
+                    self.render_device_bar(&mut t, &page);
+                }
                 let tabs = t.add("tabs", Some(&page), Kind::Tabs { selected: self.tab.clone() });
                 for (id, label) in [("live", "Live"), ("animations", "Animations")] {
                     t.add(id, Some(&tabs), Kind::Tab(label.into()));
                 }
                 match self.tab.as_str() {
                     "animations" => self.render_animations(&mut t),
-                    _ => self.render_live(&mut t),
+                    _ => {
+                        self.render_live(&mut t);
+                        if !attention {
+                            self.render_device_bar(&mut t, "live");
+                        }
+                    }
                 }
             }
         }
         t.nodes
     }
 
-    fn render_device_bar(&self, t: &mut Tree, page: &str) {
-        let card = t.add("device-card", Some(page), Kind::Card { title: Some("Device".into()), description: None });
+    /// The board is missing, unhappy or on old firmware: its card goes above the tabs.
+    fn device_needs_attention(&self) -> bool {
+        !self.link.is_open()
+            || self.link.status().is_some_and(|(l, _)| *l != StatusLevel::Ok)
+            || self.link.hello().is_some_and(|h| h.firmware < firmware::VERSION)
+    }
+
+    fn render_device_bar(&self, t: &mut Tree, parent: &str) {
+        let card = t.add("device-card", Some(parent), Kind::Card { title: Some("Device".into()), description: None });
         // Only a status that needs attention; the header pill shows every status.
         if let Some((level, text)) = self.link.status().filter(|(l, _)| *l != StatusLevel::Ok).cloned() {
             t.add("conn", Some(&card), Kind::Badge { text, level });
@@ -897,7 +912,8 @@ impl App {
 
     fn render_live(&self, t: &mut Tree) {
         let card = t.add("now-card", Some("live"), Kind::Card { title: Some("Now".into()), description: None });
-        t.add("matrix", Some(&card), Kind::PixelGrid {
+        let row = t.add("now-row", Some(&card), Kind::Grid { columns: 2, gap: Gap::Lg });
+        t.add("matrix", Some(&row), Kind::PixelGrid {
             width: 8,
             height: 8,
             palette: self.shown_colors.clone(),
@@ -910,7 +926,8 @@ impl App {
             (Some(s), true, true) => capitalized(&s.describe()),
             (None, true, true) => "Waiting for the first flag".to_string(),
         };
-        t.text("now", &card, format!("iRacing shows: {signal}"), Tone::Normal, false);
+        let lines = t.add("now-lines", Some(&row), Kind::Stack(Gap::Sm));
+        t.text("now", &lines, format!("iRacing shows: {signal}"), Tone::Normal, false);
         let why = match self.shown_source {
             Source::Rule(_) => String::new(),
             Source::Test => ", a test".into(),
@@ -922,7 +939,7 @@ impl App {
         } else {
             format!("The matrix would show: {}{why}. The board isn't connected.", anim_label(&self.shown_name))
         };
-        t.text("now-showing", &card, showing, Tone::Muted, false);
+        t.text("now-showing", &lines, showing, Tone::Muted, false);
 
         let card = t.add("test-card", Some("live"), Kind::Card {
             title: Some("Play a flag".into()),
@@ -993,7 +1010,8 @@ impl App {
             t.text("editor-empty", &card, "No animation picked.", Tone::Muted, false);
             return;
         };
-        t.add("editor", Some(&card), Kind::PixelGrid {
+        let body = t.add("editor-body", Some(&card), Kind::Stack(Gap::Lg));
+        t.add("editor", Some(&body), Kind::PixelGrid {
             width: 8,
             height: 8,
             palette: e.anim.colors.clone(),
@@ -1004,21 +1022,22 @@ impl App {
         let button = |t: &mut Tree, id: &str, parent: &str, label: &str, variant: Variant, disabled: bool| {
             t.add(id, Some(parent), Kind::Button { label: label.into(), variant, icon: None, disabled });
         };
-        let frames = t.add("editor-frames", Some(&card), Kind::Grid { columns: 3, gap: Gap::Sm });
+        let group = t.add("editor-frame-group", Some(&body), Kind::Stack(Gap::Sm));
+        let frames = t.add("editor-frames", Some(&group), Kind::Grid { columns: 3, gap: Gap::Sm });
         button(t, "frame-prev", &frames, "Previous", Variant::Secondary, count < 2);
         t.text("frame-label", &frames, format!("Frame {} of {count}", e.frame + 1), Tone::Normal, true);
         button(t, "frame-next", &frames, "Next", Variant::Secondary, count < 2);
-        let edits = t.add("editor-frame-edits", Some(&card), Kind::Grid { columns: 2, gap: Gap::Sm });
+        let edits = t.add("editor-frame-edits", Some(&group), Kind::Grid { columns: 2, gap: Gap::Sm });
         button(t, "frame-dup", &edits, "Duplicate frame", Variant::Secondary, count >= crate::pack::MAX_FRAMES);
         button(t, "frame-del", &edits, "Delete frame", Variant::Secondary, count < 2);
-        t.add("editor-fps", Some(&card), Kind::Slider {
+        t.add("editor-fps", Some(&group), Kind::Slider {
             label: "Speed (frames per second)".into(),
             min: 1.0,
             max: crate::pack::MAX_FPS as f64,
             step: 1.0,
             value: e.anim.fps as f64,
         });
-        let actions = t.add("editor-actions", Some(&card), Kind::Grid { columns: if e.dirty { 3 } else { 2 }, gap: Gap::Sm });
+        let actions = t.add("editor-actions", Some(&body), Kind::Grid { columns: if e.dirty { 3 } else { 2 }, gap: Gap::Sm });
         button(t, "editor-play", &actions, "Play on the matrix", Variant::Secondary, !self.link.is_open());
         button(t, "editor-save", &actions, "Save to My pack", Variant::Primary, false);
         if e.dirty {
@@ -2036,6 +2055,22 @@ mod tests {
         assert!(!disabled(&app, "firmware:upload"), "upload again is offered");
         assert!(!has(&app, "upload-unknown"), "the port took our firmware, so it is not asked about again");
         crate::ui::validate(&app.render()).unwrap();
+    }
+
+    #[test]
+    fn a_healthy_board_sits_under_the_live_matrix_and_a_missing_one_leads() {
+        let parent = |app: &App| app.render().into_iter().find(|n| n.id == "device-card").and_then(|n| n.parent);
+        let (mut app, mut host) = on_device_tab("esp32c3", wire::Chip::Esp32c3);
+        app.close_test();
+        app.setup = None;
+        app.tick(&mut host, 100);
+        assert_eq!(parent(&app).as_deref(), Some("live"));
+        app.on_ui_event(&mut host, "tabs", Event::Selected("animations".into()));
+        assert_eq!(parent(&app), None, "no device card on Animations");
+
+        let (app, _host) = running();
+        assert!(!app.link.is_open());
+        assert_eq!(parent(&app).as_deref(), Some("page"));
     }
 
     #[test]
