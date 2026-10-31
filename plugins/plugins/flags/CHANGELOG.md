@@ -2,14 +2,21 @@
 
 The release workflow moves `## [Unreleased]` into the new version's section. Add each change there.
 
-### Changed
-- The Live tab leads with the matrix, with what iRacing shows beside it. The Device card moves below
-  it while the board is fine, and comes back above the tabs when the board is missing or needs an
-  update. The animation editor groups its controls: painting, frames and speed, then save.
-
 ## [Unreleased]
 
-## [1.0.0-beta.1] - 2026-10-28
+### Changed
+- The Live tab leads with the matrix. Beside it are what the sim shows, what the matrix plays and
+  the flag player. The Device card stays under it, whether the board is fine, missing or needs an
+  update, so it no longer jumps. The header says only **Connected**; the card names the chip and the
+  firmware.
+- The Animations tab puts playback and the flags you allow on the left, and the pack and the editor
+  on the right. The animation editor groups its controls: painting, frames and speed, then save.
+- **Detect board** only says which chip the board has. A matching chip no longer counts as a yes
+  for the upload, because a button box can carry the same chip: the Upload step asks with a
+  **Yes, COM… is my matrix board** button, and says that Detect board restarts the board.
+- A matrix test that paused after two minutes goes on from the screen it was on.
+- The Test step says in one line what it is for. Live names the sim PitCrew reads instead of always
+  saying iRacing.
 
 ### Added
 - A safer upload. When nothing on the port answers as PitFlag, the Upload step asks whether that
@@ -20,6 +27,12 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
   right-click to turn a cell off, fill or clear the frame, and change a color or add one (up to 16).
   These changes count as unsaved edits and come back after a restart like the others.
 - Built for plugin API 2 (`pitcrew:plugin@2`).
+- When Windows gives the matrix a new COM port and PitFlag answers there on the board you set up,
+  the setup offers **Use COM…** to take the port in one click. A set-up matrix can always leave the
+  setup with **Cancel**, and only a new port opens the setup again.
+- Fill, Clear and Delete frame in the editor can be undone once. **Discard changes** asks before it
+  throws the changes away. **Play on the matrix** says why it is off when the board is not
+  connected.
 - An upload that is still running when the plugin restarts comes back on the Upload step with its
   progress, and the port stays PitCrew's until it ends. Changing the port mid-upload no longer
   takes the old port back early, and the Board step locks the port and board while PitCrew looks at
@@ -37,19 +50,6 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
 - Brightness is on the device card. After a save to My pack, the pack picker is right under the
   message. Live names the flag and the animation in plain words, and keeps drawing the preview when
   the board is unplugged.
-- The flag on an 8×8 matrix over PitFlag wire v2, for every sim PitCrew reads.
-- Matrix settings (type, pins, color order, zigzag, mirror, rotate, current limit). The board keeps
-  them, so a turned image is fixed without a new upload.
-- The matrix test in the setup's Test step: six fixed screens that show if the color order, the wiring and
-  the brightness are right, and which setting to change.
-- LED color correction (on by default): the colors sent to a WS2812B lose some green and blue, so the
-  yellow flag is not lime. The screen keeps the pack's colors.
-- The standby screen: outside a race (no sim, or not in the car) the matrix plays the pack's
-  `standby` animation. "Animate outside a race" turns it off.
-- The link sends the whole state again every second, and writes one burst per tick, so a lost
-  packet heals.
-- A board with PitFlag 1.x firmware is named, with its version, and asks for the new firmware.
-- The Classic pack: 15 animations and the flag mapping.
 - The Flags screen. Until a device is set up, it shows only the setup: Board (port and board type),
   Matrix (type, pins, current limit), Upload (checks the
   settings, then writes the firmware) and Test (the matrix test). **Finish setup** unlocks only on
@@ -98,5 +98,25 @@ The release workflow moves `## [Unreleased]` into the new version's section. Add
   it. No button to hold, no Arduino IDE.
 - **Detect board** in the setup asks the board which chip it is, and says which Board to pick.
   The step also names the port's USB adapter.
-- Needs PitCrew with plugin API 1.2 (`content.read-own`), to remember the setup and the flags that
-  are off.
+
+## [1.0.0-beta.1] - 2026-10-28
+
+### Added
+- The flag on an 8×8 matrix over PitFlag wire v2, for every sim PitCrew reads.
+- Matrix settings (type, pins, color order, zigzag, mirror, rotate, current limit). The board keeps
+  them, so a turned image is fixed without a new upload.
+- The matrix test on the Device tab: six fixed screens that show if the color order, the wiring and
+  the brightness are right, and which setting to change.
+- LED color correction (on by default): the colors sent to a WS2812B lose some green and blue, so the
+  yellow flag is not lime. The screen keeps the pack's colors.
+- The standby screen: outside a race (no sim, or not in the car) the matrix plays the pack's
+  `standby` animation. "Animate outside a race" turns it off.
+- The link sends the whole state again every second, and writes one burst per tick, so a lost
+  packet heals.
+- A board with PitFlag 1.x firmware is named, with its version, and asks for the new firmware.
+- The Classic pack: 15 animations and the flag mapping.
+- The Flags screen with the Live, Animations and Device tabs.
+- The animation editor, which saves to My pack.
+- The PitFlag 2.1.0 firmware for WS2812B and MAX7219 matrices: one prebuilt image each for the
+  ATmega328P, ATmega168, ATmega32U4 and ESP32. It shows a boot animation until PitCrew talks, and
+  redraws only when the serial line is quiet.

@@ -197,7 +197,28 @@ struct Editor {
     frame: usize,
     /// The editor holds changes that are not saved.
     dirty: bool,
+    /// The frames before the last Fill, Clear or Delete frame, until another edit.
+    undo: Option<Undo>,
 }
+
+struct Undo {
+    frames: Vec<[u8; 64]>,
+    frame: usize,
+    label: &'static str,
+}
+
+impl Editor {
+    fn open(anim: Animation, dirty: bool) -> Editor {
+        Editor { anim, frame: 0, dirty, undo: None }
+    }
+
+    fn keep_undo(&mut self, label: &'static str) {
+        self.undo = Some(Undo { frames: self.anim.frames.clone(), frame: self.frame, label });
+    }
+}
+
+/// What the Test step and the standalone test say they are for.
+const TEST_DESCRIPTION: &str = "Check each screen on the matrix. If one looks wrong, change the setting beside it: the board applies it at once.";
 
 pub struct App {
     settings: Settings,
@@ -241,11 +262,16 @@ pub struct App {
     fw_silent: bool,
     /// An upload to the current port finished well, so the port is the driver's board.
     wrote_port: bool,
-    /// The driver said the port that gives no PitFlag answer is their matrix board, or Detect board
-    /// found the chip picked in Board on it. Upload waits for one of the two.
+    /// The driver said the port that gives no PitFlag answer is their matrix board. Upload waits for it.
     port_confirmed: bool,
     /// The matrix test runs on its own, opened from the device card rather than inside the setup.
     test_only: bool,
+    /// The test screen that was on when the test paused, so Start picks up there.
+    test_paused: Option<usize>,
+    /// Discard changes was pressed once; the editor asks before it throws the changes away.
+    confirm_revert: bool,
+    /// The sim PitCrew reads, as `session-info` names it.
+    sim: String,
     /// What the port's USB ids say.
     port_info: Option<BoardInfo>,
     now: u64,
@@ -294,6 +320,9 @@ impl App {
             wrote_port: false,
             port_confirmed: false,
             test_only: false,
+            test_paused: None,
+            confirm_revert: false,
+            sim: String::new(),
             port_info,
             now: 0,
             last_invalidate: 0,
@@ -304,7 +333,7 @@ impl App {
                 app.open_setup(step);
             }
             if let Some(anim) = draft {
-                app.editor = Some(Editor { anim, frame: 0, dirty: true });
+                app.editor = Some(Editor::open(anim, true));
                 app.save_note = Some((StatusLevel::Idle, "These are the changes you had not saved.".into()));
             }
             if let Some(job) = job {
@@ -321,6 +350,21 @@ impl App {
     pub fn on_session(&mut self, connected: bool, in_car: bool) {
         self.connected = connected;
         self.in_car = in_car;
+    }
+
+    pub fn set_sim(&mut self, sim: &str) {
+        self.sim = sim.to_string();
+    }
+
+    /// The sim's name for the Live card: "iRacing shows: …".
+    fn sim_label(&self) -> &'static str {
+        match self.sim.as_str() {
+            "iracing" => "iRacing",
+            "assetto-corsa" => "Assetto Corsa",
+            "assetto-corsa-evo" => "Assetto Corsa EVO",
+            "replay" => "The replay",
+            _ => "The sim",
+        }
     }
 
     pub fn settings_changed(&mut self, host: &mut dyn Host) {
@@ -346,7 +390,7 @@ impl App {
         if let Some(i) = self.matrix_test {
             self.show_matrix_test(i);
         }
-        if !self.configured() && self.setup.is_none() {
+        if port_changed && !self.configured() && self.setup.is_none() {
             self.open_setup(Step::Board);
         }
         host.invalidate_ui();
@@ -379,7 +423,7 @@ impl App {
         }
         // The test screen timed out, or another test took its place.
         if self.matrix_test.is_some() && !(source == Source::Test && name.starts_with(matrix_test::NAME_PREFIX)) {
-            self.matrix_test = None;
+            self.test_paused = self.matrix_test.take();
             host.invalidate_ui();
         }
         let changed = frame != self.shown_frame || name != self.shown_name;
@@ -498,9 +542,6 @@ impl App {
             }
             (None, false) => {
                 let (level, text) = self.probe_result(job.board.as_ref());
-                if level == StatusLevel::Ok {
-                    self.port_confirmed = true;
-                }
                 (level, None, text)
             }
         };
@@ -511,7 +552,7 @@ impl App {
         let picked = Board::from_id(&self.settings.board);
         match found.and_then(|b| b.chip.as_deref()).map(|c| (c, firmware::board_for_chip(c))) {
             Some((_, Some(b))) if b == picked => {
-                (StatusLevel::Ok, format!("This board is an {}, the board picked in Board.", b.chip().label()))
+                (StatusLevel::Ok, format!("This is an {}, which matches the board you picked.", b.chip().label()))
             }
             Some((_, Some(b))) => (
                 StatusLevel::Warning,
@@ -542,6 +583,25 @@ impl App {
         self.prefs.device.as_ref().is_some_and(|d| self.settings.port.as_deref() == Some(d.port.as_str()))
     }
 
+    /// The board a finished setup was for answers on another port, as when Windows numbers it anew.
+    fn moved_device(&self) -> Option<&Device> {
+        self.prefs.device.as_ref().filter(|d| !self.configured() && d.board == self.settings.board && self.board_ready())
+    }
+
+    /// Takes the port the set-up board answers on now, without walking the setup again.
+    fn adopt_port(&mut self, host: &mut dyn Host) {
+        let Some(port) = self.settings.port.clone() else { return };
+        if self.moved_device().is_none() || self.fw_running {
+            return;
+        }
+        if let Some(d) = self.prefs.device.as_mut() {
+            d.port = port;
+        }
+        self.save_prefs(host);
+        self.close_test();
+        self.tab = "live".into();
+    }
+
     fn save_prefs(&mut self, host: &mut dyn Host) {
         if let Err(e) = host.content_write_own(PREFS_FILE, &self.prefs.to_bytes()) {
             host.set_status(StatusLevel::Warning, &format!("Could not save the Flags preferences: {e}"));
@@ -567,14 +627,18 @@ impl App {
         self.fw_title = None;
         self.fw_landed_at = None;
         self.fw_silent = false;
+        self.test_paused = None;
         if step == Step::Test {
             self.start_test();
         }
     }
 
+    /// Starts the test where it paused, or on its first screen.
     fn start_test(&mut self) {
-        if let Some(&first) = self.test_steps().first() {
-            self.show_matrix_test(first);
+        let steps = self.test_steps();
+        let paused = self.test_paused.take().filter(|i| steps.contains(i));
+        if let Some(i) = paused.or_else(|| steps.first().copied()) {
+            self.show_matrix_test(i);
         }
     }
 
@@ -631,10 +695,6 @@ impl App {
         match self.setup {
             Some(step) => self.render_setup(&mut t, &page, step),
             None => {
-                let attention = self.device_needs_attention();
-                if attention {
-                    self.render_device_bar(&mut t, &page);
-                }
                 let tabs = t.add("tabs", Some(&page), Kind::Tabs { selected: self.tab.clone() });
                 for (id, label) in [("live", "Live"), ("animations", "Animations")] {
                     t.add(id, Some(&tabs), Kind::Tab(label.into()));
@@ -643,21 +703,12 @@ impl App {
                     "animations" => self.render_animations(&mut t),
                     _ => {
                         self.render_live(&mut t);
-                        if !attention {
-                            self.render_device_bar(&mut t, "live");
-                        }
+                        self.render_device_bar(&mut t, "live");
                     }
                 }
             }
         }
         t.nodes
-    }
-
-    /// The board is missing, unhappy or on old firmware: its card goes above the tabs.
-    fn device_needs_attention(&self) -> bool {
-        !self.link.is_open()
-            || self.link.status().is_some_and(|(l, _)| *l != StatusLevel::Ok)
-            || self.link.hello().is_some_and(|h| h.firmware < firmware::VERSION)
     }
 
     fn render_device_bar(&self, t: &mut Tree, parent: &str) {
@@ -674,7 +725,10 @@ impl App {
         };
         t.text("device-about", &card, about, Tone::Muted, true);
         let old = self.link.hello().is_some_and(|h| h.firmware < firmware::VERSION);
-        if !self.link.is_open() && !old {
+        let moved_from = self.prefs.device.as_ref().filter(|_| !self.configured()).map(|d| d.port.clone());
+        if let Some(old_port) = &moved_from {
+            t.text("device-hint", &card, format!("The matrix was set up on {old_port}. Pick {old_port} again below, or set up this port."), Tone::Normal, false);
+        } else if !self.link.is_open() && !old {
             t.text("device-hint", &card, "Check the USB cable. If you changed the board, set it up again.", Tone::Muted, false);
         }
         let row = t.add("device-actions", Some(&card), Kind::Grid { columns: if old { 3 } else { 2 }, gap: Gap::Sm });
@@ -684,18 +738,25 @@ impl App {
         }
         t.add("device:test", Some(&row), Kind::Button { label: "Test the matrix".into(), variant: Variant::Secondary, icon: Some("lightbulb".into()), disabled: false });
         t.add("device:setup", Some(&row), Kind::Button { label: "Set up again".into(), variant: Variant::Secondary, icon: Some("usb".into()), disabled: false });
-        t.add("device-settings", Some(&card), Kind::SettingsForm(vec!["brightness".into()]));
+        let keys = if moved_from.is_some() { vec!["port".into(), "brightness".into()] } else { vec!["brightness".into()] };
+        t.add("device-settings", Some(&card), Kind::SettingsForm(keys));
     }
 
     fn render_setup(&self, t: &mut Tree, page: &str, step: Step) {
         if self.test_only {
             let card = t.add("setup-card", Some(page), Kind::Card {
                 title: Some("Test the matrix".into()),
-                description: Some("Compare the matrix with each screen. Change a setting while the screen shows and the board applies it at once.".into()),
+                description: Some(TEST_DESCRIPTION.into()),
             });
             self.render_step_test(t, &card);
             t.add("setup:done", Some(page), Kind::Button { label: "Done".into(), variant: Variant::Primary, icon: None, disabled: false });
             return;
+        }
+        if let (Some(d), Some(port)) = (self.moved_device(), self.settings.port.as_deref()) {
+            let card = t.add("moved-card", Some(page), Kind::Card { title: Some(format!("Your matrix answers on {port}")), description: None });
+            let chip = Board::from_id(&d.board).chip().label();
+            t.text("moved-text", &card, format!("This is the {chip} you set up on {}. Use {port} and skip the setup.", d.port), Tone::Normal, false);
+            t.add("setup:adopt", Some(&card), Kind::Button { label: format!("Use {port}"), variant: Variant::Primary, icon: Some("usb".into()), disabled: self.fw_running });
         }
         let n = Step::ALL.len();
         let labels = Step::ALL.iter().map(|s| s.label()).collect::<Vec<_>>().join(" · ");
@@ -706,8 +767,8 @@ impl App {
         let description = match step {
             Step::Board => "Plug the board into a USB port, then pick its port and the board type.",
             Step::Matrix => "Which matrix is wired to the board, on which pins, and how much current it may draw. Colors and rotation come in Test, where you can see them.",
-            Step::Upload => "PitCrew checks your settings, then writes the PitFlag firmware to the board.",
-            Step::Test => "Compare the matrix with each screen. Change a setting while the screen shows and the board applies it at once.",
+            Step::Upload => "PitCrew checks your settings, then writes PitFlag, the firmware that draws the flags, to the board.",
+            Step::Test => TEST_DESCRIPTION,
         };
         let card = t.add("setup-card", Some(page), Kind::Card { title: Some(step.label().into()), description: Some(description.into()) });
         match step {
@@ -716,9 +777,10 @@ impl App {
             Step::Upload => self.render_step_upload(t, &card),
             Step::Test => self.render_step_test(t, &card),
         }
-        let nav = t.add("setup-nav", Some(page), Kind::Grid { columns: if self.configured() { 3 } else { 2 }, gap: Gap::Sm });
+        let can_cancel = self.prefs.device.is_some();
+        let nav = t.add("setup-nav", Some(page), Kind::Grid { columns: if can_cancel { 3 } else { 2 }, gap: Gap::Sm });
         t.add("setup:back", Some(&nav), Kind::Button { label: "Back".into(), variant: Variant::Secondary, icon: None, disabled: step == Step::Board || self.fw_running });
-        if self.configured() {
+        if can_cancel {
             t.add("setup:cancel", Some(&nav), Kind::Button { label: "Cancel".into(), variant: Variant::Secondary, icon: None, disabled: self.fw_running });
         }
         if step == Step::Test {
@@ -817,9 +879,13 @@ impl App {
                 text: format!("Nothing on {port}{usb} answers as PitFlag yet. Uploading replaces whatever program is on it. If this port is a button box, a wheel or another sim device, go back and pick another port."),
                 level: StatusLevel::Warning,
             });
-            t.add("upload:confirm", Some(card), Kind::Switch { label: format!("{port} is my matrix board"), checked: self.port_confirmed, disabled: false });
-            if !self.port_confirmed {
-                t.add("firmware:probe", Some(card), Kind::Button { label: "Detect board".into(), variant: Variant::Secondary, icon: Some("cpu".into()), disabled: false });
+            if self.port_confirmed {
+                t.add("upload-confirmed", Some(card), Kind::Badge { text: format!("You said {port} is your matrix board."), level: StatusLevel::Ok });
+            } else {
+                t.text("upload-detect-hint", card, "Not sure? Detect board asks the board which chip it is. This restarts the board.", Tone::Muted, false);
+                let row = t.add("upload-confirm-row", Some(card), Kind::Grid { columns: 2, gap: Gap::Sm });
+                t.add("upload:confirm", Some(&row), Kind::Button { label: format!("Yes, {port} is my matrix board"), variant: Variant::Secondary, icon: None, disabled: false });
+                t.add("firmware:probe", Some(&row), Kind::Button { label: "Detect board".into(), variant: Variant::Secondary, icon: Some("cpu".into()), disabled: false });
             }
         }
         let failed = matches!(&self.fw_result, Some((StatusLevel::Error, _)));
@@ -882,8 +948,13 @@ impl App {
         }
         let steps = self.test_steps();
         let Some(i) = self.matrix_test else {
-            t.text("test-stopped", card, "The test paused after two minutes. Start it again when you are ready.", Tone::Muted, false);
-            t.button("matrix-test:start", card, "Start the test again", Variant::Primary);
+            let at = self.test_paused.and_then(|p| steps.iter().position(|&s| s == p));
+            let (text, label) = match at {
+                Some(pos) => (format!("The test paused after two minutes on screen {} of {}. Go on when you are ready.", pos + 1, steps.len()), "Go on with the test"),
+                None => ("The test paused after two minutes. Start it again when you are ready.".to_string(), "Start the test again"),
+            };
+            t.text("test-stopped", card, text, Tone::Muted, false);
+            t.button("matrix-test:start", card, label, Variant::Primary);
             return;
         };
         let pos = steps.iter().position(|&s| s == i).unwrap_or(0);
@@ -926,8 +997,9 @@ impl App {
             (Some(s), true, true) => capitalized(&s.describe()),
             (None, true, true) => "Waiting for the first flag".to_string(),
         };
-        let lines = t.add("now-lines", Some(&row), Kind::Stack(Gap::Sm));
-        t.text("now", &lines, format!("iRacing shows: {signal}"), Tone::Normal, false);
+        let lines = t.add("now-lines", Some(&row), Kind::Stack(Gap::Md));
+        let status = t.add("now-status", Some(&lines), Kind::Stack(Gap::Sm));
+        t.text("now", &status, format!("{} shows: {signal}", self.sim_label()), Tone::Normal, false);
         let why = match self.shown_source {
             Source::Rule(_) => String::new(),
             Source::Test => ", a test".into(),
@@ -939,13 +1011,13 @@ impl App {
         } else {
             format!("The matrix would show: {}{why}. The board isn't connected.", anim_label(&self.shown_name))
         };
-        t.text("now-showing", &lines, showing, Tone::Muted, false);
+        t.text("now-showing", &status, showing, Tone::Muted, false);
 
-        let card = t.add("test-card", Some("live"), Kind::Card {
-            title: Some("Play a flag".into()),
-            description: Some("Plays on the matrix even with no sim running, including flags you turned off.".into()),
-        });
-        let row = t.add("tests", Some(&card), Kind::Grid { columns: 3, gap: Gap::Sm });
+        t.add("now-sep", Some(&lines), Kind::Separator);
+        let play = t.add("now-play", Some(&lines), Kind::Stack(Gap::Sm));
+        t.text("play-heading", &play, "Play a flag", Tone::Normal, false);
+        t.text("play-note", &play, "Plays on the matrix even with no sim running, including flags you turned off.", Tone::Muted, false);
+        let row = t.add("tests", Some(&play), Kind::Grid { columns: 3, gap: Gap::Sm });
         t.add("play-pick", Some(&row), Kind::Select {
             label: "Flag".into(),
             options: TESTS.iter().map(|n| (n.to_string(), flag_label(n).to_string())).collect(),
@@ -957,9 +1029,13 @@ impl App {
 
     fn render_animations(&self, t: &mut Tree) {
         let grid = t.add("anim-grid", Some("animations"), Kind::Grid { columns: 2, gap: Gap::Md });
-        let card = t.add("flags-card", Some(&grid), Kind::Card {
+        let left = t.add("anim-left", Some(&grid), Kind::Stack(Gap::Md));
+        let right = t.add("anim-right", Some(&grid), Kind::Stack(Gap::Md));
+        let card = t.add("behavior-card", Some(&left), Kind::Card { title: Some("Playback".into()), description: None });
+        t.add("behavior", Some(&card), Kind::SettingsForm(PLAYBACK_SETTINGS.iter().map(|s| s.to_string()).collect()));
+        let card = t.add("flags-card", Some(&left), Kind::Card {
             title: Some("Flags on the matrix".into()),
-            description: Some("Turn a flag off and the matrix stays dark while iRacing shows it.".into()),
+            description: Some("Turn a flag off and the matrix stays dark while the sim shows it.".into()),
         });
         let groups = t.add("flag-groups", Some(&card), Kind::Grid { columns: 2, gap: Gap::Lg });
         for pair in FLAG_GROUPS.chunks(2) {
@@ -972,10 +1048,7 @@ impl App {
                 }
             }
         }
-        let card = t.add("behavior-card", Some(&grid), Kind::Card { title: Some("Playback".into()), description: None });
-        t.add("behavior", Some(&card), Kind::SettingsForm(PLAYBACK_SETTINGS.iter().map(|s| s.to_string()).collect()));
-
-        let card = t.add("anims-card", Some(&grid), Kind::Card {
+        let card = t.add("anims-card", Some(&right), Kind::Card {
             title: Some(self.pack.name.clone()),
             description: Some("Pick an animation to edit it.".into()),
         });
@@ -989,7 +1062,7 @@ impl App {
             },
             selectable: true,
         });
-        let card = t.add("editor-card", Some(&grid), Kind::Card {
+        let card = t.add("editor-card", Some(&right), Kind::Card {
             title: Some(self.editor.as_ref().map_or("Editor".into(), |e| {
                 if e.dirty { format!("Editing {} (not saved)", anim_label(&e.anim.id)) } else { format!("Editing {}", anim_label(&e.anim.id)) }
             })),
@@ -1037,11 +1110,28 @@ impl App {
             step: 1.0,
             value: e.anim.fps as f64,
         });
-        let actions = t.add("editor-actions", Some(&body), Kind::Grid { columns: if e.dirty { 3 } else { 2 }, gap: Gap::Sm });
+        if let Some(u) = &e.undo {
+            button(t, "editor-undo", &group, u.label, Variant::Secondary, false);
+        }
+        let revert = e.dirty && !self.confirm_revert;
+        let actions = t.add("editor-actions", Some(&body), Kind::Grid { columns: if revert { 3 } else { 2 }, gap: Gap::Sm });
         button(t, "editor-play", &actions, "Play on the matrix", Variant::Secondary, !self.link.is_open());
         button(t, "editor-save", &actions, "Save to My pack", Variant::Primary, false);
-        if e.dirty {
+        if revert {
             button(t, "editor-revert", &actions, "Discard changes", Variant::Destructive, false);
+        }
+        if !self.link.is_open() {
+            t.text("editor-play-note", &body, "Connect the board to play this on the matrix.", Tone::Muted, false);
+        }
+        if e.dirty && self.confirm_revert {
+            t.add("editor-revert-ask", Some(&body), Kind::Alert {
+                title: None,
+                text: format!("Throw away every change to {} since the last save?", anim_label(&e.anim.id)),
+                level: StatusLevel::Warning,
+            });
+            let row = t.add("editor-revert-row", Some(&body), Kind::Grid { columns: 2, gap: Gap::Sm });
+            button(t, "editor:revert-yes", &row, "Discard changes", Variant::Destructive, false);
+            button(t, "editor:revert-no", &row, "Keep editing", Variant::Secondary, false);
         }
         if let Some((level, text)) = &self.save_note {
             t.add("editor-saved", Some(&card), Kind::Alert { title: None, text: text.clone(), level: *level });
@@ -1097,7 +1187,8 @@ impl App {
                 self.test_only = true;
             }
             ("setup:done", Event::Pressed) => self.close_test(),
-            ("upload:confirm", Event::Toggled(on)) => self.port_confirmed = on,
+            ("setup:adopt", Event::Pressed) => self.adopt_port(host),
+            ("upload:confirm", Event::Pressed) => self.port_confirmed = true,
             ("setup:next", Event::Pressed) => {
                 if let Some(step) = self.setup.filter(|s| self.step_done(*s) && !self.fw_running) {
                     self.open_setup(step.next());
@@ -1114,7 +1205,7 @@ impl App {
                 }
             }
             ("setup:cancel", Event::Pressed) => {
-                if self.configured() && !self.fw_running {
+                if self.prefs.device.is_some() && !self.fw_running {
                     self.close_test();
                 }
             }
@@ -1144,10 +1235,12 @@ impl App {
                 if x < 8 && y < 8 && (color as usize) < e.anim.colors.len() {
                     e.anim.frames[e.frame][y as usize * 8 + x as usize] = color;
                     e.dirty = true;
+                    e.undo = None;
                 }
             }),
             ("editor", Event::Filled(color)) => self.with_editor(|e| {
                 if (color as usize) < e.anim.colors.len() {
+                    e.keep_undo(if color == 0 { "Undo clear" } else { "Undo fill" });
                     e.anim.frames[e.frame] = [color; 64];
                     e.dirty = true;
                 }
@@ -1158,6 +1251,7 @@ impl App {
                     let next: Vec<u32> = colors.iter().enumerate().map(|(i, &c)| if i == 0 { old[0] } else { c & 0xFF_FF_FF }).collect();
                     e.dirty |= next != *old;
                     e.anim.colors = next;
+                    e.undo = None;
                 }
             }),
             ("frame-prev", Event::Pressed) => self.with_editor(|e| e.frame = (e.frame + e.anim.frames.len() - 1) % e.anim.frames.len()),
@@ -1168,24 +1262,36 @@ impl App {
                     e.anim.frames.insert(e.frame + 1, f);
                     e.frame += 1;
                     e.dirty = true;
+                    e.undo = None;
                 }
             }),
             ("frame-del", Event::Pressed) => self.with_editor(|e| {
                 if e.anim.frames.len() > 1 {
+                    e.keep_undo("Undo delete frame");
                     e.anim.frames.remove(e.frame);
                     e.frame = e.frame.min(e.anim.frames.len() - 1);
                     e.dirty = true;
                 }
             }),
-            ("editor-revert", Event::Pressed) => {
+            ("editor-revert", Event::Pressed) => self.confirm_revert = self.editor.as_ref().is_some_and(|e| e.dirty),
+            ("editor:revert-no", Event::Pressed) => self.confirm_revert = false,
+            ("editor:revert-yes", Event::Pressed) => {
                 if let Some(id) = self.editor.as_ref().map(|e| e.anim.id.clone()) {
                     self.open_editor(&id);
                 }
             }
+            ("editor-undo", Event::Pressed) => self.with_editor(|e| {
+                if let Some(u) = e.undo.take() {
+                    e.anim.frames = u.frames;
+                    e.frame = u.frame;
+                    e.dirty = true;
+                }
+            }),
             ("editor-fps", Event::Number(v)) => self.with_editor(|e| {
                 let fps = (v.round() as u32).clamp(1, crate::pack::MAX_FPS);
                 e.dirty |= fps != e.anim.fps;
                 e.anim.fps = fps;
+                e.undo = None;
             }),
             ("editor-play", Event::Pressed) => {
                 if let (Some(e), true) = (&self.editor, self.link.is_open()) {
@@ -1202,6 +1308,9 @@ impl App {
         }
         self.remember_step(host);
         let editor_event = ["editor", "frame-", "anim-table"].iter().any(|p| node.starts_with(p));
+        if !self.editor.as_ref().is_some_and(|e| e.dirty) {
+            self.confirm_revert = false;
+        }
         if editor_event {
             self.remember_draft(host);
         }
@@ -1218,8 +1327,9 @@ impl App {
 
     fn open_editor(&mut self, name: &str) {
         if let Some(a) = self.pack.get(name) {
-            self.editor = Some(Editor { anim: a.clone(), frame: 0, dirty: false });
+            self.editor = Some(Editor::open(a.clone(), false));
             self.save_note = None;
+            self.confirm_revert = false;
         }
         self.pending_edit = None;
     }
@@ -1274,7 +1384,7 @@ impl App {
             }
             self.save_note = Some((StatusLevel::Ok, format!("Saved {name}. The matrix uses it now.")));
         } else {
-            self.save_note = Some((StatusLevel::Ok, format!("Saved {name} to My pack. Pick My pack below to show it on the matrix.")));
+            self.save_note = Some((StatusLevel::Ok, format!("Saved {name} to My pack, where your own animations live. Pick My pack below to show it on the matrix.")));
         }
     }
 }
@@ -1638,7 +1748,8 @@ mod tests {
         assert!(disabled(&app, "firmware:upload"));
         app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
         assert!(host.fw_calls.is_empty());
-        app.on_ui_event(&mut host, "upload:confirm", Event::Toggled(true));
+        app.on_ui_event(&mut host, "upload:confirm", Event::Pressed);
+        assert!(has(&app, "upload-confirmed"));
         assert!(!disabled(&app, "firmware:upload"));
         crate::ui::validate(&app.render()).unwrap();
         app.on_ui_event(&mut host, "firmware:upload", Event::Pressed);
@@ -1662,6 +1773,7 @@ mod tests {
         app.on_ui_event(&mut host, "editor-save", Event::Pressed);
         app.on_ui_event(&mut host, "editor", Event::Painted { x: 1, y: 0, color: 1 });
         app.on_ui_event(&mut host, "editor-revert", Event::Pressed);
+        app.on_ui_event(&mut host, "editor:revert-yes", Event::Pressed);
         assert!(App::init(&mut host).unwrap().editor.is_none());
     }
 
@@ -1671,10 +1783,13 @@ mod tests {
         app.on_ui_event(&mut host, "device:test", Event::Pressed);
         app.tick(&mut host, 40);
         assert_eq!(app.matrix_test, Some(0));
+        app.on_ui_event(&mut host, "matrix-test:next", Event::Pressed);
         app.tick(&mut host, MATRIX_TEST_MS + 100);
         assert_eq!(app.matrix_test, None);
         assert_eq!(app.shown_name, STANDBY);
         assert!(has(&app, "matrix-test:start"));
+        app.on_ui_event(&mut host, "matrix-test:start", Event::Pressed);
+        assert_eq!(app.matrix_test, Some(app.test_steps()[1]), "it goes on where it paused");
     }
 
     #[test]
@@ -1758,6 +1873,28 @@ mod tests {
         host.settings = r#"{"port":"COM9","board":"atmega168"}"#.into();
         app.settings_changed(&mut host);
         assert_eq!(app.setup, Some(Step::Board));
+        assert!(has(&app, "setup:cancel"), "a set-up matrix can always go back");
+        app.on_ui_event(&mut host, "setup:cancel", Event::Pressed);
+        assert_eq!(app.setup, None);
+        assert!(app.render().iter().any(|n| matches!(&n.kind, Kind::Text { text, .. } if text.contains("set up on COM4"))));
+        host.settings = r#"{"port":"COM9","board":"atmega168","brightness":80}"#.into();
+        app.settings_changed(&mut host);
+        assert_eq!(app.setup, None, "only a port change opens the setup");
+    }
+
+    #[test]
+    fn the_set_up_board_on_a_renumbered_port_is_taken_in_one_press() {
+        let (mut app, mut host) = running();
+        host.settings = r#"{"port":"COM9","board":"atmega168"}"#.into();
+        app.settings_changed(&mut host);
+        app.tick(&mut host, 0);
+        app.tick(&mut host, 33);
+        assert!(has(&app, "setup:adopt"));
+        crate::ui::validate(&app.render()).unwrap();
+        app.on_ui_event(&mut host, "setup:adopt", Event::Pressed);
+        assert_eq!(app.setup, None);
+        assert!(app.configured());
+        assert_eq!(App::init(&mut host).unwrap().prefs.device.unwrap().port, "COM9");
     }
 
     fn editing(name: &str) -> (App, FakeHost) {
@@ -1803,9 +1940,35 @@ mod tests {
         app.on_ui_event(&mut host, "frame-dup", Event::Pressed);
         assert!(has(&app, "editor-revert"));
         app.on_ui_event(&mut host, "editor-revert", Event::Pressed);
+        assert!(has(&app, "editor-revert-ask") && app.editor.as_ref().unwrap().dirty, "it asks first");
+        app.on_ui_event(&mut host, "editor:revert-no", Event::Pressed);
+        assert!(app.editor.as_ref().unwrap().dirty && !has(&app, "editor-revert-ask"));
+        app.on_ui_event(&mut host, "editor-revert", Event::Pressed);
+        app.on_ui_event(&mut host, "editor:revert-yes", Event::Pressed);
         let e = app.editor.as_ref().unwrap();
         assert_eq!((e.anim.frames.clone(), e.dirty), (before, false));
         assert!(!has(&app, "editor-revert"));
+    }
+
+    #[test]
+    fn fill_clear_and_delete_frame_can_be_undone_once() {
+        let (mut app, mut host) = editing("yellow");
+        let before = app.editor.as_ref().unwrap().anim.frames.clone();
+        app.on_ui_event(&mut host, "editor", Event::Filled(0));
+        assert!(app.render().iter().any(|n| matches!(&n.kind, Kind::Button { label, .. } if label == "Undo clear")));
+        app.on_ui_event(&mut host, "editor-undo", Event::Pressed);
+        assert_eq!(app.editor.as_ref().unwrap().anim.frames, before);
+        assert!(!has(&app, "editor-undo"));
+
+        app.on_ui_event(&mut host, "frame-dup", Event::Pressed);
+        let two = app.editor.as_ref().unwrap().anim.frames.clone();
+        app.on_ui_event(&mut host, "frame-del", Event::Pressed);
+        app.on_ui_event(&mut host, "editor-undo", Event::Pressed);
+        assert_eq!(app.editor.as_ref().unwrap().anim.frames, two);
+
+        app.on_ui_event(&mut host, "editor", Event::Filled(0));
+        app.on_ui_event(&mut host, "editor", Event::Painted { x: 0, y: 0, color: 1 });
+        assert!(!has(&app, "editor-undo"), "a later edit ends the undo");
     }
 
     #[test]
@@ -2058,7 +2221,7 @@ mod tests {
     }
 
     #[test]
-    fn a_healthy_board_sits_under_the_live_matrix_and_a_missing_one_leads() {
+    fn the_device_card_keeps_its_place_under_the_live_matrix() {
         let parent = |app: &App| app.render().into_iter().find(|n| n.id == "device-card").and_then(|n| n.parent);
         let (mut app, mut host) = on_device_tab("esp32c3", wire::Chip::Esp32c3);
         app.close_test();
@@ -2070,7 +2233,7 @@ mod tests {
 
         let (app, _host) = running();
         assert!(!app.link.is_open());
-        assert_eq!(parent(&app).as_deref(), Some("page"));
+        assert_eq!(parent(&app).as_deref(), Some("live"), "a missing board does not move the card");
     }
 
     #[test]
@@ -2110,6 +2273,7 @@ mod tests {
         finish_job(&mut host, None, Some("atmega328p"));
         app.tick(&mut host, 99);
         assert_eq!(app.fw_result.as_ref().map(|r| r.0), Some(StatusLevel::Ok));
+        assert!(!app.port_confirmed, "a matching chip is not a yes: a button box can carry the same chip");
     }
 
     #[test]

@@ -8,11 +8,12 @@ flag displays.
 - **Hardware:** an Arduino Uno or Nano, an ESP32 or an ESP32-C3, with an 8×8 WS2812B panel (colour)
   or a MAX7219 module (one colour), running the PitFlag firmware in [`firmware/`](firmware/).
 - **Screen:** a **Flags** item in the sidebar. Until a device is set up it shows only the setup.
-  After that, a Device card (connection, firmware, brightness, **Test the matrix**, **Set up again**)
-  sits above two tabs:
-  - **Live:** what the matrix shows now, the flag, and a player that works with no sim.
-  - **Animations:** the flags you allow, playback settings, the pack's animations and an editor.
-    **Save to My pack** keeps your changes.
+  After that, two tabs:
+  - **Live:** what the matrix shows now, the flag, a player that works with no sim, and the Device
+    card (connection, firmware, brightness, **Test the matrix**, **Set up again**).
+  - **Animations:** playback settings and the flags you allow, beside the pack's animations and an
+    editor. **Save to My pack** keeps your changes in My pack, your own copy of the animations.
+    Fill, Clear and Delete frame can be undone once, and Discard changes asks first.
 
 ## Test the matrix
 
@@ -21,7 +22,7 @@ orientation screen and a brightness row. A MAX7219 matrix has one color, so it s
 and orientation screens. Each screen says what you must see and shows the setting to change if you
 do not. The board applies a change at once. **Looks right** goes on. **Finish setup** unlocks on the
 last screen, and plays green then checkered. A screen left alone for 2 minutes stops by itself;
-changing a setting counts as a click.
+changing a setting counts as a click. **Go on with the test** picks up on the screen it stopped on.
 
 To test again later, click **Test the matrix** on the Device card. **Done** gives the matrix back
 to the flag.
@@ -31,13 +32,17 @@ Without PitCrew: `pcplugin run plugins/flags --wasm … --port COM4 --press devi
 
 ## Upload the firmware
 
-On the **Device** tab, the **Firmware** card shows the firmware in the plugin and the firmware on
-the board. Set **Board** to the board you have.
+PitFlag is the firmware that draws the flags on the board. The setup's **Upload** step writes it,
+and the Device card offers **Update to PitFlag** when the board runs an older one. Set **Board** to
+the board you have.
 
-Not sure which board it is? Click **Detect board**: PitCrew asks the board and says which one to
-pick. Then click **Upload PitFlag**. PitCrew restarts the board into its bootloader, writes the image
-the plugin carries, checks it and restarts the board. This works for every board in the list, with
-no button to hold and no Arduino IDE (needs PitCrew with plugin API 1.2).
+Not sure which board it is? Click **Detect board**: PitCrew restarts the board, asks it which chip
+it is and says which board to pick. A matching chip does not prove the port is your matrix: a button
+box can carry the same chip. When nothing on the port answers as PitFlag yet, the Upload step asks
+you to say the port is your matrix board before it writes. Then click **Upload PitFlag**. PitCrew
+restarts the board into its bootloader, writes the image the plugin carries, checks it and restarts
+the board. This works for every board in the list, with no button to hold and no Arduino IDE (needs
+PitCrew with plugin API 2).
 
 The matrix settings go to the board at run time. You never compile the firmware for your setup.
 
@@ -59,7 +64,11 @@ esp32c3 --image firmware/dist/pitflag-esp32c3.bin`.
 6. On the **Live** tab, click **Play every flag**. The matrix shows each flag in turn.
 7. On the **Animations** tab, turn off the flags you do not want on the matrix.
 
-To change the board or the port, click **Set up again** on the Device card.
+To change the board or the port, click **Set up again** on the Device card. **Cancel** goes back
+to the matrix you have.
+
+If Windows gives the board a new COM port, pick the new port in the setup. When PitFlag answers there
+on the board you set up, **Use COM…** takes the new port in one click, without the setup.
 
 ## Settings
 

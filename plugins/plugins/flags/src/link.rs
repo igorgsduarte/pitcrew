@@ -68,9 +68,9 @@ pub struct Want<'a> {
     pub config: wire::Config,
 }
 
-fn connected_text(h: &wire::Hello) -> String {
-    let [a, b, c] = h.firmware;
-    format!("Connected · firmware {a}.{b}.{c} · {} · {}×{} {}", h.chip.label(), h.width, h.height, if h.rgb { "RGB" } else { "mono" })
+/// The header pill's text. The device card names the chip and the firmware.
+fn connected_text(_h: &wire::Hello) -> String {
+    "Connected".into()
 }
 
 fn refusal_text(code: wire::AckCode) -> &'static str {
@@ -501,7 +501,7 @@ pub mod tests {
         assert_eq!(kinds(&host), vec![wire::Kind::Brightness, wire::Kind::Palette, wire::Kind::Frame]);
         let (level, text) = host.statuses.last().unwrap();
         assert_eq!(*level, StatusLevel::Ok);
-        assert_eq!(text, "Connected · firmware 2.0.0 · ATmega168 · 8×8 RGB");
+        assert_eq!(text, "Connected");
     }
 
     #[test]

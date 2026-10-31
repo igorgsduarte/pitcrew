@@ -242,7 +242,10 @@ mod wasm {
         }
 
         fn on_session(session: wt::SessionInfo) {
-            with_app(|app, _| app.on_session(session.connected, session.in_car));
+            with_app(|app, _| {
+                app.set_sim(&session.sim);
+                app.on_session(session.connected, session.in_car);
+            });
         }
 
         fn settings_changed() {
