@@ -14,18 +14,22 @@ imaged Windows machine with no preparation.
 
 ## Install
 
-1. Download the `.msi` from the [releases page](https://github.com/igorgsduarte/pitcrew/releases) —
-   the newest build is at the top. (Not `/releases/latest`: that shortcut skips pre-releases, and
+1. Download the `-setup.exe` from the [releases page](https://github.com/igorgsduarte/pitcrew/releases)
+   — the newest build is at the top. (Not `/releases/latest`: that shortcut skips pre-releases, and
    every beta is one, so it stays empty until the first stable build.)
 2. Run it. It shows a license screen — PitCrew's terms and a short privacy notice, condensed onto the
-   one screen Windows' installer can show. The full [license](license.md) and
+   one screen the installer can show. The full [license](license.md) and
    [privacy policy](privacy-policy.md) are always reachable from **Settings → About** once PitCrew is
-   installed. Accepting installs it to `C:\Program Files\PitCrew` and adds a Start-menu entry.
+   installed. Accepting installs it for your Windows user, in `%LOCALAPPDATA%\PitCrew`, and adds a
+   Start-menu entry. It does not ask for administrator rights.
 3. Launch **PitCrew**.
+
+Older PitCrew versions came as an `.msi` installed for every user. The new installer removes that
+one first, and Windows asks your permission for that step, once.
 
 ### Windows will warn you about the installer
 
-The `.msi` is **not code-signed**, so Windows SmartScreen shows *"Windows protected your PC"* and
+The installer is **not code-signed**, so Windows SmartScreen shows *"Windows protected your PC"* and
 hides the Run button behind **More info → Run anyway**.
 
 This is expected and it is not a judgment about the file — it is what Windows shows for any
@@ -62,8 +66,8 @@ Everything PitCrew writes lives under:
 ```
 
 That is your settings, your car/track profiles, the overlay position, the downloaded voice model,
-and the cache of already-spoken audio. It is deliberately **outside** `C:\Program Files`, which
-means:
+and the cache of already-spoken audio. It is deliberately **outside** the folder PitCrew is
+installed in, which means:
 
 - an update never overwrites your settings or makes you download the voice again, and
 - uninstalling PitCrew leaves that folder behind.
@@ -86,9 +90,13 @@ else and an install stops the engineer for a few seconds to start it again.
 - Everything is signed, and a file that is not exactly the one that was signed for is thrown away
   rather than installed. If an update does not start, the engineer you had comes back by itself.
 
-**A new PitCrew itself is still an `.msi`**: download the newer one and run it — it replaces the
-installed version in place, and your settings, profiles and downloaded voice are untouched. What the
-panel updates for you is the engineer and what it says.
+**A new PitCrew itself comes through the same panel.** When you accept the install, PitCrew closes,
+a small progress window installs the new version, and PitCrew opens again. Your settings, profiles
+and downloaded voice are untouched. If your PitCrew came from the old `.msi`, Windows asks your
+permission once, to remove it; after that, updates ask nothing.
+
+You can still download the newest `-setup.exe` from the releases page and run it yourself. It
+replaces the installed version in place.
 
 ## Uninstalling
 

@@ -18,10 +18,112 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+- **The engine can run plugins.** A plugin adds something PitCrew does not do itself, such as a
+  flag display on an LED matrix. It runs apart from the engineer: a plugin that crashes, hangs or
+  uses too much memory is stopped and started again, and after three failures in ten minutes it stays
+  off. The engineer keeps talking in every case. For plugin authors,
+  `pitcrew-engine --headless --plugin-dev <folder>` runs a plugin and reloads it when it changes, and
+  `--safe-mode` starts with no plugins.
+- **Plugins can use USB serial devices.** A plugin opens only the port you pick in its settings, and
+  two plugins never share one. PitCrew closes the port when the plugin stops or fails, so a
+  device such as an LED matrix goes dark instead of freezing on the last frame.
+- **Plugins remember their own choices.** A plugin can read back the files it saved, so the Flags
+  plugin keeps your finished device setup and the flags you turned off between restarts.
+- **Plugin settings are easier to undo and to pick.** Empty a number field to put the setting back
+  to its default (for the Flags plugin, the board's own pin). An animation pack is now picked from
+  a list of the installed packs, by name, so a pack you saved yourself can be chosen.
+- **A device plugged in late shows up.** A plugin's port list looks again when you come back to the
+  window, and has a button to look again now. With no device plugged in, it says so.
+- **Plugin settings use sliders and button rows.** A plugin can ask for a slider, a percent slider or
+  a row of buttons, add a unit and a one-line description, and offer a pin field for a board's
+  GPIO pins.
+- **A plugin's pixel editor has a palette.** Pick a color and paint with it, drag across cells,
+  right-click to turn a cell off, fill or clear the frame, and change a color or add one with the
+  system picker or a hex code.
+- **A plugin's pixel editor works from the keyboard.** Tab into it, move with the arrow keys and
+  paint with Enter or Space; a screen reader names each cell's row, column and color by name.
+- **Plugin screens keep your place with the keyboard.** A button a plugin turns off while it works
+  keeps keyboard focus, and the next step's heading takes focus when a setup moves on. The step
+  forward always sits at the right of its row, a success reads as a success, and a progress bar
+  tells a screen reader only each step and quarter instead of every update.
+- **A plugin's pixel editor announces the brush.** The colors are one group you move through with
+  the arrow keys, the eraser is called the eraser, and a read-only grid names its corner colors.
+- **A firmware upload survives a plugin restart.** If a plugin restarts while PitCrew writes a
+  board for it, the plugin finds the upload still running and shows its progress again, instead
+  of losing track of it while the port stays busy.
+- **A plugin's screen shows which button moves you on.** Its main action is drawn in the app's own
+  accent, so a setup's Next or Upload stands out from Back; a step that is not open yet stays plain. A
+  message's heading sits on its own line. A screen reader hears a plugin's progress
+  and messages as they change, and a read-only pixel grid says what it shows.
+- **A Plugins screen.** The new Plugins item in the rail lists the plugins on this PC. Turn each one
+  on or off and change its settings there; the port setting lists the USB devices plugged in. A
+  plugin that is on and has a screen of its own gets an item in the rail under Plugins, with a dot
+  when it needs your attention. Plugins still arrive by hand for now: the catalogue comes later.
+- **PitCrew uploads firmware to Arduino and ESP32 boards for a plugin.** A plugin that drives a
+  device, such as the Flags plugin, can ask PitCrew to find out which board is on the port and to
+  write the plugin's firmware to it. PitCrew restarts the board into its bootloader by itself, so
+  there is no button to hold and no Arduino IDE to install. It works with the ESP32-C3, the ESP32,
+  the Arduino Uno and Nano, and the Leonardo and Micro. While it writes, it holds the port, and the
+  plugin gets it back when the upload ends.
+- A plugin is no longer stopped for being slow when Windows only paused it to run something else.
+  Only the time the plugin really computes counts against its limit.
+- **A field-of-view calculator for iRacing, Assetto Corsa and Assetto Corsa EVO.** Settings › Display
+  › Field of view works out the correct field of view from your screen size, the distance from your
+  eyes and, on triple screens, the side angle and bezels. Curved screens count their real curve.
+  iRacing gets the horizontal view across all your screens, and PitCrew can write it with the
+  matching monitor values, after you review them and with a backup of each file. Both Assetto Corsa
+  games get the vertical view of one screen, to enter in the game. It also suggests the side angle
+  at which your side screens face you, and draws your rig from above.
+- **A new PitCrew is announced in a window of its own.** When a new version of PitCrew is ready and
+  you are not driving, a dialog shows the version, the download size and a link to what changed.
+  Download, then Restart to update, are still two separate answers, and "Later" puts it back in the
+  corner panel until you next open PitCrew. It never appears while iRacing is running. New
+  engineers, phrases and screens still arrive in the corner panel.
+- **`ire-replay decide --language`.** The replay tool can now speak a recording in any catalog
+  language, numbers included, instead of only in Portuguese. The parity corpus keeps an English
+  record of one race, which the website's radio log reads.
 
 ### Changed
+- **Plugins are built for plugin API 2.** A plugin made for the first plugin API does not load until
+  its author rebuilds it; the Plugins screen says why. The Flags plugin is already rebuilt.
+- **Plugin screens hold up when something goes wrong.** A plugin screen PitCrew can't draw no
+  longer blanks the window: it says so and keeps the plugin's settings usable. A screen that never
+  arrives gets a Try again button instead of waiting forever, and a plugin restarting after an error
+  counts down to the restart. A double click on a plugin's button or action sends it once, and the
+  port list picks up a device as soon as you plug it in.
+- **Plugin screens are easier to scan.** A plugin's tabs sit under its title, its buttons line up in
+  rows, its status lines and switch lists group together, and its tables are denser. On the Plugins
+  screen the status, Open and the switch line up from row to row, and a long plugin name keeps its
+  place at narrow window sizes.
+- **Clearer messages on the Plugins screen and on plugin screens.** Errors say what failed and what
+  to do next, a port in use names the plugin that holds it, and the Plugins screen drops its
+  one-tab bar. It now mentions the rail only when more plugins have a screen than the rail can show.
+- **The curved-monitor correction moved to Settings › Display.** It sits next to the new
+  field-of-view calculator. It works as before; only the place changed.
+- **PitCrew installs for your Windows user, and updates without asking for administrator rights.**
+  The download is now a `-setup.exe` instead of an `.msi`, and it installs into your own user folder.
+  When you accept a new PitCrew from the update panel, it closes, shows a small progress window and
+  opens again. The first time, if your PitCrew came from the old `.msi`, Windows asks your permission
+  once to remove it. Your settings, profiles and voices stay where they are.
+- **Plugins are published next to PitCrew.** The releases page now also lists plugin releases, named
+  "Plugin · …". The app's installer is in the newest release named "PitCrew v…". The plugin source and
+  the guide for plugin authors are in the `plugins/` folder of the public repository.
 
 ### Fixed
+- **A plugin with damaged files now says it can't start, instead of saying it isn't installed.**
+  When no serial port is found, the settings now say to plug the device in, and the list picks it up
+  on its own.
+- **Plugin screens work better with a keyboard and a screen reader.** A plugin's button keeps focus
+  after you press it, and the color editor puts focus back on the color you edited. A screen reader
+  now says when a plugin fails, restarts or comes back, and reads a setting's error with that
+  setting. Error text in plugin settings is easier to read, unlit pixels on a matrix show their
+  outline, and with no device plugged in the port row says so in a place the keyboard reaches.
+- **The phone and tablet show the Companion and PIT screens of the version you installed.** An
+  installer could carry the screens from an earlier build, so the race screen on the phone kept its
+  old layout after an update.
+- **PitCrew opens again after it updates itself.** When you accepted a new PitCrew from the update
+  panel, the window closed for the installer and did not come back. It now reopens when the install
+  is done.
 
 ### Removed
 

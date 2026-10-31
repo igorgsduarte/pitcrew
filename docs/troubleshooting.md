@@ -15,7 +15,7 @@ generation kept beside it as `race-engineer.log.1`.
 
 ## Windows blocked the installer
 
-Expected — the `.msi` is not code-signed. **More info → Run anyway.** See
+Expected — the installer is not code-signed. **More info → Run anyway.** See
 [installing](install.md#windows-will-warn-you-about-the-installer).
 
 ## The voice download stalls or fails

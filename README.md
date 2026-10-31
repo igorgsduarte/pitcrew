@@ -7,7 +7,8 @@ PitCrew uses **no voice-actor recordings**. Every line is synthesized, which buy
 vocabulary: it reads your actual opponents' names out of the session, spells out lap times, and
 combines words freely instead of picking from a fixed clip library.
 
-Windows 10 / 11, 64-bit. One `.msi`, no .NET, no Python, nothing else to install.
+Windows 10 / 11, 64-bit. One installer, no administrator rights, no .NET, no Python, nothing else
+to install.
 
 ---
 
@@ -16,7 +17,8 @@ Windows 10 / 11, 64-bit. One `.msi`, no .NET, no Python, nothing else to install
 **[Download PitCrew →](https://github.com/igorgsduarte/pitcrew/releases)**
 
 PitCrew is in **beta**, so its releases are marked as pre-releases and the newest one is at the top
-of that page. Grab the `.msi` from it. (The `/releases/latest` shortcut deliberately skips
+of that page. Grab the `-setup.exe` from the newest release named **PitCrew v…**. Releases named
+**Plugin · …** hold plugins, not the app. (The `/releases/latest` shortcut deliberately skips
 pre-releases, so it will only start working once there is a stable build.)
 
 Every release lists what changed in it. The full history is in [CHANGELOG.md](CHANGELOG.md).
@@ -25,7 +27,7 @@ Every release lists what changed in it. The full history is in [CHANGELOG.md](CH
 
 | | |
 |---|---|
-| [Installing](docs/install.md) | The `.msi`, the Windows SmartScreen warning, and what the first run downloads |
+| [Installing](docs/install.md) | The installer, the Windows SmartScreen warning, and what the first run downloads |
 | [Getting started](docs/getting-started.md) | Setting up your voice, the overlay, and what PitCrew says during a race |
 | [Voices and languages](docs/voices.md) | The local voice, the optional cloud voice, and which languages are spoken |
 | [Talking to your engineer](docs/voice-commands.md) | Hold a key and ask about fuel, position, gaps or laps left — recognised on your own PC |

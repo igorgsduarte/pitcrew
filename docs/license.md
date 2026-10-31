@@ -147,6 +147,9 @@ option.
 | tokenizers | 0.23.1 | Apache-2.0 |
 | sha2 | 0.10.9 | MIT OR Apache-2.0 |
 | tauri-plugin-dialog | 2.7.2 | Apache-2.0 OR MIT |
+| wasmtime | 50.0.0 | Apache-2.0 WITH LLVM-exception |
+| wasmtime-wasi | 50.0.0 | Apache-2.0 WITH LLVM-exception |
+| serialport | 4.10.1 | MPL-2.0 |
 
 ### Voice models
 
