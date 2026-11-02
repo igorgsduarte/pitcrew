@@ -18,6 +18,16 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.10.0] - 2026-11-02
+
+### Added
 - **The engineer tells you who just came close.** In a race, when a car of your class comes
   within about a second and a half under green, you hear one line about that driver: their
   licence and whether their lap times are getting quicker, steady or slower. When one of you has
@@ -154,10 +164,7 @@ dated one. See `docs/release-process.md`.
   or you towed or left mid-lap, an incident on that lap was missing from the Conduct tab and from the
   incident count. It now shows with its lap and time, marked as unfinished.
 
-### Removed
-
 ## [0.9.0] - 2026-10-31
-
 ### Added
 - **The engine can run plugins.** A plugin adds something PitCrew does not do itself, such as a
   flag display on an LED matrix. It runs apart from the engineer: a plugin that crashes, hangs or
