@@ -1,8 +1,8 @@
 <!--
 This page mirrors `apps/desktop-app/src/app/content/license.ts`, which is the canonical text and also
 drives the License dialog in Settings → About inside the app (credits list included). A third, condensed
-copy lives in `apps/desktop-app/src-tauri/license/PitCrew-EULA.rtf` — the one screen Windows' MSI
-installer can show — and is not meant to be a line-for-line duplicate of this page, only a faithful
+copy lives in `apps/desktop-app/src-tauri/license/PitCrew-EULA.rtf` — the licence page of the NSIS
+`-setup.exe` installer — and is not meant to be a line-for-line duplicate of this page, only a faithful
 summary of the same terms plus a short privacy notice. Keep this page in sync with `license.ts` by
 convention, the same way `docs/analytics.md` stays in sync with `what-pitcrew-sends.md`.
 

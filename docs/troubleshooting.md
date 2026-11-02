@@ -44,6 +44,16 @@ In roughly the order worth checking:
    The Voice screen will say so; the log will too.
 5. **Press Alt + R.** If the last message repeats, speech works and the real question is why nothing
    *triggered* — which is a different problem, and a much more interesting bug report.
+6. **Read the decision log.** Each session writes one file to
+   `%APPDATA%\race-engineer\decision-logs\`. Each line is one call: `fired` when it was said,
+   `suppressed` with a reason when it was held back. **Do not attach this file to a public issue:**
+   a call can name another driver in your session. Say in the issue that you have the file for that
+   session, and keep it. See [files that name other drivers](reporting-issues.md#files-that-name-other-drivers).
+7. **Record the next session.** Turn on **Record this session** in Sims → iRacing. The window
+   shows the file and its size, and the recording stops by itself when the session ends.
+   The recording lets the session be replayed call by call. **Do not attach it to a public issue
+   either:** it holds the name and iRacing ID of every driver in the session. Say in the issue that
+   you have it, and keep it.
 
 If the log has a line about the announcer giving up, that is a genuine defect and worth an issue with
 the log attached.
@@ -62,8 +72,9 @@ German voice, so switch that engineer to one of those engines before choosing Ge
 1. **Press Alt + H.** It toggles, and it may simply be hidden.
 2. **It may be off-screen.** The position is remembered, so a monitor you unplugged can leave it
    parked outside the desktop. Put it back with the overlay's edit mode from the main window.
-3. **iRacing in exclusive fullscreen** is supported. If the overlay is invisible only in
-   fullscreen and fine in windowed mode, that is a bug — please report it with your resolution and
+3. **iRacing is in exclusive fullscreen.** The overlay cannot be drawn over it. Switch iRacing to
+   borderless or windowed mode. The voice keeps working in every mode. If the overlay is invisible
+   in borderless or windowed mode too, that is a bug — please report it with your resolution and
    monitor layout.
 
 ## I clicked and it went into the game instead

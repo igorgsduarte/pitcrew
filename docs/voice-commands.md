@@ -237,7 +237,15 @@ The recogniser is [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/pa
 under CC BY 4.0, and it is credited on the [license page](license.md). PitCrew does not redistribute
 it: your PC downloads a pinned ONNX export when you press the button.
 
-## What it does not do yet
+## What it does not do
 
-- **It cannot command the car or change strategy.** *"Boxes essa volta"* is not a command it takes.
-  A misheard question costs a wrong sentence; a misheard instruction could cost a pit stop.
+- **It cannot call you in or change your strategy.** A command changes only the next stop: fuel,
+  tyres, fast repair and the tear-off, as in *Changing the pit stop* above. *"Boxes essa volta"* is
+  not a command it takes. Your pit plan stays as you made it; a fuel or tyre command only holds it
+  back until that stop.
+- **It cannot pick a tyre compound.** A tyre command chooses the corners. The compound stays as the
+  black box has it.
+- **It cannot change anything else on the car.** Brake bias, traction control and the other in-car
+  settings are still yours to set.
+- **It does not act on a half-heard command.** A command needs every word, and a *"não"* it does
+  not expect refuses it. See [Changing the pit stop](#changing-the-pit-stop).

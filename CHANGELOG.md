@@ -18,10 +18,141 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+- **The engineer tells you who just came close.** In a race, when a car of your class comes
+  within about a second and a half under green, you hear one line about that driver: their
+  licence and whether their lap times are getting quicker, steady or slower. When one of you has
+  pitted and the other has not, the line says that too. Each driver gets this line once per race,
+  in the Normal and Coach modes.
+- **The engineer remembers your opponents.** After each race you finish, the engineer keeps the
+  drivers of your class and how the race against each one ended. When one of them is near you in a
+  later race, you hear it, for example "Bruno Silva de novo. Na última corrida juntos, terminou na
+  sua frente." The memory stays on this PC. To delete it, open Settings → Data → Opponents and
+  press Forget opponents.
+- **Rookie mode adds a short word to the race briefing.** Before the race, the engineer tells you
+  the incident limit and how the race starts, and reminds you that the goal on lap one is a clean
+  turn one. Turn on Rookie mode to hear it.
+- **You can see when the engineer is muted.** The title bar shows "Engineer muted" while the
+  engineer is muted, by Alt+M or by voice. With the in-game overlay on, it shows the same note
+  on track. Press Alt+M to unmute.
+- **The engineer praises a clean pass.** When you pass a car of your class with no incident in
+  the seconds before, you hear a short word of praise with the driver's name and your new
+  position, for example "Boa, sem incidente! Passou Lima e subiu pra segundo."
+- **Rookie mode helps you after a spin.** If you spin and stop on track while a car is coming,
+  the engineer tells you to hold the brakes, then tells you when the cars have passed. Turn on
+  Rookie mode to hear it.
+- **Rookie mode keeps the radio quiet until you are through the first corner.** On the first
+  lap of a race, only the spotter, flags and urgent warnings speak until you are past turn one.
+  On the formation lap you hear one reminder, and if you get through turn one with no incident
+  the engineer tells you so. Turn on Rookie mode to hear it.
+- **Rookie mode tells you when it is safe to rejoin.** If you stop off track while a car is
+  coming, the engineer tells you to wait and how many seconds away the car is, then tells you when
+  you can go. Turn on Rookie mode to hear it.
+- **The engineer says who you passed and who passed you.** When you gain or lose a place to a
+  car of your class, you hear the driver's name, for example "Costa passou. Agora você tá em
+  terceiro." When the engineer cannot tell which car it was, you hear the same call as before,
+  without a name.
+- **The engineer tells you when a car of your class is pressing you or is within reach.** In a
+  race, when a car of your class stays within one second behind you for a few seconds, the
+  engineer warns you and tells you to defend. When you are within one second of a car of your class
+  ahead, the engineer tells you that you can attack. Each car is called once until it drops back.
+  The calls wait for the spotter, and they play in the Normal and Coach modes.
+- **In Coach mode the engineer tells you the gap ahead and behind during a race.** Every three
+  laps, the engineer names the car ahead and the car behind and the gap to each, when that car is
+  within three seconds. The call waits until no car is alongside, so it never talks over the
+  spotter. When the engineer has just told you that a gap is closing, the report leaves that car
+  out.
+- **You choose how much the race engineer says.** Pick **Short**, **Normal** or **Coach** in Pit
+  strategy → Engineer, or say "modo curto", "modo normal" or "modo treinador" on the radio. On
+  track the engineer confirms it. Short keeps the spotter, flags, penalties, car health, fuel, your
+  own pit calls and the race start, and leaves out the routine gap reports, positions, lap times,
+  briefings and the guesses about a rival's pit stop. Normal is what the
+  engineer says today. Coach is Normal plus coaching lines: the practice goal and the gap report
+  below.
+  Answers to your questions play in every mode. The bottom bar of the window shows the
+  current mode, and a click on it opens the setting.
+- **Rookie mode, for new drivers.** Turn it on in Pit strategy → Engineer, with any engineer mode.
+  It adds short calls about how to behave on track: when to rejoin after an off, what to do after a
+  spin, a calm first lap. These calls always wait for the spotter and never say whose fault a
+  contact was. If your iRacing licence in the session is R or D, the window offers it to you once.
+  The calls themselves arrive in later updates, so for now the switch changes nothing you hear. The
+  bottom bar shows "Rookie" while it is on.
+- **You can set a goal for practice and hear how it goes.** In Pit strategy → Engineer, pick
+  **Clean laps**, **Consistency** (laps within a band of your median lap) or **Fuel** (laps under a
+  fuel figure per lap, in your sim's units, with your average as a hint), and how many laps must
+  count. In a practice session the engineer says the goal when you start, your progress every few
+  laps and when you reach the goal, in Coach mode. The Debrief keeps each
+  practice session that had a goal, with the result and the laps that counted.
+- **PitCrew keeps a log of every call in each session.** For each session, the engine writes one
+  file in `%APPDATA%\race-engineer\decision-logs\` with every call it said and every call it
+  held back, with the reason, such as a cooldown, a car alongside or the wrong moment in the race.
+  When you think a call was missing, the log shows why. Old logs are removed on their own, and
+  `decisionLog` in `tuning.json` sets the size limits or turns the log off.
+- **You can record a session from the window.** Turn on **Record this session** in Sims → iRacing.
+  The window shows where the file is and how big it is. The recording stops by
+  itself when you leave the session or a new event starts. The file lets the session be replayed
+  call by call. It holds the name and iRacing ID of every driver in the session, so do not attach it
+  to a public issue.
+- **The debrief has a conduct report.** A new Conduct tab lists every incident iRacing reported in
+  the race, in order: what happened (car contact, contact with a wall, off track or loss of control),
+  the lap and the session time. Incidents on lap 1 are marked as the start, and a count per kind
+  sits on top. Click a lap to open it in the lap sheet. Races recorded before this version show the
+  kinds without a session time.
 
 ### Changed
+- **The guides now say to run iRacing in borderless or windowed mode for the overlay.** They used
+  to say exclusive fullscreen works. It does not: the game covers the overlay. The voice works in
+  every mode.
+- **The sims have their own screen.** **Sims** in the rail (Alt+9) holds iRacing's settings editor,
+  Display (field of view and the curved-monitor correction) and Assetto Corsa. Settings now holds only
+  the app: General, Data & storage, and Phone & tablet, where the dash's connection and its frame rate
+  now sit together.
+- **Pit stop and briefing switches moved to Pit strategy.** "Arm the next stop automatically", "Let
+  the live plan act" and "Brief me before each session" are on the new **Engineer** tab of Pit
+  strategy.
+- **Field of view uses the curve correction's screen while it is on.** The diagonal, aspect, distance,
+  screens and curve radius come from Curved monitor and are shown read only, so the two sections can
+  no longer disagree about your rig. The note that Field of view writes nothing to iRacing while the
+  correction is on is now at the top.
+- **Settings is shorter.** Hotkeys shows the four keys that work on track and keeps the screen keys
+  behind a link. Startup, Window zoom and the dash rate say less, and Storage counts every model you
+  downloaded rather than naming only Kokoro.
 
 ### Fixed
+- **The live plan no longer waits for an answer that was lost.** If you answer a proposal, on the
+  desktop or on the phone, or change the profile on the phone, and the engineer's confirmation
+  never reaches the screen, the screen now sees that the live plan has changed and says that it
+  shows what is saved, instead of "result unknown".
+- **The window follows the sim again.** The title bar's sim status and the overlay's automatic
+  show and hide in a session updated only when the window opened. They now follow the sim
+  while the app runs.
+- **The engineer tells you that you are closing on a car even when another car passes you.**
+  Before, a car that passed you, or came near for one lap, made the engineer start counting again.
+  So in a race with position changes you often heard no "closing" or "car behind is closing" call.
+  Now the engineer follows each car on its own and makes the call after three laps of closing.
+- **Small wording fixes on the Sims and Settings screens.** "1 sessions" and "1 value differ" read
+  correctly, the correction's dates are in English, and a few labels say "center" instead of "centre".
+- **A live-plan answer with no reply no longer says that nothing changed.** When you accept or decline
+  a proposal, or change the profile on the phone, and the race engineer does not reply within four
+  seconds, PitCrew and the PIT screen now say the result is unknown and point you to the live plan.
+  The change may have been applied. If the reply comes later, the screen shows it.
+- **The voice-command guide no longer says your engineer cannot command the car.** Its limits now
+  match the pit-stop commands: you can set fuel, tyres, fast repair and the tear-off by voice, but
+  you cannot call yourself in, pick a tyre compound or change your pit plan.
+- **The troubleshooting guide no longer tells you to post a decision log or a session recording in a
+  public issue.** Both files can name other drivers, and a recording also holds their iRacing IDs.
+  "Reporting a problem" now lists these files and says to keep them instead.
+- **Playing a replay no longer deletes the call log of a real race.** A replay played in PitCrew
+  wrote its own files into `decision-logs\`, and enough of them made PitCrew remove the oldest race
+  logs to stay under the size limits. Only live sessions write a call log now.
+- **A quick second click on "Record this session" no longer damages the recording.** The switch now
+  waits until the recording has started, and PitCrew never starts a second recording or writes over
+  an existing file.
+- **The recording card shows the last file after you switch between live and a replay.** It now says
+  the recording stopped because telemetry switched. The switch is off while a replay plays, so you
+  can no longer record a replay by mistake.
+- **The debrief keeps an incident on your last lap.** When the race ended before you crossed the line,
+  or you towed or left mid-lap, an incident on that lap was missing from the Conduct tab and from the
+  incident count. It now shows with its lap and time, marked as unfinished.
 
 ### Removed
 

@@ -16,6 +16,10 @@ body:
         Paste that into Explorer's address bar. See
         [docs/reporting-issues.md](https://github.com/igorgsduarte/pitcrew/blob/main/docs/reporting-issues.md).
 
+        **Do not attach a decision log (`decisions-*.ndjson`) or a session recording (`.bin`).** This
+        issue is public, and those files hold other drivers' names; a recording also holds their
+        iRacing IDs. Say that you have the file, and keep it.
+
   - type: input
     id: version
     attributes:

@@ -71,7 +71,11 @@ A transparent, always-on-top window over the sim: proximity bars for cars alongs
 radio-style area where the last message appears as text.
 
 It is **click-through** — your mouse passes straight through it into iRacing, so it cannot steal a
-click. It also keeps working with iRacing in exclusive fullscreen.
+click.
+
+**Run iRacing in borderless or windowed mode** to see the overlay. In exclusive fullscreen the game
+covers every other window, the overlay included. The Overlay screen in the main window warns you when
+iRacing looks like it is in exclusive fullscreen. The voice works in every mode.
 
 To move it, switch the overlay into edit mode from the main window; then it accepts the mouse and
 you can drag it where you want. Its position is remembered per install, not per session.
@@ -86,7 +90,7 @@ whole point is that you should not be reading anything at 200 km/h.
   and when you are three wide you hear which of the three you are.
 - **Fuel** — how much you are using per lap, whether it gets you to the end, and warnings as the
   tank runs down.
-- **Your pit plan, live (beta)** — with **Settings → Pit stops → Let the live plan act** on, the
+- **Your pit plan, live (beta)** — with **Pit strategy → Engineer → Let the live plan act** on, the
   strategist tells you when your saved plan needs a stop more or a stop less, when a stop moves,
   when a little fuel saving would drop a stop, and when a fuel amount you set by hand falls short.
   None of these changes the plan until you accept it on the PIT page or on the phone.

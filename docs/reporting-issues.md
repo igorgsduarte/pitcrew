@@ -35,8 +35,22 @@ Please include:
 
 ## What it is safe to attach
 
-The log records events, paths and errors — not your iRacing credentials and not an API key. Have a
-look before you attach it if you would rather be sure; it is plain text.
+The log records events, paths and errors — not your iRacing credentials and not an API key. When a
+call fails to play, the log quotes that call, and a call can name another driver. Have a look before
+you attach it if you would rather be sure; it is plain text.
+
+## Files that name other drivers
+
+The issue tracker is public: anyone can read and download what you attach. Two files can help with a
+bug about a call, but they hold data about other people. **Do not attach them to an issue.**
+
+| File | Where it is | What it holds |
+| --- | --- | --- |
+| Decision log (`decisions-*.ndjson`) | `%APPDATA%\race-engineer\decision-logs\` | Every call of one session, with its text. A call can name another driver. |
+| Session recording (`.bin`) | The file that **Record this session** shows in Sims → iRacing | The session data from iRacing, with the name and iRacing ID of every driver in the session. |
+
+If you have one of these files for the session with the problem, say so in the issue and keep the
+file.
 
 ## Asking for something new
 
