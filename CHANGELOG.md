@@ -18,6 +18,16 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.11.0] - 2026-11-18
+
+### Added
 - **A fourth voice on your crew: the Coach.** The coaching lines — where you lose time against a
   reference, your problem corners, clean-corner and clean-lap streaks, practice goals, fuel lift
   points and burn zones, pace drops and a new personal best — now come from the Coach. Give the
@@ -226,10 +236,7 @@ dated one. See `docs/release-process.md`.
 - **The Record this session card no longer says the file is for a bug report**, and the reporting
   guide says what the decision log holds more exactly.
 
-### Removed
-
 ## [0.10.0] - 2026-11-02
-
 ### Added
 - **The engineer tells you who just came close.** In a race, when a car of your class comes
   within about a second and a half under green, you hear one line about that driver: their
