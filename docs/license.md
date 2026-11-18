@@ -91,6 +91,7 @@ ask for nothing.
 | @fontsource/martian-mono | 5.3.0 | OFL-1.1 |
 | @fontsource/space-grotesk | 5.3.0 | OFL-1.1 |
 | @radix-ui/react-dialog | 1.1.23 | MIT |
+| @radix-ui/react-dropdown-menu | 2.1.24 | MIT |
 | @radix-ui/react-label | 2.1.15 | MIT |
 | @radix-ui/react-select | 2.3.7 | MIT |
 | @radix-ui/react-slider | 1.4.7 | MIT |

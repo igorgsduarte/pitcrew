@@ -18,10 +18,213 @@ dated one. See `docs/release-process.md`.
 ## [Unreleased]
 
 ### Added
+- **A fourth voice on your crew: the Coach.** The coaching lines — where you lose time against a
+  reference, your problem corners, clean-corner and clean-lap streaks, practice goals, fuel lift
+  points and burn zones, pace drops and a new personal best — now come from the Coach. Give the
+  Coach its own engine, voice, language and speed, or leave it alone: until you change something,
+  it sounds exactly like your race engineer, so nothing new is downloaded or generated. These lines
+  stay with the Coach even if you moved their category to another engineer.
+  *Voice → Engineers* now shows your crew as four portraits; click one to set up that voice in a
+  drawer.
+- **PitCrew Academy opens with its first lesson: the flags that warn of danger and run the session.**
+  A narrated animation of about two and a half minutes shows the green, yellow, full-course caution,
+  white and checkered flags as the iRacing Sporting Code defines them. The narration is in English,
+  with captions and a transcript in English or Brazilian Portuguese. After the video you make a call
+  under a local yellow and watch what your answer does on track. The Academy looks like the PitCrew
+  app, and your progress stays in your browser.
+- **League points, multiclass, team and rallycross results, and your final result on the phone.**
+  In a league race, PitCrew now counts your points and keeps a season table per league on a new
+  Leagues tab, built from the league races you drove. The default table is 25-22-20-18-16-15-14-13-12-11-10-9-8-7-6-5-4-3-2-1
+  per class; set your own per league in `tuning.json`. After a league race your engineer tells
+  you your points and your place in the season ("mais vinte e dois pontos na liga"), also when it
+  is a single point or a tie at the top ("empatados em pontos na ponta do campeonato"). A multiclass
+  result shows each class in the sim's order with its winner, strength of field and best lap, marks
+  yours, and shows your overall place; a class win gets its own line on the radio. A team race
+  shows each team with its drivers, their laps and their incidents, and your engineer tells you
+  your share of the car, one incident included. Ovals add the lead changes, and rallycross adds
+  the joker laps. On the Companion, the final classification replaces the pit wall at your
+  checkered flag, names drivers in short ("Lehmann, M") and updates until the result is official.
+- **A Results screen, records and rival numbers.** A new Results screen, after Debrief, lists
+  every iRacing session PitCrew kept: your result, the strength of field, your incidents and your
+  estimated iRating change. Open one to see the whole result table, the cars that went out and the
+  fastest lap. Records shows your best finish, laps led and clean races in a row for each car and
+  track, and Trends draws your incidents per race and your iRating over time, week by week in each
+  season. Filter by car and track. The lists show the short track name; point at it for the full
+  name and layout. When a race sets a new record for that car and track, your engineer tells you after the
+  debrief ("são três corridas limpas seguidas com esse carro aqui, recorde nosso!"). A race with 2 incidents or fewer
+  counts as clean; you can change that number in `tuning.json`. On the Drivers screen, each
+  driver now shows their average finish, their incidents per race and the races you had together.
+- **A fuller race debrief, with an iRating estimate.** After the checkered flag, your engineer now
+  also tells you the laps you led, your best lap against the fastest lap in your class, how many
+  cars that started ahead of you retired, and the cautions. In an official race it adds an
+  estimate of your iRating change ("pela conta da comunidade, o iRating deve subir uns trinta
+  pontos"). It is always an estimate from the community formula; the official number comes with
+  iRacing's results. Before a race, the garage briefing tells you the strength of field of your
+  class, and before an official race also the place you need to gain iRating. PitCrew also keeps the result of every
+  practice, qualifying and race session on your computer, for the results features to come.
+- **Retirements, your place in the field, and qualifying against race pace.** In a race, once
+  three cars of your class are out and one of them was ahead of you, your engineer tells you the
+  count and the place you are in now ("já são cinco abandonos na classe, dois deles na sua
+  frente"). In practice and qualifying, after you improve your best lap, you hear how far you
+  are from the top of your class and whether you are in its fastest part ("entre os trinta por
+  cento melhores"). After a race, the debrief compares your grid slot with your race pace in your
+  class and tells you where the gain is: in qualifying or in race pace.
+- **Clean laps in a row in practice.** In practice, your engineer counts your laps in a row with
+  no incident and tells you at 5, 10, 15 and 20 laps, then every 10 ("cinco voltas limpas
+  seguidas"). An out lap, an in lap or a lap under caution does not count but does not break the
+  run; any incident point or report starts it again. Every practice session now gets a debrief,
+  with or without a practice goal, and Debrief → Conduct shows your best run, your run at the end
+  and your clean laps.
+- **Count your clean corners, the way Safety Rating does.** Your engineer counts each corner you
+  drive with no new incident point, one streak for each licence category. The streak carries on
+  across sessions, cars and tracks, and any incident point sets it back to zero. At 50, 100, 200,
+  300, 500, 750 and 1,000 corners in a row, and every 500 after that, your engineer tells you
+  ("cem curvas limpas seguidas"). Home shows your streak, your best and the next call. Debrief →
+  Conduct shows the corners of the race, the corners per incident point, your longest clean run and
+  the streak at the flag. Counting starts at a track once a clean lap has taught your engineer
+  where the corners are.
+- **Your engineer remembers where you went off.** When you spin, go off or hit the wall, your
+  engineer keeps that corner for the car and track. In a later session, on the straight before that
+  corner, it warns you ("aqui você rodou ontem"). It warns at most once a lap, and about each corner
+  once a session. Contact with another car is not kept.
+- **Watch your incidents in the iRacing replay.** After a race, when you are back in the garage, a
+  small window on top of iRacing lists your incidents with their lap and sector. Click one and the
+  iRacing replay goes to 10 seconds before it. Drag the window where you want it; it keeps that
+  place. It closes when you go back on track or start another session. A clean race shows no
+  window.
+- **Tag the drivers you race.** After a race, open the new Field tab of the debrief and tag a
+  driver: dirty, unfair, blocks in corners, reckless, late lunges, clean or fast. You can add a
+  note that only you see. The new Drivers page lists everyone you raced, with your score against
+  each driver, their tags and your note. When a tagged driver comes near you in a race, your
+  engineer warns you ("cuidado com Diego, joga sujo"). The warning comes again each time the
+  driver comes back, at most once in five minutes.
+- **Your engineer names the drivers you know on the grid.** Before the start, your engineer names
+  up to three drivers you raced before, the tagged ones first.
+- **Eight more questions for your engineer.** Ask how long until the box ("quanto falta pro box?"),
+  how much a stop costs, where you rejoin after a stop, how the wind is on the longest straight,
+  whether the track is wet or it is raining, how many places you gained since the start, which lap
+  you are on, and the pit speed limit.
+- **Your career on Home.** Home shows your licence and iRating for each category you race. Pick a
+  category to see your iRating over its official races, with how many were clean, your incidents
+  per race, wins and podiums. Your recent races are cards with the strength of field, your result,
+  incidents, best lap and the iRating each race gained. A race is clean when you finish it with at
+  most half the incident limit. In a multiclass race, your result and your wins and podiums count
+  your place in your class. Races from before this version have no iRating or licence.
+- **The engineer calls the tyres in the rain.** In a wet race, the engineer says how many laps until
+  wets (or slicks again) are faster. When the track gets there, or is near it and the cars in your
+  class on wets are faster or your own laps get slower, the engineer asks "box for wets?". Say
+  "accept" or "decline", tap the answer on the tablet, or press a key or wheel button you set in Pit
+  strategy › Pit stops. A yes sets the wets on all four tyres in iRacing and in your plan's next stop.
+- **See the conditions on the tablet.** The PIT page shows the track wetness, the rain, the track and
+  air temperature, the sky, the humidity and the wind against the longest straight, with how fast the
+  track is changing and how many cars in your class are on each tyre.
+- **Hear the wind.** The garage briefing says the wind on the longest straight, such as a headwind
+  of 15 km/h. In a race, the engineer tells you when it turns or its speed changes.
+- **See where the fuel goes, and hear where to lift.** After 5 clean laps with a car, track and fuel
+  mixture, Debrief → Fuel shows each straight and corner section's share of a lap's fuel, and where
+  a lift saves the most. After the race debrief, the engineer names the two stretches that use the
+  most fuel. In a race where the fuel will not reach the finish, the engineer tells you once to lift
+  some metres before the end of a straight, such as the longest one, and what that saves a lap. It
+  speaks again only when the shortfall changes.
+- **See when you raced.** The season stats on Home now share one panel with a 26-week calendar.
+  Each day's square gets brighter with the laps you raced that day. Point at a day to see its date,
+  races and laps. Today is outlined. When the race log is full, the days before its oldest race show
+  as not recorded rather than as days off.
+- **Choose how quiet the engineer is in corners.** Voice › Behaviour has a *Quiet in corners*
+  setting. *Off* lets routine calls play at once, *Light* waits for a straight that fits most of the
+  line, and *Strict* waits for one that fits all of it. It shows whether the current track is
+  learned and its longest straight, and *Relearn* forgets the track so your next clean lap teaches it
+  again. The spotter, flags and alerts never wait for a straight.
+- **Home shows what will work before you drive.** One card checks the sim, telemetry, the voice,
+  your controls and the phone dash. Each check that is not working says what to do next, and
+  the tooltip of the ready checks says which automation is on. The phone and the wheel buttons are optional and never mark you
+  as not ready.
 
 ### Changed
+- **The app window no longer selects text when you click or drag.** Only the fields you type into
+  stay selectable, plus the phone dash address and the curved-monitor log, which you may want to copy.
+- **Engineer settings moved to Voice.** Engineer mode, Rookie mode, the quiet zones, the practice
+  goal and the garage briefing are now on Voice › Behaviour, and the engine switches on the Engines
+  card of Voice › Engineers. The radio language and the language of your voice-command phrasings are set on the
+  Language page.
+- **A cleaner, denser window.** Buttons, fields and switches are smaller and flatter, the accent
+  colour no longer glows, and page titles, cards and lists are tighter, so more of each screen fits
+  in the default window.
+- **The Plugins screen shows one row per plugin** with its status, its switch and Open. A plugin's
+  own screen uses the same look.
+- **Settings picks the cockpit dash network from a list.** Settings has no Refresh buttons now, and
+  Window zoom is a list from 50 % to 100 %.
+- **Sims puts the session recording switch and the iRacing status in the page header.** The
+  sliders of the iRacing essentials are number fields now, and they keep every decimal of the file.
+- **"Object contact" replaces the old incident label** on Debrief and in the incident window. At
+  this track on Debrief shows the last five sessions with this car, practice included.
+- **Home shows the ready checks as badges.** Only a check that needs work shows a button.
+- **Pit strategy keeps the plan actions in a More menu.** New, rename, duplicate, *Arms itself* and
+  delete are in the menu, and the Engineer tab is now Pit stops. In a window less than 760 px tall,
+  the tank chart is behind a Chart switch.
+- **Language shows one row per event.** Play the main line, and open the other variants under it.
+  On You ask, you can also type a new way to ask, next to Record.
+- **Overlay settings is one card.** Pick the banner style from a list. The style previews and the
+  saved position are not shown now.
+- **The Conduct tab of the debrief shows the sector of each incident** in place of its session
+  time. A race recorded before this version shows no sector.
+- **A new start screen.** While PitCrew starts, a gantry of five lights comes on, one for each part
+  of the start that finishes. When all five are lit they go out together and the app opens. If the
+  start takes long, the screen says so; if the race engineer on this PC does not match PitCrew, it
+  says what to update.
+- **Home is laid out around your career.** Your licences run across the top, your recent races are
+  cards, and the season stats with the activity calendar sit under the iRating trend. "Before you
+  drive" moved to the side column, and the full race table opens from "All" in Recent races.
+- **The relative board shows gaps from the first lap.** It used to wait for your first timed lap
+  and show the standings until then. It now reads iRacing's own time estimate, so each gap matches
+  how long it really takes to reach that car, also on tracks with long straights and slow sectors.
+  A pit lap or a spin no longer distorts the gaps of the next lap.
+- **Traffic calls use the same gap as the board.** The engineer and the board no longer give two
+  different numbers for one car, and traffic calls work before your first timed lap.
+- **Where the sim gives no time estimate, PitCrew learns your lap.** In Assetto Corsa, your clean
+  laps at each track and car class teach a lap-time table, and the board uses it from then on, in
+  later sessions too.
+- **The phone dash refreshes at 10 Hz by default on new installs.** An existing install keeps the
+  rate it has. To change it, pick a rate in Settings → Phone & tablet.
 
 ### Fixed
+- **A cloud voice error is reported instead of played as noise.** When ElevenLabs or Azure answered
+  a line with an error message but a success code, PitCrew played that message as sound. Now that
+  answer counts as a failed request, like any other cloud voice error.
+- **A routine line waits its turn instead of being lost.** When several of your engineer's lines
+  came at the same moment, for example the field strength and the drivers on the grid at the start,
+  a line that had to wait for another one was often never said. Now it waits up to 20 seconds for
+  its turn. Spotter calls and alerts still play at once or not at all.
+- **The relative follows your pace when it drops for good.** After you learned a track in the dry,
+  a wet race or a slower setup made every new lap too slow to count. The relative times then kept
+  the dry pace. Now three clean laps at a steady slower pace replace what was learned. This matters most
+  in Assetto Corsa, where the learned laps are the main source of the relative.
+- **The selected tiles on the PIT page are readable.** The selected stop, tyre, corner and answer
+  showed yellow text on a yellow fill. They now use dark text.
+- **Less than a litre sounds right.** The engineer said "zero liters point five". Now it says "zero
+  point five liters".
+- **The engineer talks again on twisty tracks.** On a lap with one long straight, such as Sebring,
+  calls about positions, passes and the cars around you waited for that straight, ran out of time and
+  were lost, so only the spotter spoke. A call now waits up to one lap and plays on the best straight
+  it can still reach.
+- **The debrief keeps your last lap when the leader finishes first.** The race now waits until you
+  cross the line, leave the car or the session cools down, so the last lap has its time and fuel.
+- **A race that ends on lap 1 has a debrief.** After a crash, a tow or a disconnect on the opening
+  lap, the Debrief screen shows the race, says why it has no lap times, and lists what iRacing
+  reported.
+- **The Conduct tab no longer says your last lap did not finish when you did.** If a lap is still
+  open after the checkered flag, it says the race was filed while that lap was still open. A new race
+  with points but no report no longer reads as an old one.
+- **A race briefing at a pit stop no longer says the pre-race lines.** If your first garage briefing
+  of a race comes after the green, the engineer leaves out "the race is coming", the start type and
+  the Rookie mode lines, and gives the conditions and pressures only.
+- **Record this session says when telemetry has stopped.** It used to say that a recording was
+  already running.
+- **Changing the engineer mode by voice and in the window at the same moment no longer disagrees.**
+  The later choice wins, and if a voice change cannot be saved, the engineer no longer confirms it.
+- **Two German lines say "Incident"**, as the rest of the German catalog does.
+- **The Record this session card no longer says the file is for a bug report**, and the reporting
+  guide says what the decision log holds more exactly.
 
 ### Removed
 

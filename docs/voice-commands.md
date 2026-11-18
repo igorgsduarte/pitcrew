@@ -123,6 +123,14 @@ language; the examples below are in Portuguese regardless of what language your 
 | Licence | *"minha licença"* | Your licence class and safety rating |
 | Strength of field | *"força do grid"* | The strength of field of your class |
 | Temperatures | *"temperatura da pista"* | Track and air temperature |
+| The next stop | *"quanto falta pro box?"* | Laps until the stop the engineer plans, "box this lap", or that the fuel reaches the end |
+| Pit loss | *"quanto eu perco no box?"* | How much time a stop costs, once it is measured |
+| Where you rejoin | *"onde eu volto se parar?"* | Your place after a stop on the planned lap, and the car you come out behind |
+| Wind | *"tá ventando?"* | The wind on the longest straight: against you, behind you or across, and how strong |
+| Rain | *"vai chover?"*, *"pista molhada?"* | How wet the track is now, and whether it is raining now. There is no forecast |
+| Places since the start | *"quantas posições eu ganhei?"* | Your class place at the start and now |
+| Current lap | *"em que volta?"* | The lap you are on, and of how many in a race run to a lap count |
+| Pit speed limit | *"qual o limite do box?"* | The pit lane speed limit, in your units |
 | Say that again | *"fala de novo"* | The last call, repeated |
 | Silence | *"cala a boca"* | The engineer stops speaking |
 | Speak again | *"volta a falar"* | It starts again |

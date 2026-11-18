@@ -14,12 +14,25 @@ the spotter, fuel, pit, penalties, session calls — which are generated once an
 disk, so a race does not wait on the network.
 
 You can override the assignment per category in the app's settings if you disagree with it, and you
-can also choose which engine each of the three — the race engineer, the race strategist and the
-spotter — speaks through.
+can also choose which engine each of the four — the race engineer, the race strategist, the spotter
+and the coach — speaks through.
+
+## The coach
+
+The coach reads the coaching lines: where you lose time against a reference, your problem corners,
+your clean-corner and clean-lap streaks, practice goals, where to lift for fuel, a drop in pace and a
+new personal best. These lines belong to the coach whatever category they sit in, so moving a
+category to another engineer does not move them.
+
+Until you change something for the coach, it **follows your race engineer**: same engine, same voice,
+same language, same speed. Its lines are then the same audio as the race engineer's, so a fresh
+install downloads and generates nothing extra for it. Change any one setting, or press *Use own
+voice*, and the coach keeps its own from then on.
 
 ## Where you choose it
 
-`Voice → Engineers` has a card per engineer, and opening one asks three questions in order:
+`Voice → Engineers` shows your crew as four portraits. Each one has a play button that reads a line in
+that voice. Click a portrait anywhere else and a drawer rises with three questions in order:
 
 1. **On this PC, or online.** Not which engine — what *kind* of engine. On this PC downloads once, works
    offline and costs nothing; online needs an account and is billed per character.
